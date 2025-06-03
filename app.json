@@ -1,0 +1,92 @@
+{
+	"expo": {
+		"name": "airtimely",
+		"slug": "airtimely",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon.png",
+		"userInterfaceStyle": "light",
+		"newArchEnabled": true,
+		"splash": {
+			"image": "./assets/splash-icon.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#0E9898"
+		},
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#0E9898"
+			},
+			"edgeToEdgeEnabled": true,
+			"package": "com.anonymous.airtimely"
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		},
+		"plugins": [
+			[
+				"expo-font",
+				{
+					"fonts": [
+						{
+							"fontFamily": "Bebas Neue Pro",
+							"fontDefinitions": [
+								{
+									"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.ttf",
+									"weight": "800",
+									"style": "normal"
+								},
+								{
+									"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.ttf",
+									"weight": "400",
+									"style": "italic"
+								}
+							]
+						}
+					],
+					"android": {
+						"fonts": [
+							{
+								"fontFamily": "Bebas Neue Pro",
+								"fontDefinitions": [
+									{
+										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.ttf",
+										"weight": "800",
+										"style": "normal"
+									},
+									{
+										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.ttf",
+										"weight": "400",
+										"style": "italic"
+									}
+								]
+							}
+						]
+					},
+					"ios": {
+						"fonts": [
+							{
+								"fontFamily": "Bebas Neue Pro",
+								"fontDefinitions": [
+									{
+										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.woff2",
+										"weight": "800",
+										"style": "normal"
+									},
+									{
+										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.woff2",
+										"weight": "400",
+										"style": "italic"
+									}
+								]
+							}
+						]
+					}
+				}
+			]
+		]
+	}
+}
