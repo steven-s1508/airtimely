@@ -14,8 +14,8 @@ jobs:
           response=$(curl -s -w "%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.FUNCTION_SECRET }}" \
             -H "Content-Type: application/json" \
-            https://${{ secrets.SUPABASE_PROJECT_REF }}.supabase.co/functions/v1/update-live-data)
-          
+            https://${{ secrets.SUPABASE_PROJECT_REF }}.supabase.co/functions/v1/quick-service)
+            
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
           
