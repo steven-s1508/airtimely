@@ -1,11 +1,12 @@
 // React / React Native Imports
 import React from "react";
-import { StyleSheet } from "react-native";
-import { SafeAreaView, SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, initialWindowMetrics } from "react-native-safe-area-context";
 // Expo Imports
 import "expo-dev-client";
+import { StatusBar } from "expo-status-bar";
+import { ExpoRoot } from "expo-router";
 // Gluestack UI Imports
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { GluestackUIProvider } from "@/src/components/ui/gluestack-ui-provider";
 import { ToastProvider } from "@gluestack-ui/toast";
 // 3rd Party Imports
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,8 +14,7 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Local Imports
-import { CACHE_TIME_STALE_LONG } from "./app/constants/apiConfig";
-import Navigation from "./app/navigation";
+import { CACHE_TIME_STALE_LONG } from "./src/constants/apiConfig";
 import "@/global.css";
 
 // Create the client
@@ -40,24 +40,20 @@ persistQueryClient({
 });
 
 export default function App() {
+	const ctx = require.context("./app");
+
 	return (
 		<SafeAreaProvider initialMetrics={initialWindowMetrics}>
-			<GluestackUIProvider mode="light">
-				<ToastProvider>
-					<QueryClientProvider client={queryClient}>
-						<Navigation />
-					</QueryClientProvider>
-				</ToastProvider>
-			</GluestackUIProvider>
+			<SafeAreaView style={{ flex: 1, backgroundColor: "transparent" }}>
+				<GluestackUIProvider mode="light">
+					<ToastProvider>
+						<QueryClientProvider client={queryClient}>
+							<ExpoRoot context={ctx} />
+						</QueryClientProvider>
+					</ToastProvider>
+				</GluestackUIProvider>
+				<StatusBar style="auto" />
+			</SafeAreaView>
 		</SafeAreaProvider>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#fff",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-});

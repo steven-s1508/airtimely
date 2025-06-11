@@ -43,8 +43,9 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
-    // @generated begin xml-fonts-init - expo prebuild (DO NOT MODIFY) sync-3310b5754ed8a559bb743f2763bd0fae6e629e7c
+    // @generated begin xml-fonts-init - expo prebuild (DO NOT MODIFY) sync-0b195ff7ed9d618b79e41e09a961025c1ed23645
     ReactFontManager.getInstance().addCustomFont(this, "Bebas Neue Pro", R.font.xml_bebas_neue_pro)
+    ReactFontManager.getInstance().addCustomFont(this, "Noto Sans", R.font.xml_noto_sans)
     // @generated end xml-fonts-init
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

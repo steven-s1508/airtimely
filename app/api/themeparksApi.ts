@@ -1,4 +1,8 @@
-import { DestinationEntry, DestinationsResponse, DestinationParkEntry, EntityChildrenResponse, EntityChild, EntityData, EntityLocation, EntityLiveDataResponse, EntityLiveData, EntityScheduleResponse, ScheduleEntry } from "../types/schemas";
+import { DestinationsResponse } from "@/src/types/themeparksWikiApi/destinations";
+import EntityData from "@src/types/themeparksWikiApi/entity";
+import EntityChildrenResponse from "@src/types/themeparksWikiApi/entityChildren";
+import EntityLiveDataResponse, { EntityLiveData } from "@/src/types/themeparksWikiApi/entityLive";
+import EntityScheduleResponse from "@src/types/themeparksWikiApi/entitySchedule";
 
 const API_BASE_URL = "https://api.themeparks.wiki/v1";
 const API_DESTINATIONS_URL = "/destinations";
@@ -50,7 +54,7 @@ export async function fetchEntityChildren(entityID: string): Promise<EntityChild
 }
 
 // Function to fetch schedule for a specific entity
-export async function fetchEntitySchedule(entityID: string): Promise<EntityScheduleResponse | null> {
+export default async function fetchEntitySchedule(entityID: string): Promise<EntityScheduleResponse | null> {
 	const url = API_ENTITY_SCHEDULE_URL.replace("{entityID}", entityID);
 	try {
 		const response = await fetch(`${API_BASE_URL}${url}`);

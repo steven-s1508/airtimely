@@ -2,13 +2,14 @@
 	"expo": {
 		"name": "airtimely",
 		"slug": "airtimely",
+		"scheme": "airtimely",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./assets/icon.png",
+		"icon": "./src/assets/icon.png",
 		"userInterfaceStyle": "light",
 		"newArchEnabled": true,
 		"splash": {
-			"image": "./assets/splash-icon.png",
+			"image": "./src/assets/splash-icon.png",
 			"resizeMode": "contain",
 			"backgroundColor": "#0E9898"
 		},
@@ -17,16 +18,17 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
+				"foregroundImage": "./src/assets/adaptive-icon.png",
 				"backgroundColor": "#0E9898"
 			},
 			"edgeToEdgeEnabled": true,
 			"package": "com.anonymous.airtimely"
 		},
 		"web": {
-			"favicon": "./assets/favicon.png"
+			"favicon": "./src/assets/favicon.png"
 		},
 		"plugins": [
+			["expo-router"],
 			[
 				"expo-font",
 				{
@@ -35,58 +37,51 @@
 							"fontFamily": "Bebas Neue Pro",
 							"fontDefinitions": [
 								{
-									"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.ttf",
-									"weight": "800",
+									"path": "./src/assets/fonts/bebas_neue_pro_semi_exp_italic.ttf",
+									"weight": "400",
+									"style": "italic"
+								},
+								{
+									"path": "./src/assets/fonts/bebas_neue_pro_bold_italic.ttf",
+									"weight": "700",
+									"style": "italic"
+								},
+								{
+									"path": "./src/assets/fonts/bebas_neue_pro_expanded_medium.ttf",
+									"weight": "500",
 									"style": "normal"
 								},
 								{
-									"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.ttf",
+									"path": "./src/assets/fonts/bebas_neue_pro_expanded_extra_bold.ttf",
+									"weight": "800",
+									"style": "normal"
+								}
+							]
+						},
+						{
+							"fontFamily": "Noto Sans",
+							"fontDefinitions": [
+								{
+									"path": "./src/assets/fonts/noto_sans.ttf",
 									"weight": "400",
+									"style": "normal"
+								},
+								{
+									"path": "./src/assets/fonts/noto_sans_medium.ttf",
+									"weight": "500",
+									"style": "normal"
+								},
+								{
+									"path": "./src/assets/fonts/noto_sans_bold_italic.ttf",
+									"weight": "700",
 									"style": "italic"
 								}
 							]
 						}
-					],
-					"android": {
-						"fonts": [
-							{
-								"fontFamily": "Bebas Neue Pro",
-								"fontDefinitions": [
-									{
-										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.ttf",
-										"weight": "800",
-										"style": "normal"
-									},
-									{
-										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.ttf",
-										"weight": "400",
-										"style": "italic"
-									}
-								]
-							}
-						]
-					},
-					"ios": {
-						"fonts": [
-							{
-								"fontFamily": "Bebas Neue Pro",
-								"fontDefinitions": [
-									{
-										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-ExpandedExtraBold.woff2",
-										"weight": "800",
-										"style": "normal"
-									},
-									{
-										"path": "./assets/fonts/BebasNeuePro/BebasNeuePro-SemiExpItalic.woff2",
-										"weight": "400",
-										"style": "italic"
-									}
-								]
-							}
-						]
-					}
+					]
 				}
-			]
+			],
+			"expo-router"
 		]
 	}
 }

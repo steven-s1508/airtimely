@@ -1,14 +1,17 @@
 {
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "tailwind.config": [
-        "./tailwind.config.js"
-      ]
-    }
-  }
+	"extends": "expo/tsconfig.base",
+	"compilerOptions": {
+		"strict": true,
+		"paths": {
+			"@/*": ["./*"],
+			"@components/*": ["./src/components/*"],
+			"@src/*": ["./src/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@styles/*": ["./src/styles/*"],
+			"@utils/*": ["./src/utils/*"],
+			"@types/*": ["./src/types/*"],
+			"@constants/*": ["./src/constants/*"],
+			"tailwind.config": ["./tailwind.config.js"]
+		}
+	}
 }
