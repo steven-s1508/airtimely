@@ -14,7 +14,6 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Local Imports
-import { CACHE_TIME_STALE_LONG } from "./src/constants/apiConfig";
 import "@/global.css";
 
 // Create the client
@@ -36,7 +35,7 @@ const asyncStoragePersistor = createAsyncStoragePersister({
 persistQueryClient({
 	queryClient,
 	persister: asyncStoragePersistor,
-	maxAge: CACHE_TIME_STALE_LONG, // 24 hours max cache age (fallback, overridden per-query)
+	maxAge: 1000 * 60 * 60 * 24, // 24 hours max cache age (fallback, overridden per-query)
 });
 
 export default function App() {
@@ -52,7 +51,7 @@ export default function App() {
 						</QueryClientProvider>
 					</ToastProvider>
 				</GluestackUIProvider>
-				<StatusBar style="auto" />
+				<StatusBar style="light" />
 			</SafeAreaView>
 		</SafeAreaProvider>
 	);

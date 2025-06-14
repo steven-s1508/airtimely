@@ -1,6 +1,6 @@
 // React / React Native Imports
-import React from "react";
-import { Text, StyleSheet, Pressable, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, Pressable } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
 // Local Imports
@@ -9,9 +9,22 @@ import { colors, parkScreenStyles } from "@/src/styles";
 import { HStack, VStack } from "./ui";
 import { CountryBadge } from "./countryBadge";
 import { StatusBadge } from "./statusBadge";
+import { getParkStatus } from "@/app/api/get/getParkStatus";
 
-export function ParkHeader({ id, name }: { id: string; name: string }) {
+export function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefreshing = false }: { item: { id: string; name: string; country_code: string }; onRefresh?: () => void; isRefreshing?: boolean }) {
 	const router = useRouter();
+	const [status, setStatus] = useState<ParkStatus>("Unknown");
+	const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+
+	useEffect(() => {
+		const loadStatus = async () => {
+			setIsLoadingStatus(true);
+			const status = await getParkStatus(id);
+			setStatus(status);
+			setIsLoadingStatus(false);
+		};
+		loadStatus();
+	}, [id]);
 
 	const handleBackPress = () => {
 		if (router && router.canGoBack()) {
@@ -25,6 +38,20 @@ export function ParkHeader({ id, name }: { id: string; name: string }) {
 		}
 	};
 
+	const handleRefreshPress = () => {
+		if (onRefresh && !isRefreshing) {
+			onRefresh();
+		}
+	};
+
+	if (!id || !name) {
+		return <Text style={{ color: colors.primaryLight }}>Loading...</Text>;
+	}
+
+	if (isLoadingStatus) {
+		return <Text style={{ color: colors.primaryLight }}>Loading status...</Text>;
+	}
+
 	return (
 		<VStack style={{ marginBottom: 8 }}>
 			<HStack style={parkScreenStyles.parkScreenHeaderContainer}>
@@ -33,19 +60,40 @@ export function ParkHeader({ id, name }: { id: string; name: string }) {
 					<Icon name="chevronLeft" fill={colors.primaryLight} height={24} width={24} />
 				</Pressable>
 				<Text style={[parkScreenStyles.parkScreenHeaderTitle]}>{name}</Text>
-				<Pressable /* android_ripple={{ color: colors.primaryTransparent, foreground: true }} */ style={{ backgroundColor: colors.primaryVeryDark, borderWidth: 1, borderColor: colors.primaryVeryDark, borderRadius: 8, padding: 8, overflow: "hidden" }} onPress={() => console.log("Refresh pressed")}>
-					<Icon name="refresh" fill={colors.primaryBlack} height={24} width={24} />
+				<Pressable
+					onPress={handleRefreshPress}
+					disabled={isRefreshing}
+					android_ripple={{ color: colors.primaryTransparent, foreground: true }}
+					style={{
+						backgroundColor: colors.primaryVeryDark,
+						borderWidth: 1,
+						borderColor: colors.primaryDark,
+						borderRadius: 8,
+						padding: 8,
+						overflow: "hidden",
+						opacity: isRefreshing ? 0.6 : 1,
+					}}
+				>
+					<Icon
+						name="refresh"
+						fill={colors.primaryLight}
+						height={24}
+						width={24}
+						style={{
+							transform: [{ rotate: isRefreshing ? "180deg" : "0deg" }],
+						}}
+					/>
 				</Pressable>
 			</HStack>
 			<HStack style={parkScreenStyles.parkScreenHeaderMetadata}>
-				<CountryBadge country="USA" style={parkScreenStyles.parkScreenCountryBadge} iconColor={colors.primaryLight} textColor={colors.primaryLight} />
-				<StatusBadge status="Open" />
+				<CountryBadge country={country_code} status={status} isPark />
+				<StatusBadge status={status} />
 			</HStack>
-			<View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 4, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 100, marginHorizontal: 16 }}>
-				{/* Placeholder for park information */}
+			{/* <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 4, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 100, marginHorizontal: 16 }}>
+				{// Placeholder for park information}
 				<Text style={{ color: colors.primary }}>Show Info</Text>
 				<Icon name="expand" fill={colors.primary} height={16} width={16} />
-			</View>
+			</View> */}
 		</VStack>
 	);
 }

@@ -1,8 +1,8 @@
 import { DestinationsResponse } from "@/src/types/themeparksWikiApi/destinations";
-import EntityData from "@src/types/themeparksWikiApi/entity";
-import EntityChildrenResponse from "@src/types/themeparksWikiApi/entityChildren";
-import EntityLiveDataResponse, { EntityLiveData } from "@/src/types/themeparksWikiApi/entityLive";
-import EntityScheduleResponse from "@src/types/themeparksWikiApi/entitySchedule";
+import { EntityData } from "@src/types/themeparksWikiApi/entity";
+import { EntityChildrenResponse } from "@src/types/themeparksWikiApi/entityChildren";
+import { EntityLiveDataResponse, EntityLiveData } from "@/src/types/themeparksWikiApi/entityLive";
+import { EntityScheduleResponse } from "@src/types/themeparksWikiApi/entitySchedule";
 
 const API_BASE_URL = "https://api.themeparks.wiki/v1";
 const API_DESTINATIONS_URL = "/destinations";
@@ -49,6 +49,22 @@ export async function fetchEntityChildren(entityID: string): Promise<EntityChild
 		return response.json();
 	} catch (error) {
 		console.error(`Network error fetching entity children for ${entityID}:`, error);
+		return null;
+	}
+}
+
+// Function to fetch live data for a specific entity
+export async function fetchEntityLiveData(entityID: string): Promise<EntityLiveDataResponse | null> {
+	const url = API_ENTITY_LIVE_DATA_URL.replace("{entityID}", entityID);
+	try {
+		const response = await fetch(`${API_BASE_URL}${url}`);
+		if (!response.ok) {
+			console.error(`Failed to fetch live data for ${entityID}: ${response.statusText} (${response.status})`);
+			return null;
+		}
+		return response.json();
+	} catch (error) {
+		console.error(`Network error fetching live data for ${entityID}:`, error);
 		return null;
 	}
 }

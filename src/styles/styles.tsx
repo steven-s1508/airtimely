@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { StatusBadge } from "../components/statusBadge";
+import { S } from "@expo/html-elements";
 
 export const colors = {
 	// Primary colors
@@ -11,6 +12,7 @@ export const colors = {
 	primaryVeryDark: "#072C2C",
 	primaryBlack: "#031717",
 	primaryTransparent: "#88DDDD86",
+	primaryTransparentDark: "#0E58586B",
 	// Secondary colors
 	secondaryWhite: "#F0F0F0",
 	secondaryVeryLight: "#CCCCCC",
@@ -19,14 +21,15 @@ export const colors = {
 	secondaryDark: "#545454",
 	secondaryVeryDark: "#333333",
 	secondaryBlack: "#101010",
+	secondaryTransparent: "#A8A8A886",
 	// Accent colors
-	accentWhite: "#FDF8F1",
-	accentVeryLight: "#FCE9CF",
-	accentLight: "#F9C376",
-	accent: "#FC9C12",
-	accentDark: "#8F5019",
-	accentVeryDark: "#301908",
-	accentBlack: "#140B05",
+	accentWhite: "#FFF0DB",
+	accentVeryLight: "#FED293",
+	accentLight: "#FDB44B",
+	accent: "#FC9603",
+	accentDark: "#B46B02",
+	accentVeryDark: "#6C4001",
+	accentBlack: "#241500",
 	// High Waitingtime colors
 	highWaitingtimeWhite: "#FCDDF0",
 	highWaitingtimeVeryLight: "#F79AD2",
@@ -50,8 +53,8 @@ export const styles = StyleSheet.create({
 		gap: 16,
 	},
 	logo: { alignSelf: "center", width: 61, height: 40 },
-	parkFilterInput: { position: "relative", marginHorizontal: 16, borderWidth: 0, elevation: 1 },
-	parkFilterInputField: { borderWidth: 1, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 6, borderColor: colors.primary, fontSize: 16, lineHeight: 16, paddingRight: 36, backgroundColor: colors.primaryVeryDark, color: colors.primaryLight, elevation: 1 },
+	parkFilterInput: { position: "relative", borderWidth: 0, elevation: 1, color: colors.primaryVeryLight },
+	parkFilterInputField: { borderWidth: 1, paddingVertical: 8, paddingLeft: 12, borderRadius: 6, borderColor: colors.primary, fontSize: 16, lineHeight: 19, paddingRight: 36, backgroundColor: colors.primaryVeryDark, color: colors.primaryVeryLight, elevation: 1 },
 	clearButton: { position: "absolute", right: 8, top: 0, bottom: 0, justifyContent: "center", alignItems: "center", width: 30 },
 	footerCredits: {
 		paddingHorizontal: 16,
@@ -83,30 +86,35 @@ export const destinationListStyles = StyleSheet.create({
 });
 
 export const destinationItemStyles = StyleSheet.create({
-	destinationItemContainer: {
+	container: {
 		padding: 16,
 		marginBottom: 16,
 		borderWidth: 2,
-		borderColor: colors.primary,
 		borderRadius: 6,
+	},
+	containerOpen: {
+		borderColor: colors.primary,
 		backgroundColor: colors.primaryVeryDark,
 	},
-	destinationItemContainerInner: {
+	containerClosed: {
+		borderColor: colors.secondaryVeryDark,
+		backgroundColor: colors.secondaryVeryDark,
+	},
+	containerInner: {
 		flexDirection: "column",
 		gap: 16,
 	},
-	destinationItemMetadata: {
+	metadata: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
 	},
-	destinationTitleContainer: {
+	titleContainer: {
 		paddingBottom: 16,
 		borderBottomWidth: 2,
-		borderBottomColor: colors.primaryDark,
 	},
-	destinationTitleContainerInner: {
+	titleContainerInner: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
@@ -114,7 +122,7 @@ export const destinationItemStyles = StyleSheet.create({
 		marginHorizontal: -8,
 		paddingHorizontal: 8,
 	},
-	destinationTitleContainerPark: {
+	titleContainerPark: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
@@ -127,26 +135,34 @@ export const destinationItemStyles = StyleSheet.create({
 		borderRadius: 8,
 		overflow: "hidden",
 	},
-	destinationNameContainer: {
+	nameContainer: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 8,
 	},
-	destinationIcon: {
-		width: 24,
-		height: 24,
-		tintColor: colors.primaryVeryLight,
+	icon: {
+		color: colors.primaryVeryLight,
 	},
-	destinationName: {
-		flexShrink: 1,
+	iconClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	name: {
 		fontFamily: "Bebas Neue Pro",
 		fontSize: 24,
 		lineHeight: 27,
 		fontWeight: "800",
 		color: colors.primaryVeryLight,
 	},
-	destinationChevron: {
+	nameClosed: {
+		flexShrink: 1,
+		fontFamily: "Bebas Neue Pro",
+		fontSize: 24,
+		lineHeight: 27,
+		fontWeight: "800",
+		color: colors.secondaryVeryLight,
+	},
+	chevron: {
 		width: 24,
 		height: 24,
 		tintColor: colors.primaryVeryLight,
@@ -154,11 +170,11 @@ export const destinationItemStyles = StyleSheet.create({
 });
 
 export const destinationParkChildrenStyles = StyleSheet.create({
-	parkChildListContainer: {
+	listContainer: {
 		flexDirection: "column",
 		gap: 8,
 	},
-	parkChildContainer: {
+	container: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 8,
@@ -170,23 +186,23 @@ export const destinationParkChildrenStyles = StyleSheet.create({
 		borderColor: colors.primary,
 		overflow: "hidden",
 	},
-	parkChildContainerOpen: {
+	containerOpen: {
 		backgroundColor: colors.primaryDark,
 		borderWidth: 2,
 		borderColor: colors.primary,
 	},
-	parkChildContainerClosed: {
+	containerClosed: {
 		backgroundColor: colors.secondaryDark,
 		borderWidth: 2,
 		borderColor: colors.secondaryDark,
 	},
-	parkChildNameContainer: {
+	nameContainer: {
 		flex: 1,
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 12,
 	},
-	parkChildName: {
+	name: {
 		flexShrink: 1,
 		fontFamily: "Bebas Neue Pro",
 		fontSize: 18,
@@ -194,7 +210,7 @@ export const destinationParkChildrenStyles = StyleSheet.create({
 		fontWeight: "800",
 		color: colors.primaryVeryLight,
 	},
-	parkChildNameClosed: {
+	nameClosed: {
 		fontFamily: "Bebas Neue Pro",
 		fontSize: 18,
 		fontWeight: "800",
@@ -203,7 +219,7 @@ export const destinationParkChildrenStyles = StyleSheet.create({
 });
 
 export const destinationStatusBadgeStyles = StyleSheet.create({
-	statusBadgeContainer: {
+	container: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 4,
@@ -211,41 +227,65 @@ export const destinationStatusBadgeStyles = StyleSheet.create({
 		paddingHorizontal: 8,
 		borderRadius: 100,
 		borderWidth: 1,
+	},
+	containerOpen: {
 		borderColor: colors.primary,
 	},
-	statusBadgeIcon: {
-		width: 14,
-		height: 14,
+	containerClosed: {
+		borderColor: colors.secondaryVeryLight,
 	},
-	statusBadgeText: {
+	iconOpen: {
+		color: colors.primaryVeryLight,
+	},
+	iconClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	text: {
 		fontFamily: "Noto Sans",
 		fontSize: 14,
 		lineHeight: 19,
 		fontWeight: "500",
+	},
+	textOpen: {
 		color: colors.primaryVeryLight,
+	},
+	textClosed: {
+		color: colors.secondaryVeryLight,
 	},
 });
 
 export const destinationCountryBadgeStyles = StyleSheet.create({
-	countryBadgeContainer: {
+	container: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 4,
 		paddingVertical: 4,
 		paddingHorizontal: 12,
 		borderRadius: 100,
+	},
+	containerOpen: {
 		backgroundColor: colors.primaryBlack,
 	},
-	countryBadgeIcon: {
-		width: 14,
-		height: 14,
+	containerClosed: {
+		backgroundColor: colors.secondaryDark,
 	},
-	countryBadgeText: {
+	text: {
 		fontFamily: "Noto Sans",
 		fontSize: 14,
 		lineHeight: 19,
 		fontWeight: "500",
+	},
+	iconOpen: {
 		color: colors.primaryVeryLight,
+	},
+	iconClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	textOpen: {
+		color: colors.primaryVeryLight,
+	},
+	textClosed: {
+		color: colors.secondaryVeryLight,
 	},
 });
 
@@ -339,10 +379,25 @@ export const parkScreenStyles = StyleSheet.create({
 		justifyContent: "space-between",
 		gap: 8,
 		paddingHorizontal: 16,
-		marginBottom: 16,
+		/* marginBottom: 16, */
 	},
 	parkScreenCountryBadge: {
 		backgroundColor: colors.primaryVeryDark,
+	},
+	parkScreenCountryBadgeClosed: {
+		backgroundColor: colors.secondaryVeryDark,
+	},
+	parkScreenCountryBadgeText: {
+		color: colors.primaryLight,
+	},
+	parkScreenCountryBadgeTextClosed: {
+		color: colors.secondaryLight,
+	},
+	parkScreenCountryBadgeIcon: {
+		color: colors.primaryLight,
+	},
+	parkScreenCountryBadgeIconClosed: {
+		color: colors.secondaryLight,
 	},
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
 
 import { supabase } from "@src/utils/supabase";
 
@@ -53,21 +53,32 @@ export async function fetchDisplayableEntities(): Promise<DisplayableEntity[]> {
 	return data as DisplayableEntity[]; // Cast to your defined type
 }
 
-export function DestinationList() {
-	const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
-	const [processedEntities, setProcessedEntities] = useState<DisplayableEntityWithPinnedStatus[]>([]);
-	const [pinnedIds, setPinnedIds] = useState<string[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+export interface DestinationListRef {
+	refresh: () => Promise<void>;
+}
 
-	useEffect(() => {
-		const loadInitialData = async () => {
+export const DestinationList = React.memo(
+	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
+		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
+		const [pinnedIds, setPinnedIds] = useState<string[]>([]);
+		const [isLoading, setIsLoading] = useState(true);
+		const [error, setError] = useState<string | null>(null);
+		const [refreshKey, setRefreshKey] = useState(0);
+
+		useImperativeHandle(ref, () => ({
+			refresh: async () => {
+				await loadInitialData();
+			},
+		}));
+
+		const loadInitialData = useCallback(async () => {
 			try {
 				setIsLoading(true);
 				const [fetched, storedPinnedIds] = await Promise.all([fetchDisplayableEntities(), getPinnedDestinationIds()]);
 				setFetchedEntities(fetched);
 				setPinnedIds(storedPinnedIds);
 				setError(null);
+				setRefreshKey((prev) => prev + 1);
 			} catch (e) {
 				console.error("Failed to load initial data:", e);
 				setError("Failed to load destinations.");
@@ -76,105 +87,132 @@ export function DestinationList() {
 			} finally {
 				setIsLoading(false);
 			}
-		};
+		}, []);
 
-		loadInitialData();
-	}, []);
+		useEffect(() => {
+			loadInitialData();
+		}, [loadInitialData]);
 
-	useEffect(() => {
-		// Process and sort entities whenever fetchedEntities or pinnedIds change
-		if (fetchedEntities.length > 0 || pinnedIds.length >= 0) {
-			// Also run if fetchedEntities is empty to show "No destinations"
-			const entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
+		// Memoize processed entities to prevent unnecessary recalculations
+		const processedEntities = useMemo(() => {
+			if (fetchedEntities.length === 0) return [];
+
+			let entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
 				...entity,
 				isPinned: pinnedIds.includes(entity.entity_id),
 			}));
+
+			if (searchFilter.trim() !== "") {
+				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => entity.name.toLowerCase().includes(searchFilter.toLowerCase()));
+			}
 
 			entitiesWithPinnedStatus.sort((a, b) => {
 				if (a.isPinned && !b.isPinned) return -1;
 				if (!a.isPinned && b.isPinned) return 1;
 				return a.name.localeCompare(b.name);
 			});
-			setProcessedEntities(entitiesWithPinnedStatus);
-		} else {
-			setProcessedEntities([]);
-		}
-	}, [fetchedEntities, pinnedIds]);
 
-	const handleTogglePin = async (entityId: string) => {
-		const isCurrentlyPinned = pinnedIds.includes(entityId);
-		let updatedPinnedIds;
-		if (isCurrentlyPinned) {
-			updatedPinnedIds = await removePinnedDestinationId(entityId);
-		} else {
-			updatedPinnedIds = await addPinnedDestinationId(entityId);
-		}
-		setPinnedIds(updatedPinnedIds);
-	};
+			return entitiesWithPinnedStatus;
+		}, [fetchedEntities, pinnedIds, searchFilter]);
 
-	if (isLoading) {
+		// Memoize section list data
+		const sectionListData = useMemo(() => {
+			const sectionsMap = processedEntities.reduce((acc, entity) => {
+				const sectionTitle = entity.isPinned ? "Pinned Destinations" : "All Destinations";
+				if (!acc[sectionTitle]) {
+					acc[sectionTitle] = [];
+				}
+				acc[sectionTitle].push(entity);
+				return acc;
+			}, {} as Record<string, DisplayableEntityWithPinnedStatus[]>);
+
+			const sections = [];
+			// Ensure "Pinned Destinations" section is added first if it exists
+			if (sectionsMap["Pinned Destinations"] && sectionsMap["Pinned Destinations"].length > 0) {
+				sections.push({ title: "Pinned Destinations", data: sectionsMap["Pinned Destinations"] });
+			}
+			// Add "All Destinations" section if it exists
+			if (sectionsMap["All Destinations"] && sectionsMap["All Destinations"].length > 0) {
+				sections.push({ title: "All Destinations", data: sectionsMap["All Destinations"] });
+			}
+
+			return sections;
+		}, [processedEntities]);
+
+		const handleTogglePin = useCallback(
+			async (entityId: string) => {
+				const isCurrentlyPinned = pinnedIds.includes(entityId);
+				let updatedPinnedIds;
+				if (isCurrentlyPinned) {
+					updatedPinnedIds = await removePinnedDestinationId(entityId);
+				} else {
+					updatedPinnedIds = await addPinnedDestinationId(entityId);
+				}
+				setPinnedIds(updatedPinnedIds);
+			},
+			[pinnedIds]
+		);
+
+		// Memoize render functions
+		const renderItem = useCallback(({ item }: { item: DisplayableEntityWithPinnedStatus }) => <DestinationItem item={item} isPinned={item.isPinned || false} onTogglePin={handleTogglePin} />, [handleTogglePin]);
+
+		const renderSectionHeader = useCallback(
+			({ section: { title } }: { section: { title: string } }) => {
+				// Only render header for "Pinned Destinations"
+				if (title === "Pinned Destinations") {
+					return (
+						<Text
+							style={{
+								fontFamily: "Bebas Neue Pro",
+								fontWeight: 800,
+								fontSize: 18,
+								padding: 8,
+								color: colors.primaryLight,
+							}}
+						>
+							{title}
+						</Text>
+					);
+				} else if (title === "All Destinations" && sectionListData.length > 1) {
+					return <View style={{ padding: 2, backgroundColor: colors.primary, marginBottom: 16 }}></View>;
+				}
+				return null; // No header for other sections
+			},
+			[sectionListData.length]
+		);
+
+		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id, []);
+
+		const ItemSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
+		const SectionSeparator = useCallback(() => <View style={{ height: 16 }} />, []);
+
+		if (isLoading) {
+			return (
+				<SafeAreaView style={{ flexGrow: 1, justifyContent: "center", alignItems: "center" }}>
+					<SkeletonDestinationItem />
+					<SkeletonDestinationItem />
+					<SkeletonDestinationItem />
+					<SkeletonDestinationItem />
+					<SkeletonDestinationItem />
+					<SkeletonDestinationItem />
+				</SafeAreaView>
+			);
+		}
+
+		if (error) {
+			return <Text>Error: {error}</Text>;
+		}
+
+		if (!processedEntities || processedEntities.length === 0) {
+			return <Text>No destinations found.</Text>;
+		}
+
 		return (
-			<SafeAreaView style={{ flexGrow: 1, justifyContent: "center", alignItems: "center" }}>
-				<SkeletonDestinationItem />
-				<SkeletonDestinationItem />
-				<SkeletonDestinationItem />
-				<SkeletonDestinationItem />
-				<SkeletonDestinationItem />
-				<SkeletonDestinationItem />
+			<SafeAreaView>
+				<SectionList sections={sectionListData} keyExtractor={keyExtractor} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ItemSeparatorComponent={ItemSeparator} SectionSeparatorComponent={SectionSeparator} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={10} removeClippedSubviews={true} getItemLayout={undefined} stickySectionHeadersEnabled={false} />
 			</SafeAreaView>
 		);
-	}
+	})
+);
 
-	if (error) {
-		return <Text>Error: {error}</Text>;
-	}
-
-	if (!processedEntities || processedEntities.length === 0) {
-		// Changed 'entities' to 'processedEntities'
-		return <Text>No destinations found.</Text>;
-	}
-
-	const sectionsMap = processedEntities.reduce((acc, entity) => {
-		// Titles are based on whether the entity is pinned or not
-		const sectionTitle = entity.isPinned ? "Pinned Destinations" : "All Destinations";
-		if (!acc[sectionTitle]) {
-			acc[sectionTitle] = [];
-		}
-		// 'isPinned' is guaranteed to be set by the useEffect that prepares processedEntities
-		acc[sectionTitle].push(entity);
-		return acc;
-	}, {} as Record<string, DisplayableEntityWithPinnedStatus[]>);
-
-	const sectionListData = [];
-	// Ensure "Pinned Destinations" section is added first if it exists
-	if (sectionsMap["Pinned Destinations"] && sectionsMap["Pinned Destinations"].length > 0) {
-		sectionListData.push({ title: "Pinned Destinations", data: sectionsMap["Pinned Destinations"] });
-	}
-	// Add "All Destinations" section if it exists
-	if (sectionsMap["All Destinations"] && sectionsMap["All Destinations"].length > 0) {
-		sectionListData.push({ title: "All Destinations", data: sectionsMap["All Destinations"] });
-	}
-
-	return (
-		<>
-			<SafeAreaView>
-				{/* SectionList with pinned destinations and all destinations */}
-				<SectionList
-					sections={sectionListData}
-					keyExtractor={(item) => item.entity_id}
-					renderItem={({ item }) => <DestinationItem key={item.entity_id} item={item} isPinned={item.isPinned || false} onTogglePin={handleTogglePin} />}
-					initialNumToRender={10}
-					renderSectionHeader={({ section: { title } }) => {
-						// Only render header for "Pinned Destinations"
-						if (title === "Pinned Destinations") {
-							return <Text style={{ fontFamily: "Bebas Neue Pro", fontWeight: 800, fontSize: 18, padding: 8, color: colors.primaryLight }}>{title}</Text>;
-						} else if (title === "All Destinations" && sectionListData.length > 1) {
-							return <View style={{ padding: 2, backgroundColor: colors.primary, marginBottom: 16 }}></View>;
-						}
-						return null; // No header for other sections
-					}}
-				/>
-			</SafeAreaView>
-		</>
-	);
-}
+DestinationList.displayName = "DestinationList";
