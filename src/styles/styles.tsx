@@ -10,7 +10,7 @@ export const colors = {
 	primary: "#0E9898",
 	primaryDark: "#0E5858",
 	primaryVeryDark: "#072C2C",
-	primaryBlack: "#031717",
+	primaryBlack: "#021212",
 	primaryTransparent: "#88DDDD86",
 	primaryTransparentDark: "#0E58586B",
 	// Secondary colors
@@ -87,7 +87,10 @@ export const destinationListStyles = StyleSheet.create({
 
 export const destinationItemStyles = StyleSheet.create({
 	container: {
-		padding: 16,
+		paddingLeft: 12,
+		paddingRight: 6,
+		paddingTop: 6,
+		paddingBottom: 12,
 		marginBottom: 16,
 		borderWidth: 2,
 		borderRadius: 6,
@@ -110,10 +113,7 @@ export const destinationItemStyles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "space-between",
 	},
-	titleContainer: {
-		paddingBottom: 16,
-		borderBottomWidth: 2,
-	},
+	titleContainer: {},
 	titleContainerInner: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -148,6 +148,7 @@ export const destinationItemStyles = StyleSheet.create({
 		color: colors.secondaryVeryLight,
 	},
 	name: {
+		flexShrink: 1,
 		fontFamily: "Bebas Neue Pro",
 		fontSize: 24,
 		lineHeight: 27,
@@ -187,7 +188,7 @@ export const destinationParkChildrenStyles = StyleSheet.create({
 		overflow: "hidden",
 	},
 	containerOpen: {
-		backgroundColor: colors.primaryDark,
+		backgroundColor: colors.primaryVeryDark,
 		borderWidth: 2,
 		borderColor: colors.primary,
 	},
@@ -260,7 +261,8 @@ export const destinationCountryBadgeStyles = StyleSheet.create({
 		alignItems: "center",
 		gap: 4,
 		paddingVertical: 4,
-		paddingHorizontal: 12,
+		paddingLeft: 10,
+		paddingRight: 12,
 		borderRadius: 100,
 	},
 	containerOpen: {
@@ -365,13 +367,14 @@ export const parkScreenStyles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "space-between",
 		padding: 16,
+		paddingBottom: 8,
 	},
 	parkScreenHeaderTitle: {
 		flex: 1,
 		fontSize: 24,
 		fontWeight: "bold",
 		color: colors.primaryVeryLight,
-		marginHorizontal: 8,
+		marginHorizontal: 12,
 	},
 	parkScreenHeaderMetadata: {
 		flexDirection: "row",
@@ -379,7 +382,7 @@ export const parkScreenStyles = StyleSheet.create({
 		justifyContent: "space-between",
 		gap: 8,
 		paddingHorizontal: 16,
-		/* marginBottom: 16, */
+		marginBottom: 8,
 	},
 	parkScreenCountryBadge: {
 		backgroundColor: colors.primaryVeryDark,

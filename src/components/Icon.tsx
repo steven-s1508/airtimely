@@ -29,9 +29,10 @@ import SingleRiderIconComponent from "@/src/assets/icons/components/SingleRider"
 import StatsIconComponent from "@/src/assets/icons/components/Stats";
 import VirtualQueueIconComponent from "@/src/assets/icons/components/VirtualQueue";
 import WaitTimeIconComponent from "@/src/assets/icons/components/WaitTime";
-import FavoriteIconComponent from "@/src/assets/icons/components/Favorite"; // Assuming you have a Favorite icon
+import FavoriteIconComponent from "@/src/assets/icons/components/Favorite";
+import FavoriteFilledIconComponent from "@/src/assets/icons/components/FavoriteFilled";
 
-export type IconName = "destination" | "park" | "attraction" | "restaurant" | "show" | "stats" | "waitTime" | "singleRider" | "virtualQueue" | "clock" | "open" | "down" | "closed" | "refurbishment" | "mapPin" | "filter" | "search" | "chevronRight" | "chevronLeft" | "map" | "refresh" | "expand" | "collapse" | "info" | "close" | "favorite";
+export type IconName = "destination" | "park" | "attraction" | "restaurant" | "show" | "stats" | "waitTime" | "singleRider" | "virtualQueue" | "clock" | "open" | "down" | "closed" | "refurbishment" | "mapPin" | "filter" | "search" | "chevronRight" | "chevronLeft" | "map" | "refresh" | "expand" | "collapse" | "info" | "close" | "favorite" | "favoriteFilled";
 
 interface IconProps extends SvgProps {
 	name: IconName;
@@ -66,6 +67,7 @@ const iconComponentMap: Record<IconName, React.FC<SvgProps>> = {
 	virtualQueue: VirtualQueueIconComponent,
 	waitTime: WaitTimeIconComponent,
 	favorite: FavoriteIconComponent,
+	favoriteFilled: FavoriteFilledIconComponent,
 };
 
 export function Icon({ name, size = 24, className, style, ...props }: IconProps) {

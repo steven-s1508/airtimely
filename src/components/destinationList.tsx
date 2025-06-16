@@ -4,7 +4,7 @@ import { supabase } from "@src/utils/supabase";
 
 import type { Tables } from "@src/types/database.types";
 
-import { FlatList, ScrollView, View, SectionList } from "react-native";
+import { FlatList, ScrollView, View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
 import { VStack, Text } from "./ui";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -62,18 +62,24 @@ export const DestinationList = React.memo(
 		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
 		const [pinnedIds, setPinnedIds] = useState<string[]>([]);
 		const [isLoading, setIsLoading] = useState(true);
+		const [refreshing, setRefreshing] = useState(false);
 		const [error, setError] = useState<string | null>(null);
 		const [refreshKey, setRefreshKey] = useState(0);
 
 		useImperativeHandle(ref, () => ({
 			refresh: async () => {
-				await loadInitialData();
+				await loadInitialData(true);
 			},
 		}));
 
-		const loadInitialData = useCallback(async () => {
+		const loadInitialData = useCallback(async (isRefresh: boolean = false) => {
 			try {
-				setIsLoading(true);
+				if (isRefresh) {
+					setRefreshing(true);
+				} else {
+					setIsLoading(true);
+				}
+
 				const [fetched, storedPinnedIds] = await Promise.all([fetchDisplayableEntities(), getPinnedDestinationIds()]);
 				setFetchedEntities(fetched);
 				setPinnedIds(storedPinnedIds);
@@ -85,9 +91,17 @@ export const DestinationList = React.memo(
 				setFetchedEntities([]);
 				setPinnedIds([]);
 			} finally {
-				setIsLoading(false);
+				if (isRefresh) {
+					setRefreshing(false);
+				} else {
+					setIsLoading(false);
+				}
 			}
 		}, []);
+
+		const handleRefresh = useCallback(async () => {
+			await loadInitialData(true);
+		}, [loadInitialData]);
 
 		useEffect(() => {
 			loadInitialData();
@@ -167,6 +181,7 @@ export const DestinationList = React.memo(
 								fontWeight: 800,
 								fontSize: 18,
 								padding: 8,
+								paddingTop: 0,
 								color: colors.primaryLight,
 							}}
 						>
@@ -183,8 +198,8 @@ export const DestinationList = React.memo(
 
 		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id, []);
 
-		const ItemSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
-		const SectionSeparator = useCallback(() => <View style={{ height: 16 }} />, []);
+		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
+		const SectionSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
 
 		if (isLoading) {
 			return (
@@ -209,7 +224,24 @@ export const DestinationList = React.memo(
 
 		return (
 			<SafeAreaView>
-				<SectionList sections={sectionListData} keyExtractor={keyExtractor} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ItemSeparatorComponent={ItemSeparator} SectionSeparatorComponent={SectionSeparator} initialNumToRender={10} maxToRenderPerBatch={10} windowSize={10} removeClippedSubviews={true} getItemLayout={undefined} stickySectionHeadersEnabled={false} />
+				<SectionList
+					sections={sectionListData}
+					keyExtractor={keyExtractor}
+					renderItem={renderItem}
+					renderSectionHeader={renderSectionHeader}
+					ItemSeparatorComponent={ItemSeparator}
+					SectionSeparatorComponent={SectionSeparator}
+					estimatedItemSize={120}
+					initialNumToRender={6} // Smaller for variable heights
+					maxToRenderPerBatch={4} // Smaller batches
+					windowSize={15}
+					removeClippedSubviews={true}
+					updateCellsBatchingPeriod={50}
+					disableVirtualization={false}
+					legacyImplementation={false}
+					stickySectionHeadersEnabled={false}
+					refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating destinations..." titleColor={colors.primaryLight} />}
+				/>
 			</SafeAreaView>
 		);
 	})

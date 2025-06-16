@@ -1,15 +1,36 @@
 // React / React Native Imports
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { View } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
 // Local Imports
-import { Text, VStack, HStack } from "@/src/components/ui";
+import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
 import { Icon } from "@/src/components/Icon";
 import { colors } from "@/src/styles/styles";
+import { getPinnedAttractionIds, addPinnedAttractionId, removePinnedAttractionId } from "@/src/utils/pinAttractions";
 
 export const AttractionItem = React.memo(function AttractionItem({ id, name, waitTime, status, singleRiderWaitTime, hasVirtualQueue }: { id: string; name: string; waitTime?: number; status?: string; singleRiderWaitTime?: number; hasVirtualQueue?: boolean }) {
 	const router = useRouter();
+	const [isPinned, setIsPinned] = useState(false);
+
+	// Load pinned status on component mount
+	useEffect(() => {
+		const loadPinnedStatus = async () => {
+			const pinnedIds = await getPinnedAttractionIds();
+			setIsPinned(pinnedIds.includes(id));
+		};
+		loadPinnedStatus();
+	}, [id]);
+
+	const handleTogglePin = useCallback(async () => {
+		if (isPinned) {
+			await removePinnedAttractionId(id);
+			setIsPinned(false);
+		} else {
+			await addPinnedAttractionId(id);
+			setIsPinned(true);
+		}
+	}, [id, isPinned]);
 
 	const virtualQueue = (
 		<HStack style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 16, borderTopWidth: 1, borderBottomColor: colors.primaryVeryLight }}>
@@ -120,8 +141,8 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 					containerBorderColor: colors.accent,
 					rideNameColor: colors.accentVeryLight,
 					statusContainerColor: colors.accentVeryDark,
-					leftIconColor: colors.accent,
-					statusTextColor: colors.accent,
+					leftIconColor: colors.accentLight,
+					statusTextColor: colors.accentLight,
 					statusBorderColor: colors.accent,
 					statusBackgroundColor: colors.accent,
 					statusIconColor: colors.accentBlack,
@@ -193,8 +214,21 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 
 	return (
 		<VStack style={{ gap: 16, padding: 8, borderWidth: 1, borderColor: styling.containerBorderColor, backgroundColor: styling.containerColor, borderRadius: 6 }}>
-			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
 				<Text style={{ flexShrink: 1, color: styling.rideNameColor, fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+				{!isPinned ? (
+					<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
+						<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
+							<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
+						</View>
+					</Pressable>
+				) : (
+					<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
+						<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
+							<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
+						</View>
+					</Pressable>
+				)}
 			</HStack>
 			<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
 				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>

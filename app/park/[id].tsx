@@ -10,7 +10,14 @@ import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
 import { colors, parkScreenStyles } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
+import { ShowItem } from "@/src/components/showItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/app/api/get/getParkChildren";
+import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
+import { getPinnedShowIds } from "@/src/utils/pinShows";
+
+interface ParkChildWithPinnedStatus extends ParkChild {
+	isPinned: boolean;
+}
 
 export default function ParkScreen() {
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
@@ -19,12 +26,29 @@ export default function ParkScreen() {
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
 	const [activeTab, setActiveTab] = useState<"attractions" | "shows" | "restaurants">("attractions");
+	const [pinnedAttractionIds, setPinnedAttractionIds] = useState<string[]>([]);
+	const [pinnedShowIds, setPinnedShowIds] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (id) {
 			loadParkChildren();
 		}
 	}, [id]);
+
+	// Load pinned attractions and shows
+	useEffect(() => {
+		const loadPinnedIds = async () => {
+			const storedPinnedAttractionIds = await getPinnedAttractionIds();
+			const storedPinnedShowIds = await getPinnedShowIds();
+			setPinnedAttractionIds(storedPinnedAttractionIds);
+			setPinnedShowIds(storedPinnedShowIds);
+		};
+		loadPinnedIds();
+
+		// Set up an interval to refresh pinned status
+		const interval = setInterval(loadPinnedIds, 1000);
+		return () => clearInterval(interval);
+	}, []);
 
 	const loadParkChildren = async (isRefresh: boolean = false) => {
 		if (isRefresh) {
@@ -73,94 +97,203 @@ export default function ParkScreen() {
 		}
 
 		let items: ParkChild[] = [];
-		switch (activeTab) {
+		let currentPinnedIds: string[] = [];
+
+		/* switch (activeTab) {
 			case "attractions":
 				items = parkChildren.attractions;
+				currentPinnedIds = pinnedAttractionIds;
 				break;
 			case "shows":
 				items = parkChildren.shows;
+				currentPinnedIds = pinnedShowIds;
 				break;
 			case "restaurants":
 				items = parkChildren.restaurants;
 				break;
-		}
+		} */
 
-		if (items.length === 0) {
+		/* if (items.length === 0) {
 			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No {activeTab} found for this park.</Text>;
+		} */
+		items = parkChildren.attractions;
+		currentPinnedIds = pinnedAttractionIds;
+		if (items.length === 0) {
+			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No attractions found for this park.</Text>;
 		}
 
-		// Define status priority order
-		const statusOrder: Record<string, number> = {
-			open: 1,
-			operating: 1,
-			down: 2,
-			closed: 3,
-			refurbishment: 4,
+		// Add pinned status to items
+		const itemsWithPinnedStatus: ParkChildWithPinnedStatus[] = items.map((item) => ({
+			...item,
+			isPinned: currentPinnedIds.includes(item.id),
+		}));
+
+		// Separate pinned and unpinned items
+		const pinnedItems = itemsWithPinnedStatus.filter((item) => item.isPinned);
+		const unpinnedItems = itemsWithPinnedStatus.filter((item) => !item.isPinned);
+
+		// Helper function to create status-based sections
+		const createStatusSections = (items: ParkChildWithPinnedStatus[]) => {
+			// Define status priority order
+			const statusOrder: Record<string, number> = {
+				open: 1,
+				operating: 1,
+				down: 2,
+				closed: 3,
+				refurbishment: 4,
+			};
+
+			// Group items by status and sort alphabetically within each group
+			const groupedItems = items.reduce((acc, item) => {
+				const status = item.status?.toLowerCase() || "unknown";
+				const normalizedStatus = status === "operating" ? "open" : status;
+
+				// Skip items with "No_data" status
+				if (normalizedStatus === "no_data") {
+					return acc;
+				}
+
+				if (!acc[normalizedStatus]) {
+					acc[normalizedStatus] = [];
+				}
+				acc[normalizedStatus].push(item);
+				return acc;
+			}, {} as Record<string, ParkChildWithPinnedStatus[]>);
+
+			// Sort items within each group alphabetically
+			Object.keys(groupedItems).forEach((status) => {
+				groupedItems[status].sort((a, b) => a.name.localeCompare(b.name));
+			});
+
+			// Sort status groups by priority and create sections
+			return Object.keys(groupedItems)
+				.sort((a, b) => {
+					const priorityA = statusOrder[a] || 999;
+					const priorityB = statusOrder[b] || 999;
+					return priorityA - priorityB;
+				})
+				.map((status) => ({
+					title: status === "open" ? "Operating" : status.charAt(0).toUpperCase() + status.slice(1),
+					data: groupedItems[status],
+					status: status,
+				}));
 		};
 
-		// Group items by status and sort alphabetically within each group
-		const groupedItems = items.reduce((acc, item) => {
-			const status = item.status?.toLowerCase() || "unknown";
-			const normalizedStatus = status === "operating" ? "open" : status;
+		const sortPinnedItemsByStatus = (items: ParkChildWithPinnedStatus[]) => {
+			const statusOrder: Record<string, number> = {
+				open: 1,
+				operating: 1,
+				down: 2,
+				closed: 3,
+				refurbishment: 4,
+			};
 
-			// Skip items with "No_data" status
-			if (normalizedStatus === "no_data") {
-				return acc;
+			return items
+				.filter((item) => {
+					const status = item.status?.toLowerCase() || "unknown";
+					const normalizedStatus = status === "operating" ? "open" : status;
+					return normalizedStatus !== "no_data";
+				})
+				.sort((a, b) => {
+					const statusA = a.status?.toLowerCase() || "unknown";
+					const statusB = b.status?.toLowerCase() || "unknown";
+					const normalizedStatusA = statusA === "operating" ? "open" : statusA;
+					const normalizedStatusB = statusB === "operating" ? "open" : statusB;
+
+					const priorityA = statusOrder[normalizedStatusA] || 999;
+					const priorityB = statusOrder[normalizedStatusB] || 999;
+
+					// First sort by status priority
+					if (priorityA !== priorityB) {
+						return priorityA - priorityB;
+					}
+
+					// Then sort alphabetically within same status
+					return a.name.localeCompare(b.name);
+				});
+		};
+
+		const sections = [];
+
+		// Add pinned sections if there are pinned items
+		if (pinnedItems.length > 0) {
+			const sortedPinnedItems = sortPinnedItemsByStatus(pinnedItems);
+			sections.push({
+				title: "",
+				data: sortedPinnedItems,
+				isPinnedSection: true,
+			});
+		}
+
+		// Add regular sections
+		const regularSections = createStatusSections(unpinnedItems);
+		sections.push(...regularSections);
+
+		const renderItem = ({ item }: { item: ParkChildWithPinnedStatus }) => {
+			if (activeTab === "shows") {
+				console.log(`Rendering ShowItem: ${JSON.stringify(item)}`);
+				return <ShowItem key={`${item.id}-${refreshing ? "refreshed" : "initial"}`} id={item.id} name={item.name} />;
+			} else {
+				return (
+					<AttractionItem
+						key={`${item.id}-${refreshing ? "refreshed" : "initial"}`}
+						id={item.id}
+						name={item.name}
+						waitTime={item.wait_time_minutes ?? undefined}
+						singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined}
+						status={item.status || "Unknown"}
+						hasVirtualQueue={false} // You can add this field to your data if needed
+					/>
+				);
+			}
+		};
+
+		const renderSectionHeader = ({ section }: { section: SectionListData<ParkChildWithPinnedStatus> & { isPinnedSection?: boolean } }) => {
+			if (section.isPinnedSection) {
+				const sectionTitle = activeTab === "shows" ? "Pinned Shows" : activeTab === "restaurants" ? "Pinned Restaurants" : "Pinned Attractions";
+
+				return (
+					<Text
+						style={{
+							fontFamily: "Bebas Neue Pro",
+							fontWeight: 800,
+							fontSize: 18,
+							padding: 8,
+							paddingTop: 0,
+							color: colors.primaryLight,
+						}}
+					>
+						{sectionTitle}
+					</Text>
+				);
 			}
 
-			if (!acc[normalizedStatus]) {
-				acc[normalizedStatus] = [];
-			}
-			acc[normalizedStatus].push(item);
-			return acc;
-		}, {} as Record<string, ParkChild[]>);
+			return (
+				<Text
+					style={{
+						color: colors.primaryLight,
+						fontSize: 16,
+						fontWeight: "bold",
+						backgroundColor: colors.primaryVeryDark,
+						padding: 12,
+						marginTop: 8,
+						borderRadius: 6,
+					}}
+				>
+					{section.title} ({section.data.length})
+				</Text>
+			);
+		};
 
-		// Sort items within each group alphabetically
-		Object.keys(groupedItems).forEach((status) => {
-			groupedItems[status].sort((a, b) => a.name.localeCompare(b.name));
-		});
-
-		// Sort status groups by priority and create sections
-		const sections = Object.keys(groupedItems)
-			.sort((a, b) => {
-				const priorityA = statusOrder[a] || 999;
-				const priorityB = statusOrder[b] || 999;
-				return priorityA - priorityB;
-			})
-			.map((status) => ({
-				title: status === "open" ? "Operating" : status.charAt(0).toUpperCase() + status.slice(1),
-				data: groupedItems[status],
-				status: status,
-			}));
-
-		const renderSectionHeader = ({ section }: { section: SectionListData<ParkChild> }) => (
-			<Text
-				style={{
-					color: colors.primaryLight,
-					fontSize: 16,
-					fontWeight: "bold",
-					backgroundColor: colors.primaryBlack,
-					padding: 12,
-					borderRadius: 6,
-					borderWidth: 1,
-					borderColor: colors.primaryDark,
-				}}
-			>
-				{section.title} ({section.data.length})
-			</Text>
-		);
-
-		const renderItem = ({ item }: { item: ParkChild }) => <AttractionItem key={`${item.id}-${refreshing ? "refreshed" : "initial"}`} id={item.id} name={item.name} waitTime={item.wait_time_minutes ?? undefined} singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined} status={item.status || "Unknown"} />;
-
-		return <SectionList sections={sections} renderItem={renderItem} /* renderSectionHeader={renderSectionHeader} */ keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`} stickySectionHeadersEnabled={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} /* SectionSeparatorComponent={() => <View style={{ height: 16 }} />} */ refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />} />;
+		return <SectionList sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`} stickySectionHeadersEnabled={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />} />;
 	};
 
 	return (
 		<View style={parkScreenStyles.parkScreenContainer}>
-			<ParkHeader item={{ id, name, country_code, status }} onRefresh={handleRefresh} isRefreshing={refreshing} />
-			<VStack style={{ gap: 16, padding: 16 }}>
-				{/* Tab Bar */}
-				<HStack style={{ flexDirection: "row" }}>
+			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
+			{/* <VStack style={{ gap: 16, padding: 16 }}> */}
+			{/* Tab Bar */}
+			{/* <HStack style={{ flexDirection: "row" }}>
 					<Pressable android_ripple={{ color: colors.primaryTransparent }} onPress={() => setActiveTab("attractions")} style={{ flex: 1, alignItems: "center", gap: 4, paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8 }}>
 						<Icon name="attraction" fill={colors.primaryLight} height={24} width={24} />
 						<Text style={{ color: colors.primaryLight }}>Attractions</Text>
@@ -177,7 +310,7 @@ export default function ParkScreen() {
 						{activeTab === "restaurants" && <View style={{ width: 32, height: 4, backgroundColor: colors.primaryLight, borderRadius: 4 }} />}
 					</Pressable>
 				</HStack>
-			</VStack>
+			</VStack> */}
 
 			{/* Content */}
 			<View style={{ flex: 1 }}>{renderContent()}</View>

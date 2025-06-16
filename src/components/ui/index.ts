@@ -1,3 +1,4 @@
+export * from "./accordion";
 export * from "./actionsheet";
 export * from "./box";
 export * from "./button";

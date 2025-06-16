@@ -9,7 +9,9 @@ import { colors, parkScreenStyles } from "@/src/styles";
 import { HStack, VStack } from "./ui";
 import { CountryBadge } from "./countryBadge";
 import { StatusBadge } from "./statusBadge";
-import { getParkStatus } from "@/app/api/get/getParkStatus";
+import { getParkStatus, ParkStatus } from "@/app/api/get/getParkStatus";
+import { ParkInfo } from "./parkInfo";
+import populateShowTimes from "@/app/api/populateShowTimes";
 
 export function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefreshing = false }: { item: { id: string; name: string; country_code: string }; onRefresh?: () => void; isRefreshing?: boolean }) {
 	const router = useRouter();
@@ -53,7 +55,7 @@ export function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefr
 	}
 
 	return (
-		<VStack style={{ marginBottom: 8 }}>
+		<VStack>
 			<HStack style={parkScreenStyles.parkScreenHeaderContainer}>
 				{/* Back button */}
 				<Pressable onPress={handleBackPress} android_ripple={{ color: colors.primaryTransparent, foreground: true }} style={{ backgroundColor: colors.primaryVeryDark, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 8, padding: 8, overflow: "hidden" }}>
@@ -89,11 +91,7 @@ export function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefr
 				<CountryBadge country={country_code} status={status} isPark />
 				<StatusBadge status={status} />
 			</HStack>
-			{/* <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 4, paddingHorizontal: 12, paddingVertical: 4, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 100, marginHorizontal: 16 }}>
-				{// Placeholder for park information}
-				<Text style={{ color: colors.primary }}>Show Info</Text>
-				<Icon name="expand" fill={colors.primary} height={16} width={16} />
-			</View> */}
+			<ParkInfo parkId={id} />
 		</VStack>
 	);
 }

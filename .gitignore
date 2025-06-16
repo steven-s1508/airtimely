@@ -35,3 +35,10 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# android and ios
+android
+ios
+
+# planning doc
+planning.md

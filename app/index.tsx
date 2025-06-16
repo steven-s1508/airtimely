@@ -48,7 +48,7 @@ export default function HomeScreen() {
 			{/* Header with Logo and Search */}
 			<View style={styles.homeHeader}>
 				{/* Logo */}
-				<Image source={require("@/src/assets/Airtimely Logo Teal.svg")} style={styles.logo} contentFit="contain" />
+				<Image source={require("@/src/assets/images/Airtimely Logo Teal.svg")} style={styles.logo} contentFit="contain" />
 				{/* Search and Refresh Container */}
 				<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 					{/* Search Input */}

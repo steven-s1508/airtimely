@@ -1,6 +1,6 @@
 {
 	"name": "airtimely",
-	"version": "1.0.0",
+	"version": "1.0.0-pre-release-2",
 	"main": "index.ts",
 	"scripts": {
 		"start": "expo start",
@@ -10,8 +10,10 @@
 		"generate-icons": "svgr --native --typescript --out-dir src/assets/icons/components --ext tsx --ignore-existing src/assets/icons/*.svg"
 	},
 	"dependencies": {
-		"@expo/html-elements": "^0.12.5",
+		"@animatereactnative/accordion": "^0.1.5",
+		"@expo/html-elements": "^0.4.2",
 		"@expo/vector-icons": "^14.1.0",
+		"@gluestack-ui/accordion": "^1.0.14",
 		"@gluestack-ui/actionsheet": "^0.2.53",
 		"@gluestack-ui/button": "^1.0.14",
 		"@gluestack-ui/divider": "^0.1.10",
@@ -35,11 +37,13 @@
 		"axios": "^1.9.0",
 		"babel-plugin-module-resolver": "^5.0.2",
 		"expo": "^53.0.11",
+		"expo-constants": "~17.1.6",
 		"expo-crypto": "^14.1.5",
 		"expo-dev-client": "^5.2.0",
 		"expo-font": "^13.3.1",
 		"expo-image": "^2.2.0",
 		"expo-linear-gradient": "^14.1.5",
+		"expo-linking": "~7.1.5",
 		"expo-router": "~5.0.7",
 		"expo-status-bar": "~2.2.3",
 		"lucide-react-native": "^0.513.0",
@@ -47,6 +51,7 @@
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"react-native": "^0.79.3",
+		"react-native-animatable": "^1.4.0",
 		"react-native-css-interop": "^0.1.22",
 		"react-native-localize": "^3.4.1",
 		"react-native-reanimated": "^3.18.0",
@@ -55,9 +60,7 @@
 		"react-native-svg": "^15.12.0",
 		"react-native-url-polyfill": "^2.0.0",
 		"react-native-vector-icons": "^10.2.0",
-		"tailwindcss": "^3.4.17",
-		"expo-linking": "~7.1.5",
-		"expo-constants": "~17.1.6"
+		"tailwindcss": "^3.4.17"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.27.4",
