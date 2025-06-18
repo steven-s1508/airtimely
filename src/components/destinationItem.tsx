@@ -29,7 +29,6 @@ export const DestinationItem = React.memo(
 		}, [onTogglePin, item.entity_id]);
 
 		const handleParkPress = useCallback(() => {
-			console.log("Park destination pressed:", item.name);
 			router.push({ pathname: "/park/[id]", params: { id: item.entity_id, name: item.name, country_code: item.country_code, external_id: item.external_id } });
 		}, [router, item.entity_id, item.name]);
 
@@ -114,7 +113,6 @@ export const DestinationItem = React.memo(
 				const textStyles = park.status.toLowerCase() === "open" ? destinationParkChildrenStyles.name : park.status.toLowerCase() === "closed" ? destinationParkChildrenStyles.nameClosed : destinationParkChildrenStyles.name;
 
 				const handleChildParkPress = () => {
-					console.log("Child Park pressed:", park.name);
 					router.push({ pathname: "/park/[id]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
 				};
 

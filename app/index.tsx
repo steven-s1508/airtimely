@@ -2,24 +2,20 @@
 // React / React Native Imports
 import React, { useState, useRef, useEffect } from "react";
 import { View } from "react-native";
-// import { useNavigation, NavigationProp } from "@react-navigation/native"; // Remove: No longer needed
 import { SafeAreaView } from "react-native-safe-area-context";
 // Expo Imports
 import { Image } from "expo-image";
 // 3rd Party Imports
-import { Input, InputField, InputSlot, Text, Pressable } from "@/src/components/ui"; // Removed Pressable, VStack, Link, LinkText as they were not used in the provided snippet for HomeScreen
+import { Input, InputField, InputSlot, Text, Pressable } from "@/src/components/ui";
 // Local Imports
 import { FooterCredits } from "@/src/components/footerCredits";
 import { colors, styles } from "@/src/styles/styles";
-import { DestinationList } from "@/src/components/destinationList"; // Ensure this component is updated for expo-router if it navigates
+import { DestinationList } from "@/src/components/destinationList";
 import { Icon } from "@/src/components/Icon";
-
-// Note: If DestinationList or other child components perform navigation,
-// they will also need to be updated to use expo-router's useRouter or Link.
 
 export default function HomeScreen() {
 	const [parkFilterInput, setParkFilterInput] = useState(""); // Actual input value
-	const [debouncedParkFilter, setDebouncedParkFilter] = useState(""); // Debounced value for filtering - not used in snippet
+	const [debouncedParkFilter, setDebouncedParkFilter] = useState(""); // Debounced value for filtering
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const destinationListRef = useRef<{ refresh: () => Promise<void> }>(null);
 

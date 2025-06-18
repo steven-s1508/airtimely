@@ -4,7 +4,7 @@ import { View, ActivityIndicator, SectionList, SectionListData, RefreshControl }
 // Expo Imports
 import { useLocalSearchParams } from "expo-router";
 // 3rd Party Imports
-import { Input, InputField, InputSlot, Text, VStack, HStack, Pressable } from "@/src/components/ui";
+import { Input, InputField, InputSlot, Text } from "@/src/components/ui";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
@@ -110,23 +110,6 @@ export default function ParkScreen() {
 		let items: ParkChild[] = [];
 		let currentPinnedIds: string[] = [];
 
-		/* switch (activeTab) {
-			case "attractions":
-				items = parkChildren.attractions;
-				currentPinnedIds = pinnedAttractionIds;
-				break;
-			case "shows":
-				items = parkChildren.shows;
-				currentPinnedIds = pinnedShowIds;
-				break;
-			case "restaurants":
-				items = parkChildren.restaurants;
-				break;
-		} */
-
-		/* if (items.length === 0) {
-			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No {activeTab} found for this park.</Text>;
-		} */
 		items = parkChildren.attractions;
 		currentPinnedIds = pinnedAttractionIds;
 		if (items.length === 0) {
@@ -252,7 +235,6 @@ export default function ParkScreen() {
 
 		const renderItem = ({ item }: { item: ParkChildWithPinnedStatus }) => {
 			if (activeTab === "shows") {
-				console.log(`Rendering ShowItem: ${JSON.stringify(item)}`);
 				return <ShowItem key={`${item.id}-${refreshing ? "refreshed" : "initial"}`} id={item.id} name={item.name} />;
 			} else {
 				return (
@@ -324,26 +306,6 @@ export default function ParkScreen() {
 					)}
 				</Input>
 			</View>
-			{/* <VStack style={{ gap: 16, padding: 16 }}> */}
-			{/* Tab Bar */}
-			{/* <HStack style={{ flexDirection: "row" }}>
-					<Pressable android_ripple={{ color: colors.primaryTransparent }} onPress={() => setActiveTab("attractions")} style={{ flex: 1, alignItems: "center", gap: 4, paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8 }}>
-						<Icon name="attraction" fill={colors.primaryLight} height={24} width={24} />
-						<Text style={{ color: colors.primaryLight }}>Attractions</Text>
-						{activeTab === "attractions" && <View style={{ width: 32, height: 4, backgroundColor: colors.primaryLight, borderRadius: 4 }} />}
-					</Pressable>
-					<Pressable android_ripple={{ color: colors.primaryTransparent }} onPress={() => setActiveTab("shows")} style={{ flex: 1, alignItems: "center", gap: 4, paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8 }}>
-						<Icon name="show" fill={colors.primaryLight} height={24} width={24} />
-						<Text style={{ color: colors.primaryLight }}>Shows</Text>
-						{activeTab === "shows" && <View style={{ width: 32, height: 4, backgroundColor: colors.primaryLight, borderRadius: 4 }} />}
-					</Pressable>
-					<Pressable android_ripple={{ color: colors.primaryTransparent }} onPress={() => setActiveTab("restaurants")} style={{ flex: 1, alignItems: "center", gap: 4, paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8 }}>
-						<Icon name="restaurant" fill={colors.primaryLight} height={24} width={24} />
-						<Text style={{ color: colors.primaryLight }}>Restaurants</Text>
-						{activeTab === "restaurants" && <View style={{ width: 32, height: 4, backgroundColor: colors.primaryLight, borderRadius: 4 }} />}
-					</Pressable>
-				</HStack>
-			</VStack> */}
 
 			{/* Content */}
 			<View style={{ flex: 1 }}>{renderContent()}</View>

@@ -14,7 +14,3 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 		detectSessionInUrl: false,
 	},
 });
-
-/* 
-CHECK ALL DB AND EDGE FUNCTIONS IF THEY DO WHAT THEY ARE SUPPOSED TO DO
-*/
