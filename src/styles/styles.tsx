@@ -55,6 +55,8 @@ export const styles = StyleSheet.create({
 	logo: { alignSelf: "center", width: 61, height: 40 },
 	parkFilterInput: { position: "relative", borderWidth: 0, elevation: 1, color: colors.primaryVeryLight },
 	parkFilterInputField: { borderWidth: 1, paddingVertical: 8, paddingLeft: 12, borderRadius: 6, borderColor: colors.primary, fontSize: 16, lineHeight: 19, paddingRight: 36, backgroundColor: colors.primaryVeryDark, color: colors.primaryVeryLight, elevation: 1 },
+	attractionFilterInput: { position: "relative", borderWidth: 0, elevation: 1, color: colors.primaryVeryLight, marginHorizontal: 16, marginBottom: 16 },
+	attractionFilterInputField: { borderWidth: 1, paddingVertical: 8, paddingLeft: 12, borderRadius: 6, borderColor: colors.primary, fontSize: 16, lineHeight: 19, paddingRight: 36, backgroundColor: colors.primaryVeryDark, color: colors.primaryVeryLight, elevation: 1 },
 	clearButton: { position: "absolute", right: 8, top: 0, bottom: 0, justifyContent: "center", alignItems: "center", width: 30 },
 	footerCredits: {
 		paddingHorizontal: 16,

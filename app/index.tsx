@@ -70,7 +70,7 @@ export default function HomeScreen() {
 
 			{/* Destinations View */}
 			<SafeAreaView style={{ paddingHorizontal: 16, flexGrow: 1 }}>
-				<DestinationList searchFilter={debouncedParkFilter} />
+				<DestinationList ref={destinationListRef} searchFilter={debouncedParkFilter} />
 			</SafeAreaView>
 
 			{/* Footer with Waitingtimes.APP credits */}

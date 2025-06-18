@@ -149,7 +149,7 @@ export const DestinationItem = React.memo(
 							</View>
 							{!isPinned ? (
 								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryLight, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>

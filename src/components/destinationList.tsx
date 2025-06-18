@@ -99,9 +99,9 @@ export const DestinationList = React.memo(
 			}
 		}, []);
 
-		const handleRefresh = useCallback(async () => {
+		const handleRefresh = async () => {
 			await loadInitialData(true);
-		}, [loadInitialData]);
+		};
 
 		useEffect(() => {
 			loadInitialData();
@@ -196,7 +196,7 @@ export const DestinationList = React.memo(
 			[sectionListData.length]
 		);
 
-		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id, []);
+		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => `${item.entity_id}-${refreshKey}`, [refreshKey]);
 
 		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
 		const SectionSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
@@ -223,26 +223,9 @@ export const DestinationList = React.memo(
 		}
 
 		return (
-			<SafeAreaView>
-				<SectionList
-					sections={sectionListData}
-					keyExtractor={keyExtractor}
-					renderItem={renderItem}
-					renderSectionHeader={renderSectionHeader}
-					ItemSeparatorComponent={ItemSeparator}
-					SectionSeparatorComponent={SectionSeparator}
-					estimatedItemSize={120}
-					initialNumToRender={6} // Smaller for variable heights
-					maxToRenderPerBatch={4} // Smaller batches
-					windowSize={15}
-					removeClippedSubviews={true}
-					updateCellsBatchingPeriod={50}
-					disableVirtualization={false}
-					legacyImplementation={false}
-					stickySectionHeadersEnabled={false}
-					refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating destinations..." titleColor={colors.primaryLight} />}
-				/>
-			</SafeAreaView>
+			<View style={{ flex: 1 }}>
+				<SectionList sections={sectionListData} keyExtractor={keyExtractor} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ItemSeparatorComponent={ItemSeparator} SectionSeparatorComponent={SectionSeparator} initialNumToRender={6} maxToRenderPerBatch={4} windowSize={25} removeClippedSubviews={true} updateCellsBatchingPeriod={50} stickySectionHeadersEnabled={false} contentContainerStyle={{ flexGrow: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating destinations..." titleColor={colors.primaryLight} />} />
+			</View>
 		);
 	})
 );

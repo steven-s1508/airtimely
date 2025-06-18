@@ -4,11 +4,11 @@ import { View, ActivityIndicator, SectionList, SectionListData, RefreshControl }
 // Expo Imports
 import { useLocalSearchParams } from "expo-router";
 // 3rd Party Imports
-import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
+import { Input, InputField, InputSlot, Text, VStack, HStack, Pressable } from "@/src/components/ui";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
-import { colors, parkScreenStyles } from "@/src/styles/styles";
+import { colors, styles, parkScreenStyles } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
 import { ShowItem } from "@/src/components/showItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/app/api/get/getParkChildren";
@@ -20,6 +20,8 @@ interface ParkChildWithPinnedStatus extends ParkChild {
 }
 
 export default function ParkScreen() {
+	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
+	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
 	const { id, name, country_code, status } = params;
 	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
@@ -70,6 +72,15 @@ export default function ParkScreen() {
 			}
 		}
 	};
+
+	// Debounce the search input
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedAttractionFilter(attractionFilterInput);
+		}, 300); // 300ms delay
+
+		return () => clearTimeout(timer);
+	}, [attractionFilterInput]);
 
 	const handleRefresh = async () => {
 		await loadParkChildren(true);
@@ -123,10 +134,20 @@ export default function ParkScreen() {
 		}
 
 		// Add pinned status to items
-		const itemsWithPinnedStatus: ParkChildWithPinnedStatus[] = items.map((item) => ({
+		let itemsWithPinnedStatus: ParkChildWithPinnedStatus[] = items.map((item) => ({
 			...item,
 			isPinned: currentPinnedIds.includes(item.id),
 		}));
+
+		// Apply search filter
+		if (debouncedAttractionFilter.trim() !== "") {
+			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => item.name.toLowerCase().includes(debouncedAttractionFilter.toLowerCase()));
+		}
+
+		// If no results after filtering, show message
+		if (itemsWithPinnedStatus.length === 0) {
+			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No attractions found matching "{debouncedAttractionFilter}".</Text>;
+		}
 
 		// Separate pinned and unpinned items
 		const pinnedItems = itemsWithPinnedStatus.filter((item) => item.isPinned);
@@ -291,6 +312,18 @@ export default function ParkScreen() {
 	return (
 		<View style={parkScreenStyles.parkScreenContainer}>
 			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
+			{/* Search and Refresh Container */}
+			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+				{/* Search Input */}
+				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
+					<InputField placeholder="Search for attraction..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
+					{attractionFilterInput.length > 0 && (
+						<InputSlot onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
+							<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />
+						</InputSlot>
+					)}
+				</Input>
+			</View>
 			{/* <VStack style={{ gap: 16, padding: 16 }}> */}
 			{/* Tab Bar */}
 			{/* <HStack style={{ flexDirection: "row" }}>
