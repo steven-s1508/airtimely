@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import { Text, Pressable, HStack, VStack } from "@components/ui";
-import { getParkSchedule, ParkScheduleItem } from "@/app/api/get/getParkSchedule";
+import { getParkSchedule, ParkScheduleItem } from "@/src/utils/api/getParkSchedule";
 import { Icon } from "@/src/components/Icon";
 import { colors } from "@/src/styles/styles";
 

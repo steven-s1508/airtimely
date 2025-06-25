@@ -9,7 +9,7 @@ import { colors, parkScreenStyles } from "@/src/styles";
 import { HStack, VStack } from "./ui";
 import { CountryBadge } from "./countryBadge";
 import { StatusBadge } from "./statusBadge";
-import { getParkStatus, ParkStatus } from "@/app/api/get/getParkStatus";
+import { getParkStatus, ParkStatus } from "@/src/utils/api/getParkStatus";
 import { ParkInfo } from "./parkInfo";
 import populateShowTimes from "@/app/api/populateShowTimes";
 

@@ -8,7 +8,7 @@ import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
 import { Icon } from "@/src/components/Icon";
 import { colors } from "@/src/styles/styles";
 import { getPinnedShowIds, addPinnedShowId, removePinnedShowId } from "@/src/utils/pinShows";
-import { getShowTimes, type ShowTime } from "@/app/api/get/getShowTimes";
+import { getShowTimes, type ShowTime } from "@/src/utils/api/getShowTimes";
 
 // Helper function to format time (same as in parkInfo)
 function formatTime(dateString: string): string {

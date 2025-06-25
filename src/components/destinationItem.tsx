@@ -6,9 +6,9 @@ import { Icon } from "@/src/components/Icon";
 import { View } from "react-native";
 import { Pressable, Text, VStack, HStack } from "@/src/components/ui";
 import { colors, destinationItemStyles, destinationParkChildrenStyles, skeletonDestinationItemStyles } from "@/src/styles";
-import { fetchChildParks } from "@/app/api/get/getParksByDestination";
+import { fetchChildParks } from "@/src/utils/api/getParksByDestination";
 import { useRouter } from "expo-router";
-import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatus, type ParkWithStatus } from "@/app/api/get/getParkStatus";
+import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatus, type ParkWithStatus } from "@/src/utils/api/getParkStatus";
 
 export const DestinationItem = React.memo(
 	function DestinationItem({ item, isPinned, onTogglePin }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void }) {
@@ -147,7 +147,7 @@ export const DestinationItem = React.memo(
 							</View>
 							{!isPinned ? (
 								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>
@@ -186,7 +186,7 @@ export const DestinationItem = React.memo(
 							</View>
 							{!isPinned ? (
 								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>

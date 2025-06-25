@@ -11,7 +11,7 @@ import { Icon } from "@/src/components/Icon";
 import { colors, styles, parkScreenStyles } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
 import { ShowItem } from "@/src/components/showItem";
-import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/app/api/get/getParkChildren";
+import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
 import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
 import { getPinnedShowIds } from "@/src/utils/pinShows";
 
