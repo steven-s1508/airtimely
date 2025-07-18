@@ -1,12 +1,13 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Windmill Script: Update Park Schedules
+// Language: TypeScript (Deno)
+// Description: Fetch and update park schedules from ThemeParks API
+
+import * as wmill from "npm:windmill-client@1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// ThemeParks API configuration
 const THEMEPARKS_API_BASE_URL = "https://api.themeparks.wiki/v1";
 const THEMEPARKS_API_REQUEST_DELAY_MS = 210;
-
-const supabaseUrl = Deno.env.get("SELFHOST_SUPABASE_URL");
-const supabaseServiceKey = Deno.env.get("SELFHOST_SERVICE_ROLE_KEY");
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function delay(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -27,19 +28,25 @@ async function fetchEntitySchedule(entityID: string) {
 	}
 }
 
-async function updateParkSchedules() {
+async function updateParkSchedules(supabase: any) {
 	console.log("Starting park schedules update...");
-
 	try {
 		const { data: parks, error: parksError } = await supabase.from("parks").select("id, external_id, name").eq("is_active", true).not("external_id", "is", null);
 
 		if (parksError) {
 			console.error("Error fetching parks:", parksError);
-			return { error: "Error fetching parks" };
+			throw new Error("Error fetching parks");
 		}
 
 		if (!parks || parks.length === 0) {
-			return { message: "No active parks found" };
+			return {
+				success: true,
+				message: "No active parks found",
+				parksProcessed: 0,
+				successfulParks: 0,
+				failedParks: 0,
+				entriesInserted: 0,
+			};
 		}
 
 		console.log(`Found ${parks.length} parks to update schedules for`);
@@ -51,13 +58,12 @@ async function updateParkSchedules() {
 		// Process each park individually
 		for (const park of parks) {
 			console.log(`Fetching schedule for park: ${park.name}`);
-
 			try {
 				const scheduleResponse = await fetchEntitySchedule(park.external_id);
 
 				if (scheduleResponse?.schedule && scheduleResponse.schedule.length > 0) {
 					// Prepare schedule entries for this park
-					const scheduleEntries = scheduleResponse.schedule.map((entry) => ({
+					const scheduleEntries = scheduleResponse.schedule.map((entry: any) => ({
 						park_id: park.id,
 						date: entry.date,
 						type: entry.type,
@@ -112,36 +118,26 @@ async function updateParkSchedules() {
 		};
 	} catch (error) {
 		console.error("Error in updateParkSchedules:", error);
-		return { error: error.message };
+		throw error;
 	}
 }
 
-serve(async (req) => {
-	const authHeader = req.headers.get("Authorization");
-	const expectedAuth = Deno.env.get("FUNCTION_SECRET");
+export async function main() {
+	// Get environment variables (Windmill provides these)
+	const supabaseUrl = await wmill.getVariable("u/steven_s1508/SUPABASE_URL");
+	const supabaseServiceKey = await wmill.getVariable("u/steven_s1508/SERVICE_ROLE_KEY");
 
-	if (expectedAuth && authHeader !== `Bearer ${expectedAuth}`) {
-		return new Response(JSON.stringify({ error: "Unauthorized" }), {
-			status: 401,
-			headers: { "Content-Type": "application/json" },
-		});
+	if (!supabaseUrl || !supabaseServiceKey) {
+		throw new Error("Missing required environment variables: SUPABASE_URL and SERVICE_ROLE_KEY");
 	}
+
+	const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 	try {
-		const result = await updateParkSchedules();
-		return new Response(JSON.stringify(result), {
-			status: result.error ? 500 : 200,
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-			},
-		});
+		const result = await updateParkSchedules(supabase);
+		return result;
 	} catch (error) {
-		console.error("Edge function error:", error);
-		return new Response(JSON.stringify({ error: error.message }), {
-			status: 500,
-			headers: { "Content-Type": "application/json" },
-		});
+		console.error("Script error:", error);
+		throw error;
 	}
-});
+}

@@ -1,16 +1,19 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Windmill Script: Update Live Data
+// Language: TypeScript (Deno)
+// Description: Fetch and update live ride wait time data from ThemeParks API
+
+import * as wmill from "npm:windmill-client@1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 // ThemeParks API configuration
 const THEMEPARKS_API_BASE_URL = "https://api.themeparks.wiki/v1";
 const THEMEPARKS_API_REQUEST_DELAY_MS = 210;
-// Initialize Supabase client
-const supabaseUrl = Deno.env.get("SELFHOST_SUPABASE_URL");
-const supabaseServiceKey = Deno.env.get("SELFHOST_SERVICE_ROLE_KEY");
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-async function delay(ms) {
+
+async function delay(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
-async function fetchEntityLiveData(entityID) {
+
+async function fetchEntityLiveData(entityID: string) {
 	const url = `${THEMEPARKS_API_BASE_URL}/entity/${entityID}/live`;
 	try {
 		const response = await fetch(url);
@@ -24,6 +27,7 @@ async function fetchEntityLiveData(entityID) {
 		return null;
 	}
 }
+
 async function generateUUID() {
 	const array = new Uint8Array(16);
 	crypto.getRandomValues(array);
@@ -35,8 +39,9 @@ async function generateUUID() {
 		.join("");
 	return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
+
 // Helper function to convert UTC to park timezone
-function convertToTimezone(utcTimestamp, timezone) {
+function convertToTimezone(utcTimestamp: string, timezone: string) {
 	try {
 		const date = new Date(utcTimestamp);
 		// Use Intl.DateTimeFormat to convert to local timezone
@@ -63,7 +68,8 @@ function convertToTimezone(utcTimestamp, timezone) {
 		return utcTimestamp; // Fallback to UTC
 	}
 }
-async function updateParkLiveData(park, timestamp) {
+
+async function updateParkLiveData(park: any, timestamp: string, supabase: any) {
 	console.log(`Fetching live data for park: ${park.name} (${park.timezone || "UTC"})`);
 	try {
 		// Fetch live data from ThemeParks API
@@ -75,8 +81,10 @@ async function updateParkLiveData(park, timestamp) {
 				reason: "No live data available",
 			};
 		}
+
 		// Get all rides for this park
 		const { data: rides, error: ridesError } = await supabase.from("rides").select("id, external_id, name").eq("park_id", park.id).eq("is_active", true);
+
 		if (ridesError) {
 			console.error(`Error fetching rides for park ${park.name}:`, ridesError);
 			return {
@@ -84,6 +92,7 @@ async function updateParkLiveData(park, timestamp) {
 				reason: "Database error fetching rides",
 			};
 		}
+
 		if (!rides || rides.length === 0) {
 			console.log(`No rides found for park: ${park.name}`);
 			return {
@@ -91,16 +100,19 @@ async function updateParkLiveData(park, timestamp) {
 				reason: "No rides found",
 			};
 		}
+
 		// Calculate local timestamp for this park
 		const localTimestamp = park.timezone ? convertToTimezone(timestamp, park.timezone) : timestamp;
+
 		// Create records for ALL rides, even those without current live data
 		const waitTimeEntries = [];
+
 		// Process each ride in our database
 		for (const ride of rides) {
 			let waitTimeEntry;
 			if (ride.external_id) {
 				// Find corresponding live data for this ride
-				const rideLiveData = liveData.liveData.find((entity) => entity.id === ride.external_id);
+				const rideLiveData = liveData.liveData.find((entity: any) => entity.id === ride.external_id);
 				if (rideLiveData) {
 					// Create entry with live data
 					waitTimeEntry = {
@@ -147,10 +159,12 @@ async function updateParkLiveData(park, timestamp) {
 			}
 			waitTimeEntries.push(waitTimeEntry);
 		}
+
 		// Bulk insert all wait time entries for this park
 		if (waitTimeEntries.length > 0) {
 			console.log(`Inserting ${waitTimeEntries.length} wait time records for ${park.name}...`);
 			const { error: insertError } = await supabase.from("ride_wait_times").insert(waitTimeEntries);
+
 			if (insertError) {
 				console.error(`Error inserting wait times for park ${park.name}:`, insertError);
 				return {
@@ -167,6 +181,7 @@ async function updateParkLiveData(park, timestamp) {
 				};
 			}
 		}
+
 		return {
 			success: true,
 			recordsInserted: 0,
@@ -180,32 +195,43 @@ async function updateParkLiveData(park, timestamp) {
 		};
 	}
 }
-async function updateAllLiveData() {
+
+async function updateAllLiveData(supabase: any) {
 	console.log("Starting live data update process...");
 	const timestamp = new Date().toISOString();
+
 	try {
 		// Get all active parks with their external IDs and timezones
 		const { data: parks, error: parksError } = await supabase.from("parks").select("id, external_id, name, timezone").eq("is_active", true).not("external_id", "is", null);
+
 		if (parksError) {
 			console.error("Error fetching parks:", parksError);
-			return {
-				error: "Error fetching parks",
-			};
+			throw new Error("Error fetching parks");
 		}
+
 		if (!parks || parks.length === 0) {
 			console.log("No active parks found.");
 			return {
 				message: "No active parks found",
+				success: true,
+				parksProcessed: 0,
+				successfulParks: 0,
+				failedParks: 0,
+				totalRecordsInserted: 0,
+				totalWithLiveData: 0,
 			};
 		}
+
 		console.log(`Found ${parks.length} active parks to update.`);
+
 		let totalRecordsInserted = 0;
 		let totalWithLiveData = 0;
 		let successfulParks = 0;
 		let failedParks = 0;
+
 		// Process each park
 		for (const park of parks) {
-			const result = await updateParkLiveData(park, timestamp);
+			const result = await updateParkLiveData(park, timestamp, supabase);
 			if (result.success) {
 				successfulParks++;
 				totalRecordsInserted += result.recordsInserted || 0;
@@ -214,12 +240,15 @@ async function updateAllLiveData() {
 				failedParks++;
 				console.error(`Failed to update park ${park.name}: ${result.reason}`);
 			}
+
 			// Rate limiting
 			await delay(THEMEPARKS_API_REQUEST_DELAY_MS);
 		}
+
 		console.log("Live data update process completed.");
 		console.log(`Summary: ${successfulParks} successful, ${failedParks} failed`);
 		console.log(`Total records inserted: ${totalRecordsInserted} (${totalWithLiveData} with live data)`);
+
 		return {
 			success: true,
 			timestamp,
@@ -231,78 +260,58 @@ async function updateAllLiveData() {
 		};
 	} catch (error) {
 		console.error("Error in updateAllLiveData:", error);
-		return {
-			error: error.message,
-		};
+		throw error;
 	}
 }
+
 // Optional: Clean up old data periodically
-async function cleanupOldData() {
+async function cleanupOldData(supabase: any) {
 	try {
 		// Keep detailed data for 90 days, then rely on aggregated data
 		const cutoffDate = new Date();
 		cutoffDate.setDate(cutoffDate.getDate() - 90);
+
 		const { error } = await supabase.from("ride_wait_times").delete().lt("recorded_at_timestamp", cutoffDate.toISOString());
+
 		if (error) {
 			console.error("Error cleaning up old data:", error);
+			throw new Error("Error cleaning up old data");
 		} else {
 			console.log("Successfully cleaned up old wait time data");
-		}
-	} catch (error) {
-		console.error("Error in cleanup process:", error);
-	}
-}
-serve(async (req) => {
-	// Verify the request is authorized
-	const authHeader = req.headers.get("Authorization");
-	const expectedAuth = Deno.env.get("FUNCTION_SECRET");
-	if (expectedAuth && authHeader !== `Bearer ${expectedAuth}`) {
-		return new Response(
-			JSON.stringify({
-				error: "Unauthorized",
-			}),
-			{
-				status: 401,
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}
-		);
-	}
-	// Check if this is a cleanup request
-	const url = new URL(req.url);
-	const isCleanup = url.searchParams.get("cleanup") === "true";
-	try {
-		let result;
-		if (isCleanup) {
-			await cleanupOldData();
-			result = {
+			return {
 				success: true,
 				message: "Cleanup completed",
 			};
-		} else {
-			result = await updateAllLiveData();
 		}
-		return new Response(JSON.stringify(result), {
-			status: result.error ? 500 : 200,
-			headers: {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-			},
-		});
 	} catch (error) {
-		console.error("Edge function error:", error);
-		return new Response(
-			JSON.stringify({
-				error: error.message,
-			}),
-			{
-				status: 500,
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}
-		);
+		console.error("Error in cleanup process:", error);
+		throw error;
 	}
-});
+}
+
+export async function main(cleanup: boolean = false) {
+	// Get environment variables (Windmill provides these)
+	const supabaseUrl = await await wmill.getVariable("u/steven_s1508/SUPABASE_URL");
+	const supabaseServiceKey = await wmill.getVariable("u/steven_s1508/SERVICE_ROLE_KEY");
+
+	if (!supabaseUrl || !supabaseServiceKey) {
+		throw new Error("Missing required environment variables: SUPABASE_URL and SERVICE_ROLE_KEY");
+	}
+
+	// Initialize Supabase client
+	const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+	try {
+		let result;
+		if (cleanup) {
+			result = await cleanupOldData(supabase);
+		} else {
+			result = await updateAllLiveData(supabase);
+		}
+
+		return result;
+	} catch (error) {
+		console.error("Script error:", error);
+		throw error;
+	}
+}

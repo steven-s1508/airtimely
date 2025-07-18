@@ -1,5 +1,3 @@
-/* JUST FOR REFERENCE - THIS FUNCTION IS IN THE DATABASE */
-
 DECLARE
     hourly_stats RECORD;
     start_timestamp TIMESTAMPTZ;
@@ -17,20 +15,18 @@ BEGIN
     FROM rides r 
     WHERE r.id = p_ride_id;
     
-    -- Calculate date characteristics
+    -- Calculate date characteristics and holiday status in one query
     SELECT 
         EXTRACT(DOW FROM p_date)::INTEGER as day_of_week,
-        (EXTRACT(DOW FROM p_date) IN (0, 6)) as is_weekend
+        (EXTRACT(DOW FROM p_date) IN (0, 6)) as is_weekend,
+        EXISTS(
+            SELECT 1 FROM holidays h
+            WHERE h.date = p_date 
+            AND (h.country_code IS NULL OR h.country_code = (
+                SELECT country_code FROM parks WHERE id = park_id_var
+            ))
+        ) as is_holiday
     INTO date_info;
-    
-    -- Check if it's a holiday (you may need to adjust this based on your holidays table)
-    SELECT EXISTS(
-        SELECT 1 FROM holidays h
-        WHERE h.date = p_date 
-        AND (h.country_code IS NULL OR h.country_code = (
-            SELECT country_code FROM parks WHERE id = park_id_var
-        ))
-    ) as is_holiday INTO date_info.is_holiday;
     
     -- Get weather data for this date and park
     SELECT 
@@ -42,10 +38,10 @@ BEGIN
     
     -- Calculate hourly statistics from raw wait time data
     SELECT 
-        ROUND(AVG(wait_time_minutes), 2)::DECIMAL(5,2) as avg_wait,
-        MIN(wait_time_minutes)::INTEGER as min_wait,
-        MAX(wait_time_minutes)::INTEGER as max_wait,
-        ROUND(AVG(single_rider_wait_time_minutes), 2)::DECIMAL(5,2) as avg_single_rider,
+        COALESCE(ROUND(AVG(wait_time_minutes)::NUMERIC, 2), 0)::DECIMAL(5,2) as avg_wait,
+        COALESCE(MIN(wait_time_minutes), 0)::INTEGER as min_wait,
+        COALESCE(MAX(wait_time_minutes), 0)::INTEGER as max_wait,
+        COALESCE(ROUND(AVG(single_rider_wait_time_minutes)::NUMERIC, 2), 0)::DECIMAL(5,2) as avg_single_rider,
         COUNT(*)::INTEGER as data_points,
         (COUNT(CASE WHEN status = 'OPERATING' THEN 1 END) * 5)::INTEGER as operational_mins
     INTO hourly_stats
@@ -76,6 +72,5 @@ BEGIN
         data_points_count = EXCLUDED.data_points_count,
         operational_minutes = EXCLUDED.operational_minutes,
         temperature_celsius = EXCLUDED.temperature_celsius,
-        weather_condition = EXCLUDED.weather_condition,
-        updated_at = NOW();
+        weather_condition = EXCLUDED.weather_condition;
 END;
