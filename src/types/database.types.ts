@@ -65,6 +65,7 @@ export type Database = {
 					created_at: string | null;
 					date: string;
 					downtime_minutes: number | null;
+					hourly_data: Json | null;
 					id: string;
 					lowest_wait_time_hour: number | null;
 					max_single_rider_wait_minutes: number | null;
@@ -85,6 +86,7 @@ export type Database = {
 					created_at?: string | null;
 					date: string;
 					downtime_minutes?: number | null;
+					hourly_data?: Json | null;
 					id?: string;
 					lowest_wait_time_hour?: number | null;
 					max_single_rider_wait_minutes?: number | null;
@@ -105,6 +107,7 @@ export type Database = {
 					created_at?: string | null;
 					date?: string;
 					downtime_minutes?: number | null;
+					hourly_data?: Json | null;
 					id?: string;
 					lowest_wait_time_hour?: number | null;
 					max_single_rider_wait_minutes?: number | null;
@@ -263,17 +266,12 @@ export type Database = {
 					created_at: string | null;
 					data_points_count: number | null;
 					date: string;
-					day_of_week: number | null;
 					hour: number;
 					id: string;
-					is_holiday: boolean | null;
-					is_weekend: boolean | null;
 					max_wait_time_minutes: number | null;
 					min_wait_time_minutes: number | null;
 					operational_minutes: number | null;
 					ride_id: string;
-					temperature_celsius: number | null;
-					weather_condition: string | null;
 				};
 				Insert: {
 					avg_single_rider_wait_minutes?: number | null;
@@ -281,17 +279,12 @@ export type Database = {
 					created_at?: string | null;
 					data_points_count?: number | null;
 					date: string;
-					day_of_week?: number | null;
 					hour: number;
 					id?: string;
-					is_holiday?: boolean | null;
-					is_weekend?: boolean | null;
 					max_wait_time_minutes?: number | null;
 					min_wait_time_minutes?: number | null;
 					operational_minutes?: number | null;
 					ride_id: string;
-					temperature_celsius?: number | null;
-					weather_condition?: string | null;
 				};
 				Update: {
 					avg_single_rider_wait_minutes?: number | null;
@@ -299,17 +292,12 @@ export type Database = {
 					created_at?: string | null;
 					data_points_count?: number | null;
 					date?: string;
-					day_of_week?: number | null;
 					hour?: number;
 					id?: string;
-					is_holiday?: boolean | null;
-					is_weekend?: boolean | null;
 					max_wait_time_minutes?: number | null;
 					min_wait_time_minutes?: number | null;
 					operational_minutes?: number | null;
 					ride_id?: string;
-					temperature_celsius?: number | null;
-					weather_condition?: string | null;
 				};
 				Relationships: [
 					{
@@ -954,6 +942,18 @@ export type CompositeTypes<
 		? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
 		: never = never
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database } ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName] : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"] ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions] : never;
+
+export type HourlyDataPoint = {
+	h: number; // hour (0-23)
+	avg?: number; // avg_wait_time_minutes
+	avg_s?: number; // avg_single_rider_wait_minutes
+	min?: number; // min_wait_time_minutes
+	max?: number; // max_wait_time_minutes
+	op?: number; // operational_minutes
+	data?: number; // data_points_count
+};
+
+export type HourlyData = HourlyDataPoint[];
 
 export const Constants = {
 	graphql_public: {
