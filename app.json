@@ -94,14 +94,6 @@
 					"project": "airtimely",
 					"organization": "airtimely"
 				}
-			],
-			[
-				"@sentry/react-native/expo",
-				{
-					"url": "https://sentry.io/",
-					"project": "airtimely",
-					"organization": "airtimely"
-				}
 			]
 		],
 		"extra": {
