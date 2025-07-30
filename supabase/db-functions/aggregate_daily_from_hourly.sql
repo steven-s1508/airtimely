@@ -16,7 +16,7 @@ BEGIN
         poh.closing_time,
         CASE 
             WHEN poh.opening_time IS NOT NULL AND poh.closing_time IS NOT NULL THEN
-                EXTRACT(HOUR FROM poh.closing_time::TIME - poh.opening_time::TIME)
+                EXTRACT(EPOCH FROM (poh.closing_time - poh.opening_time)) / 3600
             ELSE 24 -- Default to 24 hours if no schedule data
         END as operating_hours
     INTO park_info
@@ -96,8 +96,11 @@ BEGIN
     AND (
         park_info.opening_time IS NULL OR 
         park_info.closing_time IS NULL OR
-        hrs.hour >= EXTRACT(HOUR FROM park_info.opening_time::TIME) AND 
-        hrs.hour < EXTRACT(HOUR FROM park_info.closing_time::TIME)
+        (
+            (hrs.hour >= EXTRACT(HOUR FROM park_info.opening_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = r.park_id)))
+            AND
+            (hrs.hour < EXTRACT(HOUR FROM park_info.closing_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = r.park_id)))
+        )
     );
     
     -- Find peak hour (hour with highest average wait time) during park hours
