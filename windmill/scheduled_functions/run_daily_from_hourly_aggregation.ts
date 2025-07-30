@@ -112,11 +112,11 @@ export async function main(date?: string, cleanup: boolean = true, forceUpdate: 
 		}
 	}
 
-	// Optional: Clean up only very old raw data (e.g., > 30 days)
+	// Optional: Clean up only very old raw data (e.g., > 7 days)
 	if (cleanup && successCount > 0) {
 		try {
 			const cleanupDate = new Date(targetDate);
-			cleanupDate.setDate(cleanupDate.getDate() - 30); // Keep 30 days of raw data
+			cleanupDate.setDate(cleanupDate.getDate() - 7); // Keep 7 days of raw data
 			const cleanupDateStr = cleanupDate.toISOString();
 
 			const { count, error: cleanupError } = await supabase.from("ride_wait_times").delete().lt("recorded_at_local", cleanupDateStr);

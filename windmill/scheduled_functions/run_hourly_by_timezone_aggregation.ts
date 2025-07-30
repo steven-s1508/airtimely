@@ -1,7 +1,7 @@
 import * as wmill from "npm:windmill-client@1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-export async function main(date?: string, hour?: number, ride_id?: number, mode: string = "single") {
+export async function main(date?: string, hour?: number, ride_id?: number, mode: string = "single", manual_timezone?: string) {
 	// Get environment variables (Windmill provides these)
 	const supabaseUrl = await wmill.getVariable("u/steven_s1508/SUPABASE_URL");
 	const supabaseServiceKey = await wmill.getVariable("u/steven_s1508/SERVICE_ROLE_KEY");
@@ -64,6 +64,33 @@ export async function main(date?: string, hour?: number, ride_id?: number, mode:
 		ridesByTimezone.get(timezone)!.push(ride);
 	}
 
+	// Helper function to convert time from one timezone to target timezone
+	function convertTimeBetweenTimezones(date: string, hour: number, sourceTimezone: string, targetTimezone: string): { date: string; hour: number } {
+		// Create date in source timezone
+		const sourceDateTime = new Date(`${date}T${hour.toString().padStart(2, "0")}:00:00`);
+
+		// Convert to UTC first, then to target timezone
+		const formatter = new Intl.DateTimeFormat("en-CA", {
+			timeZone: targetTimezone,
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			hour12: false,
+		});
+
+		// Get the time in target timezone
+		const parts = formatter.formatToParts(sourceDateTime);
+		const targetYear = parseInt(parts.find((p) => p.type === "year")!.value);
+		const targetMonth = parseInt(parts.find((p) => p.type === "month")!.value);
+		const targetDay = parseInt(parts.find((p) => p.type === "day")!.value);
+		const targetHour = parseInt(parts.find((p) => p.type === "hour")!.value);
+
+		const targetDate = `${targetYear}-${targetMonth.toString().padStart(2, "0")}-${targetDay.toString().padStart(2, "0")}`;
+
+		return { date: targetDate, hour: targetHour };
+	}
+
 	// Process each timezone group
 	for (const [timezone, timezoneRides] of ridesByTimezone) {
 		try {
@@ -71,12 +98,30 @@ export async function main(date?: string, hour?: number, ride_id?: number, mode:
 			let targetHour: number;
 
 			if (date && hour !== undefined) {
-				// Use provided date/hour as-is
-				targetDate = date;
-				targetHour = hour;
+				if (manual_timezone) {
+					// Manual run with timezone conversion
+					console.log(`Manual run: Converting ${date} ${hour}:00 from ${manual_timezone} to ${timezone}`);
+
+					if (manual_timezone === timezone) {
+						// Same timezone, no conversion needed
+						targetDate = date;
+						targetHour = hour;
+					} else {
+						// Convert from manual_timezone to target timezone
+						const converted = convertTimeBetweenTimezones(date, hour, manual_timezone, timezone);
+						targetDate = converted.date;
+						targetHour = converted.hour;
+					}
+
+					console.log(`Converted to: ${targetDate} ${targetHour}:00 in ${timezone}`);
+				} else {
+					// Manual run without timezone (use provided date/hour as-is)
+					targetDate = date;
+					targetHour = hour;
+				}
 			} else {
-				// CORRECT timezone conversion approach
-				const now = new Date(); // Current server time (Berlin 08:00)
+				// Automatic run (cron job) - calculate previous hour in park's timezone
+				const now = new Date();
 
 				// Create a formatter for the target timezone
 				const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -154,6 +199,7 @@ export async function main(date?: string, hour?: number, ride_id?: number, mode:
 		success: true,
 		timezones: Array.from(ridesByTimezone.keys()),
 		mode: mode,
+		manual_timezone: manual_timezone || "none",
 		totalRides: rides.length,
 		successCount,
 		errorCount,
