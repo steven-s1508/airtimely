@@ -4,22 +4,11 @@ import { Text, Pressable, HStack, VStack } from "@components/ui";
 import { getParkSchedule, ParkScheduleItem } from "@/src/utils/api/getParkSchedule";
 import { Icon } from "@/src/components/Icon";
 import { colors } from "@/src/styles/styles";
+import { formatTime } from "@/src/utils/formatTime";
 
 interface ParkInfoProps {
 	parkId: string;
 	timezone?: string;
-}
-
-// return HH:mm format for the given date string without timezone conversion
-function formatTime(dateString: string): string {
-	const timeMatch = dateString.match(/T(\d{2}):(\d{2})/);
-
-	if (timeMatch) {
-		const [, hours, minutes] = timeMatch;
-		return `${hours}:${minutes}`;
-	}
-
-	return dateString; // Fallback if no match found
 }
 
 function getCurrentDateInTimezone(timezone: string): string {

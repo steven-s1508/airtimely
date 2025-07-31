@@ -9,32 +9,7 @@ import { Icon } from "@/src/components/Icon";
 import { colors } from "@/src/styles/styles";
 import { getPinnedShowIds, addPinnedShowId, removePinnedShowId } from "@/src/utils/pinShows";
 import { getShowTimes, type ShowTime } from "@/src/utils/api/getShowTimes";
-
-// Helper function to format time (same as in parkInfo)
-function formatTime(dateString: string): string {
-	if (!dateString) return "";
-
-	try {
-		// Handle ISO format with timezone: "2025-03-10T17:20:00+01:00"
-		const isoMatch = dateString.match(/T(\d{2}):(\d{2}):(\d{2})(?:[+-]\d{2}:\d{2}|Z)?/);
-		if (isoMatch) {
-			const [, hours, minutes] = isoMatch;
-			return `${hours}:${minutes}`;
-		}
-
-		// Handle simple time format: "17:20:00" or "17:20"
-		const timeMatch = dateString.match(/^(\d{1,2}):(\d{2})/);
-		if (timeMatch) {
-			const [, hours, minutes] = timeMatch;
-			return `${hours.padStart(2, "0")}:${minutes}`;
-		}
-
-		return "Invalid time";
-	} catch (error) {
-		console.error("Error formatting time:", dateString, error);
-		return "Invalid time";
-	}
-}
+import { formatTime } from "@/src/utils/formatTime";
 
 export const ShowItem = React.memo(function ShowItem({ id, name }: { id: string; name: string }) {
 	const router = useRouter();
