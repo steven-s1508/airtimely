@@ -4,11 +4,11 @@ import { supabase } from "@src/utils/supabase";
 
 import type { Tables } from "@src/types/database.types";
 
-import { FlatList, ScrollView, View, SectionList, RefreshControl } from "react-native";
+import { View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
-import { VStack, Text } from "./ui";
+import { Text } from "./ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, destinationListStyles } from "@src/styles/styles";
+import { colors } from "@src/styles/styles";
 
 import { getPinnedDestinationIds, addPinnedDestinationId, removePinnedDestinationId } from "@src/utils/pinDestinations";
 
