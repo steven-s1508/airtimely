@@ -70,7 +70,7 @@ const iconComponentMap: Record<IconName, React.FC<SvgProps>> = {
 	favoriteFilled: FavoriteFilledIconComponent,
 };
 
-export function Icon({ name, size = 24, className, style, ...props }: IconProps) {
+export const Icon = React.memo(function Icon({ name, size = 24, className, style, ...props }: IconProps) {
 	const SpecificIconComponent = iconComponentMap[name];
 
 	if (!SpecificIconComponent) {
@@ -81,4 +81,4 @@ export function Icon({ name, size = 24, className, style, ...props }: IconProps)
 	// `className` is passed for potential NativeWind usage, but `style` is standard for RN.
 	// `fill`, `stroke`, etc., are passed via `...props`.
 	return <SpecificIconComponent width={size} height={size} style={style} className={className} {...props} />;
-}
+});

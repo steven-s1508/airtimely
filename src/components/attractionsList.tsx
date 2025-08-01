@@ -184,7 +184,27 @@ export function RideList({ rides, waitTimeIcons, styles, parkChildren, activeTab
 		const regularSections = createStatusSections(unpinnedItems, false);
 		sections.push(...regularSections);
 
-		return <SectionList sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} keyExtractor={keyExtractor} stickySectionHeadersEnabled={false} contentContainerStyle={{ padding: 16, gap: 8 }} ItemSeparatorComponent={ItemSeparator} SectionSeparatorComponent={SectionSeparator} removeClippedSubviews={true} maxToRenderPerBatch={10} windowSize={10} getItemLayout={undefined} />;
+		return (
+			<SectionList
+				sections={sections}
+				renderItem={renderItem}
+				renderSectionHeader={renderSectionHeader}
+				keyExtractor={keyExtractor}
+				stickySectionHeadersEnabled={false}
+				contentContainerStyle={{ padding: 16, gap: 8 }}
+				ItemSeparatorComponent={ItemSeparator}
+				SectionSeparatorComponent={SectionSeparator}
+				removeClippedSubviews={true}
+				maxToRenderPerBatch={6}
+				windowSize={25}
+				updateCellsBatchingPeriod={50}
+				getItemLayout={undefined}
+				maintainVisibleContentPosition={{
+					minIndexForVisible: 1,
+					autoscrollToTopThreshold: undefined,
+				}}
+			/>
+		);
 	};
 
 	return renderContent();

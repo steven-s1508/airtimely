@@ -24,7 +24,7 @@ function getCurrentDateInTimezone(timezone: string): string {
 	return formatter.format(now);
 }
 
-export function ParkInfo({ parkId, timezone = "America/Los_Angeles" }: ParkInfoProps) {
+export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "America/Los_Angeles" }: ParkInfoProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [scheduleData, setScheduleData] = useState<ParkScheduleItem[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -189,4 +189,4 @@ export function ParkInfo({ parkId, timezone = "America/Los_Angeles" }: ParkInfoP
 			{isOpen && parkInfoContent}
 		</>
 	);
-}
+});

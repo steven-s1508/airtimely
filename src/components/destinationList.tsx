@@ -196,7 +196,7 @@ export const DestinationList = React.memo(
 			[sectionListData.length]
 		);
 
-		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => `${item.entity_id}-${refreshKey}`, [refreshKey]);
+		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id, []);
 
 		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
 		const SectionSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
@@ -224,7 +224,26 @@ export const DestinationList = React.memo(
 
 		return (
 			<View style={{ flex: 1 }}>
-				<SectionList sections={sectionListData} keyExtractor={keyExtractor} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ItemSeparatorComponent={ItemSeparator} SectionSeparatorComponent={SectionSeparator} initialNumToRender={6} maxToRenderPerBatch={4} windowSize={25} removeClippedSubviews={true} updateCellsBatchingPeriod={50} stickySectionHeadersEnabled={false} contentContainerStyle={{ flexGrow: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating destinations..." titleColor={colors.primaryLight} />} />
+				<SectionList
+					sections={sectionListData}
+					keyExtractor={keyExtractor}
+					renderItem={renderItem}
+					renderSectionHeader={renderSectionHeader}
+					ItemSeparatorComponent={ItemSeparator}
+					SectionSeparatorComponent={SectionSeparator}
+					initialNumToRender={6}
+					maxToRenderPerBatch={4}
+					windowSize={25}
+					removeClippedSubviews={true}
+					updateCellsBatchingPeriod={50}
+					stickySectionHeadersEnabled={false}
+					contentContainerStyle={{ flexGrow: 1 }}
+					refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating destinations..." titleColor={colors.primaryLight} />}
+					maintainVisibleContentPosition={{
+						minIndexForVisible: 1,
+						autoscrollToTopThreshold: undefined,
+					}}
+				/>
 			</View>
 		);
 	})

@@ -2,7 +2,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 
-export function ParkOpeningTimes({ hasOpeningTimes, openToday, openingTime, closingTime, formatTime }: { hasOpeningTimes: boolean; openToday: boolean; openingTime: string | null; closingTime: string | null; formatTime: (time: string | null) => string }) {
+export const ParkOpeningTimes = React.memo(function ParkOpeningTimes({ hasOpeningTimes, openToday, openingTime, closingTime, formatTime }: { hasOpeningTimes: boolean; openToday: boolean; openingTime: string | null; closingTime: string | null; formatTime: (time: string | null) => string }) {
 	if (!hasOpeningTimes) {
 		return (
 			<View style={{ marginHorizontal: 16, marginBottom: 12, marginTop: -32, zIndex: -1, backgroundColor: "#f8d7da", padding: 16, paddingBottom: 12, paddingTop: 32, borderBottomRightRadius: 8, borderBottomLeftRadius: 8 }}>
@@ -25,4 +25,4 @@ export function ParkOpeningTimes({ hasOpeningTimes, openToday, openingTime, clos
 			</Text>
 		</View>
 	);
-}
+});

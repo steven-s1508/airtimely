@@ -216,7 +216,7 @@ export const DestinationItem = React.memo(
 	}
 );
 
-export function SkeletonDestinationItem() {
+export const SkeletonDestinationItem = React.memo(function SkeletonDestinationItem() {
 	return (
 		<View style={skeletonDestinationItemStyles.destinationItemContainer}>
 			<VStack style={skeletonDestinationItemStyles.destinationItemContainerInner}>
@@ -237,4 +237,4 @@ export function SkeletonDestinationItem() {
 			</VStack>
 		</View>
 	);
-}
+});

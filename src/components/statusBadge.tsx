@@ -1,9 +1,10 @@
+import React from "react";
 import { View } from "react-native";
 import { Text } from "./ui";
 import { Icon } from "./Icon";
 import { colors, destinationStatusBadgeStyles } from "@/src/styles";
 
-export function StatusBadge({ status }: { status: string }) {
+export const StatusBadge = React.memo(function StatusBadge({ status }: { status: string }) {
 	const getStatusConfig = (status: string) => {
 		switch (status.toLowerCase()) {
 			case "open":
@@ -39,4 +40,4 @@ export function StatusBadge({ status }: { status: string }) {
 			<Text style={[destinationStatusBadgeStyles.text, config.textColor]}>{status}</Text>
 		</View>
 	);
-}
+});

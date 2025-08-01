@@ -1,3 +1,4 @@
+import React from "react";
 import { View, ViewStyle } from "react-native";
 import { Text } from "./ui";
 import { Icon } from "./Icon";
@@ -23,7 +24,7 @@ const countryNames: Record<string, string> = {
 	JP: "Japan",
 };
 
-export function CountryBadge({ country, status, style, isPark }: { country: string; status: string; style?: ViewStyle; isPark?: boolean }) {
+export const CountryBadge = React.memo(function CountryBadge({ country, status, style, isPark }: { country: string; status: string; style?: ViewStyle; isPark?: boolean }) {
 	if (!country || !status) {
 		return null; // Return null if country or status is not provided
 	}
@@ -44,4 +45,4 @@ export function CountryBadge({ country, status, style, isPark }: { country: stri
 			<Text style={[destinationCountryBadgeStyles.text, textColor]}>{countryName}</Text>
 		</View>
 	);
-}
+});
