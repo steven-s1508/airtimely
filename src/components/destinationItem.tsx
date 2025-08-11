@@ -9,10 +9,12 @@ import { colors, destinationItemStyles, destinationParkChildrenStyles, skeletonD
 import { fetchChildParks } from "@/src/utils/api/getParksByDestination";
 import { useRouter } from "expo-router";
 import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatus, type ParkWithStatus } from "@/src/utils/api/getParkStatus";
+import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 export const DestinationItem = React.memo(
-	function DestinationItem({ item, isPinned, onTogglePin }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void }) {
+	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
 		const router = useRouter();
+		const { addPinnedDestination, removePinnedDestination, isDestinationPinned, isParkPinned, addPinnedPark, removePinnedPark } = usePinnedItemsStore();
 
 		const [status, setStatus] = useState<ParkStatus>("Unknown");
 		const [isLoadingStatus, setIsLoadingStatus] = useState(true);
@@ -25,11 +27,16 @@ export const DestinationItem = React.memo(
 
 		// Memoize callbacks
 		const handleTogglePin = useCallback(() => {
-			onTogglePin(item.entity_id);
-		}, [onTogglePin, item.entity_id]);
+			if (isPinned) {
+				removePinnedDestination(item.entity_id!);
+			} else {
+				addPinnedDestination(item.entity_id!);
+			}
+			onTogglePin(item.entity_id!);
+		}, [onTogglePin, item.entity_id, isPinned, addPinnedDestination, removePinnedDestination]);
 
 		const handleParkPress = useCallback(() => {
-			router.push({ pathname: "/park/[id]", params: { id: item.entity_id, name: item.name, country_code: item.country_code, external_id: item.external_id } });
+			router.push({ pathname: "/park/[parkId]", params: { id: item.entity_id!, name: item.name!, country_code: item.country_code! } });
 		}, [router, item.entity_id, item.name]);
 
 		// Load park status for single parks
@@ -51,7 +58,7 @@ export const DestinationItem = React.memo(
 			} else {
 				setIsLoadingStatus(false); // Not a park, no status loading needed
 			}
-		}, [isParkTypeDisplay, item.entity_id]);
+		}, [isParkTypeDisplay, item.entity_id, refreshKey]);
 
 		useEffect(() => {
 			if (item.entity_type === "destination_group" && item.original_destination_id) {
@@ -83,7 +90,7 @@ export const DestinationItem = React.memo(
 				setChildParks([]); // Clear if not a destination group or no ID
 				setIsLoadingStatus(false);
 			}
-		}, [item.entity_type, item.original_destination_id]);
+		}, [item.entity_type, item.original_destination_id, refreshKey]);
 
 		// Memoize styling calculations
 		const containerStyle = useMemo(() => {
@@ -113,7 +120,7 @@ export const DestinationItem = React.memo(
 				const textStyles = park.status.toLowerCase() === "open" ? destinationParkChildrenStyles.name : park.status.toLowerCase() === "closed" ? destinationParkChildrenStyles.nameClosed : destinationParkChildrenStyles.name;
 
 				const handleChildParkPress = () => {
-					router.push({ pathname: "/park/[id]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
+					router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
 				};
 
 				return (
@@ -212,7 +219,7 @@ export const DestinationItem = React.memo(
 	},
 	(prevProps, nextProps) => {
 		// Custom comparison function for better memoization
-		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type;
+		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type && prevProps.refreshKey === nextProps.refreshKey;
 	}
 );
 

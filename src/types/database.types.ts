@@ -1,31 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-	graphql_public: {
-		Tables: {
-			[_ in never]: never;
-		};
-		Views: {
-			[_ in never]: never;
-		};
-		Functions: {
-			graphql: {
-				Args: {
-					operationName?: string;
-					query?: string;
-					variables?: Json;
-					extensions?: Json;
-				};
-				Returns: Json;
-			};
-		};
-		Enums: {
-			[_ in never]: never;
-		};
-		CompositeTypes: {
-			[_ in never]: never;
-		};
-	};
 	public: {
 		Tables: {
 			chains: {
@@ -272,6 +247,7 @@ export type Database = {
 					min_wait_time_minutes: number | null;
 					operational_minutes: number | null;
 					ride_id: string;
+					updated_at: string | null;
 				};
 				Insert: {
 					avg_single_rider_wait_minutes?: number | null;
@@ -285,6 +261,7 @@ export type Database = {
 					min_wait_time_minutes?: number | null;
 					operational_minutes?: number | null;
 					ride_id: string;
+					updated_at?: string | null;
 				};
 				Update: {
 					avg_single_rider_wait_minutes?: number | null;
@@ -298,6 +275,7 @@ export type Database = {
 					min_wait_time_minutes?: number | null;
 					operational_minutes?: number | null;
 					ride_id?: string;
+					updated_at?: string | null;
 				};
 				Relationships: [
 					{
@@ -317,9 +295,6 @@ export type Database = {
 					busiest_day_avg_wait: number | null;
 					busiest_day_of_month: string | null;
 					created_at: string | null;
-					daily_averages: Json | null;
-					holiday_impact: Json | null;
-					hourly_averages: Json | null;
 					id: string;
 					max_single_rider_wait_minutes: number | null;
 					max_wait_time_minutes: number | null;
@@ -337,9 +312,7 @@ export type Database = {
 					total_data_points: number | null;
 					total_operating_days: number | null;
 					updated_at: string | null;
-					weather_correlation: Json | null;
 					weekday_averages: Json | null;
-					weekend_vs_weekday: Json | null;
 					year: number;
 				};
 				Insert: {
@@ -349,9 +322,6 @@ export type Database = {
 					busiest_day_avg_wait?: number | null;
 					busiest_day_of_month?: string | null;
 					created_at?: string | null;
-					daily_averages?: Json | null;
-					holiday_impact?: Json | null;
-					hourly_averages?: Json | null;
 					id?: string;
 					max_single_rider_wait_minutes?: number | null;
 					max_wait_time_minutes?: number | null;
@@ -369,9 +339,7 @@ export type Database = {
 					total_data_points?: number | null;
 					total_operating_days?: number | null;
 					updated_at?: string | null;
-					weather_correlation?: Json | null;
 					weekday_averages?: Json | null;
-					weekend_vs_weekday?: Json | null;
 					year: number;
 				};
 				Update: {
@@ -381,9 +349,6 @@ export type Database = {
 					busiest_day_avg_wait?: number | null;
 					busiest_day_of_month?: string | null;
 					created_at?: string | null;
-					daily_averages?: Json | null;
-					holiday_impact?: Json | null;
-					hourly_averages?: Json | null;
 					id?: string;
 					max_single_rider_wait_minutes?: number | null;
 					max_wait_time_minutes?: number | null;
@@ -401,9 +366,7 @@ export type Database = {
 					total_data_points?: number | null;
 					total_operating_days?: number | null;
 					updated_at?: string | null;
-					weather_correlation?: Json | null;
 					weekday_averages?: Json | null;
-					weekend_vs_weekday?: Json | null;
 					year?: number;
 				};
 				Relationships: [
@@ -412,47 +375,6 @@ export type Database = {
 						columns: ["ride_id"];
 						isOneToOne: false;
 						referencedRelation: "rides";
-						referencedColumns: ["id"];
-					}
-				];
-			};
-			park_operating_hours: {
-				Row: {
-					closing_time: string | null;
-					created_at: string;
-					date: string;
-					id: string;
-					opening_time: string | null;
-					park_id: string;
-					type: string;
-					updated_at: string;
-				};
-				Insert: {
-					closing_time?: string | null;
-					created_at?: string;
-					date: string;
-					id?: string;
-					opening_time?: string | null;
-					park_id: string;
-					type: string;
-					updated_at?: string;
-				};
-				Update: {
-					closing_time?: string | null;
-					created_at?: string;
-					date?: string;
-					id?: string;
-					opening_time?: string | null;
-					park_id?: string;
-					type?: string;
-					updated_at?: string;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "park_operating_hours_park_id_fkey";
-						columns: ["park_id"];
-						isOneToOne: false;
-						referencedRelation: "parks";
 						referencedColumns: ["id"];
 					}
 				];
@@ -527,40 +449,40 @@ export type Database = {
 			};
 			parks_schedule: {
 				Row: {
-					id: string;
-					park_id: string;
-					date: string;
-					type: "OPERATING" | "INFO" | "TICKETED_EVENT" | "EXTRA_HOURS";
-					opening_time: string | null;
 					closing_time: string | null;
+					created_at: string | null;
+					date: string;
 					description: string | null;
+					id: string;
+					opening_time: string | null;
+					park_id: string | null;
 					purchases: Json | null;
-					created_at: string;
-					updated_at: string;
+					type: string;
+					updated_at: string | null;
 				};
 				Insert: {
-					id?: string;
-					park_id: string;
-					date: string;
-					type: "OPERATING" | "INFO" | "TICKETED_EVENT" | "EXTRA_HOURS";
-					opening_time?: string | null;
 					closing_time?: string | null;
+					created_at?: string | null;
+					date: string;
 					description?: string | null;
+					id?: string;
+					opening_time?: string | null;
+					park_id?: string | null;
 					purchases?: Json | null;
-					created_at?: string;
-					updated_at?: string;
+					type: string;
+					updated_at?: string | null;
 				};
 				Update: {
-					id?: string;
-					park_id?: string;
-					date?: string;
-					type?: "OPERATING" | "INFO" | "TICKETED_EVENT" | "EXTRA_HOURS";
-					opening_time?: string | null;
 					closing_time?: string | null;
+					created_at?: string | null;
+					date?: string;
 					description?: string | null;
+					id?: string;
+					opening_time?: string | null;
+					park_id?: string | null;
 					purchases?: Json | null;
-					created_at?: string;
-					updated_at?: string;
+					type?: string;
+					updated_at?: string | null;
 				};
 				Relationships: [
 					{
@@ -682,7 +604,7 @@ export type Database = {
 					created_at?: string;
 					entity_type: string;
 					external_id?: string | null;
-					id: string;
+					id?: string;
 					is_active?: boolean;
 					latitude?: number | null;
 					longitude?: number | null;
@@ -716,34 +638,34 @@ export type Database = {
 			};
 			show_times: {
 				Row: {
-					id: string;
-					show_id: string;
+					created_at: string | null;
 					date: string;
-					type: string;
-					start_time: string;
 					end_time: string | null;
-					created_at: string;
-					updated_at: string;
+					id: string;
+					show_id: string | null;
+					start_time: string;
+					type: string;
+					updated_at: string | null;
 				};
 				Insert: {
-					id?: string;
-					show_id: string;
+					created_at?: string | null;
 					date: string;
-					type?: string;
-					start_time: string;
 					end_time?: string | null;
-					created_at?: string;
-					updated_at?: string;
+					id?: string;
+					show_id?: string | null;
+					start_time: string;
+					type?: string;
+					updated_at?: string | null;
 				};
 				Update: {
-					id?: string;
-					show_id?: string;
+					created_at?: string | null;
 					date?: string;
-					type?: string;
-					start_time?: string;
 					end_time?: string | null;
-					created_at?: string;
-					updated_at?: string;
+					id?: string;
+					show_id?: string | null;
+					start_time?: string;
+					type?: string;
+					updated_at?: string | null;
 				};
 				Relationships: [
 					{
@@ -824,10 +746,52 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			park_operating_hours: {
+				Row: {
+					closing_time: string | null;
+					created_at: string | null;
+					date: string | null;
+					opening_time: string | null;
+					park_id: string | null;
+					type: string | null;
+					updated_at: string | null;
+				};
+				Insert: {
+					closing_time?: never;
+					created_at?: string | null;
+					date?: string | null;
+					opening_time?: never;
+					park_id?: string | null;
+					type?: string | null;
+					updated_at?: string | null;
+				};
+				Update: {
+					closing_time?: never;
+					created_at?: string | null;
+					date?: string | null;
+					opening_time?: never;
+					park_id?: string | null;
+					type?: string | null;
+					updated_at?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "parks_schedule_park_id_fkey";
+						columns: ["park_id"];
+						isOneToOne: false;
+						referencedRelation: "parks";
+						referencedColumns: ["id"];
+					}
+				];
+			};
 		};
 		Functions: {
 			aggregate_all_hourly_stats_for_date: {
 				Args: { p_ride_id: string; p_date: string };
+				Returns: undefined;
+			};
+			aggregate_daily_from_hourly: {
+				Args: { p_ride_id: string; p_date: string; p_cleanup?: boolean };
 				Returns: undefined;
 			};
 			aggregate_daily_ride_stats: {
@@ -842,9 +806,39 @@ export type Database = {
 				Args: { p_ride_id: string; p_year: number; p_month: number };
 				Returns: undefined;
 			};
+			cleanup_empty_daily_stats: {
+				Args: Record<PropertyKey, never>;
+				Returns: {
+					deleted_count: number;
+					affected_rides: string[];
+				}[];
+			};
 			cleanup_old_raw_data: {
 				Args: { p_target_date: string; p_keep_days?: number };
 				Returns: number;
+			};
+			execute_sql: {
+				Args: { query: string; read_only?: boolean };
+				Returns: Json;
+			};
+			find_daily_stats_zero_avg_with_hourly_gt_zero: {
+				Args: Record<PropertyKey, never>;
+				Returns: Database["public"]["CompositeTypes"]["daily_ride_statistics_limited"][];
+			};
+			get_park_schedule_with_timezone: {
+				Args: { p_park_id: string; p_date?: string };
+				Returns: {
+					id: string;
+					name: string;
+					entity_type: string;
+					timezone: string;
+					schedule_date: string;
+					schedule_type: string;
+					opening_time: string;
+					closing_time: string;
+					description: string;
+					purchases: Json;
+				}[];
 			};
 			is_park_open: {
 				Args: { p_park_id: string; p_check_time?: string };
@@ -855,7 +849,11 @@ export type Database = {
 			[_ in never]: never;
 		};
 		CompositeTypes: {
-			[_ in never]: never;
+			daily_ride_statistics_limited: {
+				id: string | null;
+				date: string | null;
+				avg_wait_time_minutes: number | null;
+			};
 		};
 	};
 };
@@ -943,22 +941,7 @@ export type CompositeTypes<
 		: never = never
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database } ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName] : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"] ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions] : never;
 
-export type HourlyDataPoint = {
-	h: number; // hour (0-23)
-	avg?: number; // avg_wait_time_minutes
-	avg_s?: number; // avg_single_rider_wait_minutes
-	min?: number; // min_wait_time_minutes
-	max?: number; // max_wait_time_minutes
-	op?: number; // operational_minutes
-	data?: number; // data_points_count
-};
-
-export type HourlyData = HourlyDataPoint[];
-
 export const Constants = {
-	graphql_public: {
-		Enums: {},
-	},
 	public: {
 		Enums: {},
 	},

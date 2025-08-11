@@ -7,6 +7,8 @@ import { ChevronDown } from "lucide-react-native";
 // Local Imports
 import { ridesListStyles } from "@/src/styles";
 import { AttractionItem } from "./attractionItem";
+import { ParkChild } from "@/src/utils/api/getParkChildren";
+
 import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
 import { colors } from "@/src/styles/styles";
 
@@ -21,7 +23,7 @@ type ParkChildWithPinnedStatus = ParkChild & {
 	isPinned?: boolean;
 };
 
-export function RideList({ rides, waitTimeIcons, styles, parkChildren, activeTab }: RideListProps) {
+export function RideList({ rides, waitTimeIcons, styles, parkChildren }: RideListProps) {
 	const [pinnedIds, setPinnedIds] = useState<string[]>([]);
 
 	// Load pinned attractions on component mount and refresh when pinned status changes
@@ -50,7 +52,7 @@ export function RideList({ rides, waitTimeIcons, styles, parkChildren, activeTab
 	// Parks view list options
 	const parksViewOptions: Array<{ country: { title: "By Country" | "Alphabetical"; value: string } }> = [{ country: { title: "By Country", value: "country" } }, { country: { title: "Alphabetical", value: "alphabetical" } }];
 
-	const renderItem = useCallback(({ item }: { item: ParkChildWithPinnedStatus }) => <AttractionItem id={item.id} name={item.name} waitTime={item.wait_time_minutes ?? undefined} singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined} status={item.status || "Unknown"} />, []);
+	const renderItem = useCallback(({ item }: { item: ParkChildWithPinnedStatus }) => <AttractionItem id={item.id} parkId={item.park_id} name={item.name} waitTime={item.wait_time_minutes ?? undefined} singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined} status={item.status || "Unknown"} timezone={item.timezone} />, []);
 
 	// Memoize the renderSectionHeader function
 	const renderSectionHeader = useCallback(({ section }: { section: SectionListData<ParkChildWithPinnedStatus> & { isPinnedSection?: boolean } }) => {
@@ -101,23 +103,6 @@ export function RideList({ rides, waitTimeIcons, styles, parkChildren, activeTab
 		}
 
 		let items: ParkChild[] = [];
-		switch (activeTab) {
-			case "attractions":
-				items = parkChildren.attractions || [];
-				break;
-			case "shows":
-				items = parkChildren.shows || [];
-				break;
-			case "restaurants":
-				items = parkChildren.restaurants || [];
-				break;
-			default:
-				items = parkChildren.attractions || [];
-		}
-
-		if (items.length === 0) {
-			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No {activeTab} found for this park.</Text>;
-		}
 
 		// Add pinned status to items
 		const itemsWithPinnedStatus: ParkChildWithPinnedStatus[] = items.map((item) => ({

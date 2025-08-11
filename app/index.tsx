@@ -14,6 +14,7 @@ import { DestinationList } from "@/src/components/destinationList";
 import { Icon } from "@/src/components/Icon";
 
 export default function HomeScreen() {
+	console.log("HomeScreen rendered");
 	const [parkFilterInput, setParkFilterInput] = useState(""); // Actual input value
 	const [debouncedParkFilter, setDebouncedParkFilter] = useState(""); // Debounced value for filtering
 	const [isRefreshing, setIsRefreshing] = useState(false);

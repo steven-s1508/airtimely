@@ -1,47 +1,53 @@
 // React / React Native Imports
-import React, { useMemo, useCallback, useState, useEffect } from "react";
-import { View } from "react-native";
+import React, { use, useEffect, useState, useMemo } from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
 // Expo Imports
-import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+// 3rd Party Imports
+import { Text, HStack, VStack } from "@/src/components/ui";
 // Local Imports
-import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
+import { colors, styles, rideScreenStyles } from "@/src/styles";
 import { Icon } from "@/src/components/Icon";
-import { colors, rideItemStyles } from "@/src/styles/styles";
-import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
+import { RideHeader } from "@/src/components/rideHeader";
+import { getLiveRideStatisticsWithTimezone } from "@/src/utils/api/getRideStatistics";
+import { WaitTimeLineChartVictory } from "@/src/components/charts/WaitTimeLineChart.victory";
+import { WeekdayAverageBarChartVictory } from "@/src/components/charts/WeekdayAverageBarChart.victory";
+import { HourlyAverageBarChartVictory } from "@/src/components/charts/HourlyAverageBarChart.victory";
 
-export const AttractionItem = React.memo(function AttractionItem({ id, parkId, name, waitTime, status, singleRiderWaitTime, hasVirtualQueue }: { id: string; parkId: string; name: string; waitTime?: number; status?: string; singleRiderWaitTime?: number; hasVirtualQueue?: boolean }) {
-	const router = useRouter();
-	const { pinnedAttractions, addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
-	const [isPinned, setIsPinned] = useState(false);
+export default function RideScreen() {
+	console.log("RideScreen rendered");
+	const params = useLocalSearchParams<{ parkId: string; rideId: string; name: string; status: string }>();
+	const [liveWaitTimes, setLiveWaitTimes] = useState<{ status: string | null; wait_time_minutes: number | null; single_rider_wait_time_minutes: number | null; recorded_at_local: string | null }[]>([]);
+	const [refreshing, setRefreshing] = useState(false);
+	const [loading, setLoading] = useState(true);
 
-	// Load pinned status on component mount
-	useEffect(() => {
-		const pinnedStatus = isAttractionPinned(id);
-		setIsPinned(pinnedStatus);
-	}, [id, isAttractionPinned]);
-
-	const handleTogglePin = useCallback(() => {
-		if (isPinned) {
-			removePinnedAttraction(id);
-			setIsPinned(false);
-		} else {
-			addPinnedAttraction(id);
-			setIsPinned(true);
+	const handleRefresh = async () => {
+		setRefreshing(true);
+		setLoading(true);
+		try {
+			if (params.rideId) {
+				console.log("Fetching live ride statistics for ride ID:", params.rideId);
+				const { waitTimeData, waitTimeError } = await getLiveRideStatisticsWithTimezone(params.rideId as string);
+				if (waitTimeError) {
+					console.error("Error fetching ride statistics:", waitTimeError);
+				} else {
+					setLiveWaitTimes(waitTimeData || []);
+				}
+			}
+		} catch (error) {
+			console.error("Error refreshing wait times:", error);
+		} finally {
+			setRefreshing(false);
+			setLoading(false);
 		}
-	}, [id, isPinned, addPinnedAttraction, removePinnedAttraction]);
+	};
 
-	const virtualQueue = (
-		<HStack style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 16, borderTopWidth: 1, borderBottomColor: colors.primaryVeryLight }}>
-			<Icon name="virtualQueue" fill={colors.primaryLight} height={21} width={21} />
-			<VStack>
-				<Text style={{ color: colors.primaryLight, fontWeight: "bold", fontStyle: "italic", fontFamily: "Bebas Neue Pro, sans-serif" }}>Virtual Queue Options:</Text>
-				<Text style={{ color: colors.primaryLight, fontWeight: 500, fontFamily: "Bebas Neue Pro, sans-serif" }}>Paid Return: 19:05 (13,00 €)</Text>
-			</VStack>
-		</HStack>
-	);
+	useEffect(() => {
+		handleRefresh();
+	}, [params.rideId]);
 
-	const waitTimeStyles = useMemo(() => {
-		const displayWaitTime = waitTime ?? 0;
+	/* const waitTimeStyles = useMemo(() => {
+		const displayWaitTime = liveWaitTimes[0]?.wait_time_minutes ?? 0;
 
 		if (displayWaitTime < 45) {
 			return {
@@ -62,10 +68,10 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 				waitTimeTextColor: colors.highWaitingtimeVeryLight,
 			};
 		}
-	}, [waitTime]);
+	}, [liveWaitTimes]);
 
 	const singleRiderWaitTimeStyles = useMemo(() => {
-		const displaySingleRiderWaitTime = singleRiderWaitTime ?? 0;
+		const displaySingleRiderWaitTime = liveWaitTimes[0]?.single_rider_wait_time_minutes ?? 0;
 
 		if (displaySingleRiderWaitTime < 45) {
 			return {
@@ -73,7 +79,7 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 				statusBorderColor: colors.primaryLight,
 				waitTimeTextColor: colors.primaryLight,
 			};
-		} else if (displayWaitTime < 60) {
+		} else if (displaySingleRiderWaitTime < 60) {
 			return {
 				statusBackgroundColor: colors.accentVeryDark,
 				statusBorderColor: colors.accentLight,
@@ -86,7 +92,7 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 				waitTimeTextColor: colors.highWaitingtimeVeryLight,
 			};
 		}
-	}, [singleRiderWaitTime]);
+	}, [liveWaitTimes]);
 
 	const styling = useMemo(() => {
 		const normalizedStatus = status?.toLowerCase();
@@ -154,15 +160,10 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 					headerColor: colors.primaryDark,
 				};
 		}
-	}, [status]);
+	}, [params.status]);
 
-	const handleRidePress = useCallback(() => {
-		router.push({ pathname: `/park/[parkId]/ride/[rideId]`, params: { parkId, rideId: id, name, waitTime, status, singleRiderWaitTime } });
-	}, [router, parkId, id, name, waitTime, status, singleRiderWaitTime]);
-
-	// Default wait time to 0 if not provided (for shows/restaurants)
-	const displayWaitTime = waitTime ?? 0;
-	const displaySingleRiderWaitTime = singleRiderWaitTime;
+	const displayWaitTime = liveWaitTimes[0]?.wait_time_minutes ?? 0;
+	const displaySingleRiderWaitTime = liveWaitTimes[0]?.single_rider_wait_time_minutes ?? 0;
 
 	const statusView = (waitType = "standby") =>
 		useMemo(() => {
@@ -208,59 +209,35 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 					<Text style={{ color: styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
 				</View>
 			);
-		}, [status, displayWaitTime, styling, waitTimeStyles, displaySingleRiderWaitTime, waitType]);
-
-	const iconColor = useMemo(() => {
-		return status?.toLowerCase() === "open" ? rideItemStyles.icon.color : status?.toLowerCase() === "closed" ? rideItemStyles.iconClosed.color : rideItemStyles.icon.color;
-	}, [status]);
-
-	const textStyles = useMemo(() => {
-		return status?.toLowerCase() === "open" ? rideItemStyles.name : status?.toLowerCase() === "closed" ? rideItemStyles.nameClosed : rideItemStyles.name;
-	}, [status]);
+		}, [params.status, displayWaitTime, styling, waitTimeStyles, displaySingleRiderWaitTime, waitType]); */
 
 	return (
-		<VStack style={{ gap: 16, padding: 8, borderWidth: 1, borderColor: styling.containerBorderColor, backgroundColor: styling.containerColor, borderRadius: 6 }}>
-			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-				<Pressable style={rideItemStyles.titleContainerPark} android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleRidePress}>
-					<View style={rideItemStyles.nameContainer}>
-						<Text style={{ flex: 1, color: styling.rideNameColor, fontSize: 18, fontWeight: "bold" }}>{name}</Text>
-					</View>
-					<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
-				</Pressable>
-				{/* <Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleRidePress} style={{ borderRadius: 8, overflow: "hidden" }}>
-					<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
-						<Icon name="stats" fill={colors.primaryLight} height={21} width={21} />
-					</View>
-				</Pressable> */}
-				{!isPinned ? (
-					<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-						<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
-							<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
-						</View>
-					</Pressable>
-				) : (
-					<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-						<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
-							<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
-						</View>
-					</Pressable>
-				)}
-			</HStack>
-			<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-					<Icon name="waitTime" fill={styling.leftIconColor} height={24} width={24} />
-					<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>{styling.statusText}</Text>
-					{statusView("standby")}
-				</HStack>
-				{displaySingleRiderWaitTime !== undefined && (
-					<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-						<Icon name="singleRider" fill={colors.primaryLight} height={24} width={24} />
-						<Text style={{ color: colors.primaryLight, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
-						{statusView("singleRider")}
-					</HStack>
-				)}
-			</HStack>
-			{hasVirtualQueue && virtualQueue}
-		</VStack>
+		<ScrollView contentContainerStyle={{ flexGrow: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />}>
+			<View style={rideScreenStyles.rideScreenContainer}>
+				<RideHeader parkId={params.parkId as string} item={{ id: params.rideId as string, name: params.name as string }} waitTime={liveWaitTimes[liveWaitTimes.length - 1]?.wait_time_minutes} singleRiderWaitTime={liveWaitTimes[liveWaitTimes.length - 1]?.single_rider_wait_time_minutes} status={liveWaitTimes[liveWaitTimes.length - 1]?.status || params.status} onRefresh={handleRefresh} isRefreshing={refreshing} />
+
+				<View style={{ flex: 1, flexDirection: "column", padding: 16 }}>
+					{/* <HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+						<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+							<Icon name="waitTime" fill={styling.leftIconColor} height={24} width={24} />
+							<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>{styling.statusText}</Text>
+							{statusView("standby")}
+						</HStack>
+						{displaySingleRiderWaitTime !== undefined && (
+							<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+								<Icon name="singleRider" fill={colors.primaryLight} height={24} width={24} />
+								<Text style={{ color: colors.primaryLight, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
+								{statusView("singleRider")}
+							</HStack>
+						)}
+					</HStack> */}
+					<WaitTimeLineChartVictory data={liveWaitTimes} loading={loading} parkId={params.parkId as string} />
+					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
+					<HourlyAverageBarChartVictory loading={loading} rideId={params.rideId as string} />
+					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
+					<WeekdayAverageBarChartVictory loading={loading} rideId={params.rideId as string} />
+				</View>
+			</View>
+		</ScrollView>
 	);
-});
+}

@@ -1,5 +1,7 @@
 import { supabase } from "@/src/utils/supabase";
 import type { Tables } from "@/src/types/database.types";
+import { DateTime } from "luxon";
+import getParkTimezone from "@/src/utils/helpers/getParkTimezone";
 
 export type ParkStatus = "Open" | "Closed" | "Unknown";
 
@@ -11,12 +13,20 @@ export interface ParkWithStatus extends Tables<"parks"> {
  * Determines if a park is currently open based on operating hours
  */
 export async function getParkStatus(parkId: string): Promise<ParkStatus> {
-	const now = new Date();
-	const today = now.toISOString().split("T")[0]; // YYYY-MM-DD format
+	if (!parkId) {
+		console.error(`Invalid park ID: ${parkId}`);
+		return "Unknown";
+	}
+
+	const timezone = await getParkTimezone(parkId);
+	const todayString = DateTime.now().setZone(timezone).toString();
+	const today = DateTime.now().setZone(timezone).toJSDate();
 
 	try {
 		// Get today's operating hours for the park
-		const { data: operatingHours, error } = await supabase.from("park_operating_hours").select("opening_time, closing_time, type").eq("park_id", parkId).eq("date", today).order("opening_time", { ascending: true });
+		const { data: operatingHours, error } = await supabase.from("park_operating_hours").select("opening_time, closing_time").eq("park_id", parkId).eq("date", todayString).order("opening_time", { ascending: true });
+
+		const parkName = await supabase.from("parks").select("name").eq("id", parkId).single();
 
 		if (error) {
 			console.error(`Error fetching operating hours for park ${parkId}:`, error);
@@ -24,6 +34,7 @@ export async function getParkStatus(parkId: string): Promise<ParkStatus> {
 		}
 
 		if (!operatingHours || operatingHours.length === 0) {
+			console.warn(`No operating hours found for park ${parkName.data?.name} on ${todayString}`);
 			return "Closed"; // No operating hours means closed
 		}
 
@@ -33,7 +44,7 @@ export async function getParkStatus(parkId: string): Promise<ParkStatus> {
 				const openTime = new Date(hours.opening_time);
 				const closeTime = new Date(hours.closing_time);
 
-				if (now >= openTime && now <= closeTime) {
+				if (today >= openTime && today <= closeTime) {
 					return "Open";
 				}
 			}

@@ -1,6 +1,4 @@
 import { StyleSheet } from "react-native";
-import { StatusBadge } from "../components/statusBadge";
-import { S } from "@expo/html-elements";
 
 export const colors = {
 	// Primary colors
@@ -366,7 +364,7 @@ export const parkScreenStyles = StyleSheet.create({
 	},
 	parkScreenHeaderContainer: {
 		flexDirection: "row",
-		alignItems: "center",
+		alignItems: "flex-start",
 		justifyContent: "space-between",
 		padding: 16,
 		paddingBottom: 8,
@@ -407,3 +405,147 @@ export const parkScreenStyles = StyleSheet.create({
 });
 
 export const ridesListStyles = StyleSheet.create({});
+
+export const rideItemStyles = StyleSheet.create({
+	titleContainerPark: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		gap: 8,
+		marginHorizontal: -8,
+		paddingHorizontal: 8,
+		marginVertical: -4,
+		paddingVertical: 4,
+		borderRadius: 8,
+		overflow: "hidden",
+	},
+	nameContainer: {
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+	},
+	icon: {
+		color: colors.primaryVeryLight,
+	},
+	iconClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	name: {
+		flexShrink: 1,
+		fontFamily: "Bebas Neue Pro",
+		fontSize: 24,
+		lineHeight: 27,
+		fontWeight: "800",
+		color: colors.primaryVeryLight,
+	},
+	nameClosed: {
+		flexShrink: 1,
+		fontFamily: "Bebas Neue Pro",
+		fontSize: 24,
+		lineHeight: 27,
+		fontWeight: "800",
+		color: colors.secondaryVeryLight,
+	},
+});
+
+export const rideScreenStyles = StyleSheet.create({
+	rideScreenContainer: {
+		flex: 1,
+		backgroundColor: colors.primaryBlack,
+	},
+	rideScreenHeaderContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		padding: 16,
+		paddingBottom: 8,
+	},
+	rideScreenHeaderTitle: {
+		flex: 1,
+		fontSize: 24,
+		fontWeight: "bold",
+		color: colors.primaryVeryLight,
+		marginHorizontal: 12,
+	},
+	rideScreenHeaderMetadata: {
+		flexDirection: "column",
+		gap: 8,
+		paddingHorizontal: 16,
+		marginBottom: 8,
+	},
+	rideScreenCountryBadge: {
+		backgroundColor: colors.primaryVeryDark,
+	},
+	rideScreenCountryBadgeClosed: {
+		backgroundColor: colors.secondaryVeryDark,
+	},
+	rideScreenCountryBadgeText: {
+		color: colors.primaryLight,
+	},
+	rideScreenCountryBadgeTextClosed: {
+		color: colors.secondaryLight,
+	},
+	rideScreenCountryBadgeIcon: {
+		color: colors.primaryLight,
+	},
+	rideScreenCountryBadgeIconClosed: {
+		color: colors.secondaryLight,
+	},
+});
+
+export const rideStatusBadgeStyles = StyleSheet.create({
+	container: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
+		paddingVertical: 2,
+		paddingHorizontal: 8,
+		borderRadius: 100,
+		borderWidth: 1,
+	},
+	containerOpen: {
+		borderColor: colors.primary,
+	},
+	containerClosed: {
+		borderColor: colors.secondaryVeryLight,
+	},
+	containerDown: {
+		borderColor: "#A3000E",
+	},
+	containerRefurbishment: {
+		borderColor: colors.secondaryVeryLight,
+	},
+	iconOpen: {
+		color: colors.primaryVeryLight,
+	},
+	iconClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	iconDown: {
+		color: "#A3000E",
+	},
+	iconRefurbishment: {
+		color: colors.secondaryVeryLight,
+	},
+	text: {
+		fontFamily: "Noto Sans",
+		fontSize: 14,
+		lineHeight: 19,
+		fontWeight: "500",
+		textTransform: "capitalize",
+	},
+	textOpen: {
+		color: colors.primaryVeryLight,
+	},
+	textClosed: {
+		color: colors.secondaryVeryLight,
+	},
+	textDown: {
+		color: colors.secondaryVeryLight,
+	},
+	textRefurbishment: {
+		color: colors.secondaryVeryLight,
+	},
+});

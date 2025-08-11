@@ -10,16 +10,15 @@ import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
 import { colors, styles, parkScreenStyles } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
-import { ShowItem } from "@/src/components/showItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
-import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
-import { getPinnedShowIds } from "@/src/utils/pinShows";
+import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
 }
 
 export default function ParkScreen() {
+	console.log("ParkScreen rendered");
 	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
 	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
@@ -27,29 +26,23 @@ export default function ParkScreen() {
 	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
-	const [activeTab, setActiveTab] = useState<"attractions" | "shows" | "restaurants">("attractions");
-	const [pinnedAttractionIds, setPinnedAttractionIds] = useState<string[]>([]);
-	const [pinnedShowIds, setPinnedShowIds] = useState<string[]>([]);
 
+	// Use Zustand store for pinned attractions
+	const { pinnedAttractions, addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
+
+	// Load pinned attractions when the component mounts
 	useEffect(() => {
 		if (id) {
 			loadParkChildren();
 		}
 	}, [id]);
 
-	// Load pinned attractions and shows
+	// Load pinned items from storage when the component mounts
 	useEffect(() => {
-		const loadPinnedIds = async () => {
-			const storedPinnedAttractionIds = await getPinnedAttractionIds();
-			const storedPinnedShowIds = await getPinnedShowIds();
-			setPinnedAttractionIds(storedPinnedAttractionIds);
-			setPinnedShowIds(storedPinnedShowIds);
+		const loadPinnedItems = async () => {
+			await usePinnedItemsStore.getState().loadPinnedItems();
 		};
-		loadPinnedIds();
-
-		// Set up an interval to refresh pinned status
-		const interval = setInterval(loadPinnedIds, 1000);
-		return () => clearInterval(interval);
+		loadPinnedItems();
 	}, []);
 
 	const loadParkChildren = async (isRefresh: boolean = false) => {
@@ -111,7 +104,7 @@ export default function ParkScreen() {
 		let currentPinnedIds: string[] = [];
 
 		items = parkChildren.attractions;
-		currentPinnedIds = pinnedAttractionIds;
+		currentPinnedIds = pinnedAttractions;
 		if (items.length === 0) {
 			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No attractions found for this park.</Text>;
 		}
@@ -234,26 +227,23 @@ export default function ParkScreen() {
 		sections.push(...regularSections);
 
 		const renderItem = ({ item }: { item: ParkChildWithPinnedStatus }) => {
-			if (activeTab === "shows") {
-				return <ShowItem key={`${item.id}-${refreshing ? "refreshed" : "initial"}`} id={item.id} name={item.name} />;
-			} else {
-				return (
-					<AttractionItem
-						key={`${item.id}-${refreshing ? "refreshed" : "initial"}`}
-						id={item.id}
-						name={item.name}
-						waitTime={item.wait_time_minutes ?? undefined}
-						singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined}
-						status={item.status || "Unknown"}
-						hasVirtualQueue={false} // You can add this field to your data if needed
-					/>
-				);
-			}
+			return (
+				<AttractionItem
+					key={`${item.id}-${refreshing ? "refreshed" : "initial"}`}
+					id={item.id}
+					parkId={id}
+					name={item.name}
+					waitTime={item.wait_time_minutes ?? undefined}
+					singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined}
+					status={item.status || "Unknown"}
+					hasVirtualQueue={false} // You can add this field to your data if needed
+				/>
+			);
 		};
 
 		const renderSectionHeader = ({ section }: { section: SectionListData<ParkChildWithPinnedStatus> & { isPinnedSection?: boolean } }) => {
 			if (section.isPinnedSection) {
-				const sectionTitle = activeTab === "shows" ? "Pinned Shows" : activeTab === "restaurants" ? "Pinned Restaurants" : "Pinned Attractions";
+				const sectionTitle = "Pinned Attractions";
 
 				return (
 					<Text
