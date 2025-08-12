@@ -136,14 +136,12 @@ export async function getAllTimeAverageHourlyWaitTimes(rideId: string): Promise<
 }
 
 // Get all daily wait times and calculate average for days of the week
-export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ weeklyAverageWaitTimes: number[] }> {
-	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes").eq("ride_id", rideId);
-
-	console.log("--------------------------------");
+export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ weeklyAverageWaitTimes: number[]; weeklyAverageSingleWaitTimes: number[] }> {
+	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes, hourly_data").eq("ride_id", rideId);
 
 	if (error) {
 		console.error("Error fetching weekly average wait times:", error);
-		return { weeklyAverageWaitTimes: [] };
+		return { weeklyAverageWaitTimes: [], weeklyAverageSingleWaitTimes: [] };
 	}
 
 	let waitTimesAvg: {
@@ -152,34 +150,28 @@ export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ week
 			count: number;
 		};
 	} = {
-		1: {
-			total: 0,
-			count: 0,
-		},
-		2: {
-			total: 0,
-			count: 0,
-		},
-		3: {
-			total: 0,
-			count: 0,
-		},
-		4: {
-			total: 0,
-			count: 0,
-		},
-		5: {
-			total: 0,
-			count: 0,
-		},
-		6: {
-			total: 0,
-			count: 0,
-		},
-		7: {
-			total: 0,
-			count: 0,
-		},
+		1: { total: 0, count: 0 },
+		2: { total: 0, count: 0 },
+		3: { total: 0, count: 0 },
+		4: { total: 0, count: 0 },
+		5: { total: 0, count: 0 },
+		6: { total: 0, count: 0 },
+		7: { total: 0, count: 0 },
+	};
+
+	let singleWaitTimesAvg: {
+		[key: number]: {
+			total: number;
+			count: number;
+		};
+	} = {
+		1: { total: 0, count: 0 },
+		2: { total: 0, count: 0 },
+		3: { total: 0, count: 0 },
+		4: { total: 0, count: 0 },
+		5: { total: 0, count: 0 },
+		6: { total: 0, count: 0 },
+		7: { total: 0, count: 0 },
 	};
 
 	// Get weekday from date and calculate average wait times
@@ -187,28 +179,47 @@ export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ week
 		const dayOfWeek = DateTime.fromISO(record.date).weekday;
 		waitTimesAvg[dayOfWeek].count += 1;
 		waitTimesAvg[dayOfWeek].total += record.avg_wait_time_minutes || 0;
-	});
 
-	console.log("Total wait times:", waitTimesAvg);
+		// Calculate single rider average from hourly data
+		if (record.hourly_data) {
+			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+			let singleTotal = 0;
+			let singleCount = 0;
+
+			hourlyArray.forEach((entry) => {
+				if (entry.avg_s !== null && !isNaN(entry.avg_s)) {
+					singleTotal += entry.avg_s;
+					singleCount += 1;
+				}
+			});
+
+			if (singleCount > 0) {
+				const dailySingleAverage = singleTotal / singleCount;
+				singleWaitTimesAvg[dayOfWeek].count += 1;
+				singleWaitTimesAvg[dayOfWeek].total += dailySingleAverage;
+			}
+		}
+	});
 
 	const averageWaitTimes = Object.values(waitTimesAvg).map((day) => {
 		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
 	});
 
-	console.log("Average wait times:", averageWaitTimes);
+	const averageSingleWaitTimes = Object.values(singleWaitTimesAvg).map((day) => {
+		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
+	});
 
-	console.log("Returning average wait times:", averageWaitTimes);
-	return { weeklyAverageWaitTimes: averageWaitTimes };
+	return { weeklyAverageWaitTimes: averageWaitTimes, weeklyAverageSingleWaitTimes: averageSingleWaitTimes };
 }
 
 // Get average weekday wait times of a given year
-export async function getWeekdayAverageWaitTimesByYear(rideId: string, year: number): Promise<{ weeklyAverageWaitTimes: number[] }> {
+export async function getWeekdayAverageWaitTimesByYear(rideId: string, year: number): Promise<{ weeklyAverageWaitTimes: number[]; weeklyAverageSingleWaitTimes: number[] }> {
 	// Fetch daily wait times for the specified year yyyy-mm-dd
-	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes").eq("ride_id", rideId).gte("date", `${year}-01-01`).lte("date", `${year}-12-31`);
+	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes, hourly_data").eq("ride_id", rideId).gte("date", `${year}-01-01`).lte("date", `${year}-12-31`);
 
 	if (error) {
 		console.error("Error fetching weekday average wait times by year:", error);
-		return { weeklyAverageWaitTimes: [] };
+		return { weeklyAverageWaitTimes: [], weeklyAverageSingleWaitTimes: [] };
 	}
 
 	// Process the data to get average wait times for each weekday
@@ -222,17 +233,51 @@ export async function getWeekdayAverageWaitTimesByYear(rideId: string, year: num
 		7: { total: 0, count: 0 },
 	};
 
+	const singleWaitTimesByWeekday: { [key: number]: { total: number; count: number } } = {
+		1: { total: 0, count: 0 },
+		2: { total: 0, count: 0 },
+		3: { total: 0, count: 0 },
+		4: { total: 0, count: 0 },
+		5: { total: 0, count: 0 },
+		6: { total: 0, count: 0 },
+		7: { total: 0, count: 0 },
+	};
+
 	data.forEach((record) => {
 		const dayOfWeek = DateTime.fromISO(record.date).weekday;
 		waitTimesByWeekday[dayOfWeek].total += record.avg_wait_time_minutes || 0;
 		waitTimesByWeekday[dayOfWeek].count += 1;
+
+		// Calculate single rider average from hourly data
+		if (record.hourly_data) {
+			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+			let singleTotal = 0;
+			let singleCount = 0;
+
+			hourlyArray.forEach((entry) => {
+				if (entry.avg_s !== null && !isNaN(entry.avg_s)) {
+					singleTotal += entry.avg_s;
+					singleCount += 1;
+				}
+			});
+
+			if (singleCount > 0) {
+				const dailySingleAverage = singleTotal / singleCount;
+				singleWaitTimesByWeekday[dayOfWeek].count += 1;
+				singleWaitTimesByWeekday[dayOfWeek].total += dailySingleAverage;
+			}
+		}
 	});
 
 	const weeklyAverageWaitTimes = Object.values(waitTimesByWeekday).map((day) => {
 		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
 	});
 
-	return { weeklyAverageWaitTimes };
+	const weeklyAverageSingleWaitTimes = Object.values(singleWaitTimesByWeekday).map((day) => {
+		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
+	});
+
+	return { weeklyAverageWaitTimes, weeklyAverageSingleWaitTimes };
 }
 
 export default {

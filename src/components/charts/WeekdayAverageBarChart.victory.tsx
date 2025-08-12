@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { CartesianChart, Bar, useChartPressState } from "victory-native";
+import { CartesianChart, Bar } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
-import { useFont, Group, Rect, Text as SkiaText } from "@shopify/react-native-skia";
+import { useFont } from "@shopify/react-native-skia";
 import { getWeekdayAverageWaitTimes } from "@/src/utils/api/getRideStatistics";
-import type { SharedValue } from "react-native-reanimated";
 
 interface WeekdayAverageBarChartVictoryProps {
 	rideId: string;
@@ -15,14 +14,15 @@ interface WeekdayAverageBarChartVictoryProps {
 
 interface ChartDataPoint {
 	day: string;
-	value: number;
+	standby: number;
+	single: number;
 }
 
 export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVictoryProps> = ({ rideId, loading = false }) => {
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
 	const [weekdayAverageData, setWeekdayAverageData] = useState<number[]>([]);
+	const [weekdayAverageSingleData, setWeekdayAverageSingleData] = useState<number[]>([]);
 	const [dataLoading, setDataLoading] = useState(true);
-	const { state, isActive } = useChartPressState({ x: 0, y: { value: 0 } });
 
 	useEffect(() => {
 		const fetchWeekdayAverageData = async () => {
@@ -33,10 +33,13 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 				const result = await getWeekdayAverageWaitTimes(rideId);
 				// @ts-ignore - TypeScript thinks the return type is different
 				const waitTimes = result.averageWaitTimes || result.weeklyAverageWaitTimes || [];
+				const singleWaitTimes = result.weeklyAverageSingleWaitTimes || [];
 				setWeekdayAverageData(waitTimes);
+				setWeekdayAverageSingleData(singleWaitTimes);
 			} catch (error) {
 				console.error("Error fetching weekday average data:", error);
 				setWeekdayAverageData([]);
+				setWeekdayAverageSingleData([]);
 			} finally {
 				setDataLoading(false);
 			}
@@ -47,15 +50,20 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 
 	const processedData = useMemo(() => {
 		const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-		return weekdayAverageData.map((value, index) => ({
-			day: dayLabels[index],
-			value: value,
+		return dayLabels.map((day, index) => ({
+			day: day,
+			standby: weekdayAverageData[index] ?? 0,
+			single: weekdayAverageSingleData[index] ?? 0,
 		}));
-	}, [weekdayAverageData]);
+	}, [weekdayAverageData, weekdayAverageSingleData]);
 
 	const maxWaitTime = useMemo(() => {
-		if (processedData.length === 0) return 0;
-		return Math.max(...processedData.map((item) => item.value));
+		const values = processedData.flatMap((d) => [d.standby, d.single]);
+		return values.length ? Math.max(...values) : 0;
+	}, [processedData]);
+
+	const hasSingleData = useMemo(() => {
+		return processedData.some((item) => item.single > 0);
 	}, [processedData]);
 
 	const isLoading = loading || dataLoading;
@@ -74,7 +82,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 			);
 		}
 
-		if (!weekdayAverageData || weekdayAverageData.length === 0) {
+		if (processedData.every((d) => d.standby === 0 && d.single === 0)) {
 			return (
 				<View style={[chartStyles.chartContainer, { flex: 0, padding: 0 }]}>
 					<Text style={chartStyles.chartText}>Average Wait Times by Day</Text>
@@ -95,7 +103,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 						<CartesianChart
 							data={processedData}
 							xKey="day"
-							yKeys={["value"]}
+							yKeys={["standby", "single"]}
 							xAxis={{
 								tickCount: 7,
 								labelColor: colors.primaryVeryLight,
@@ -104,7 +112,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 							}}
 							yAxis={[
 								{
-									yKeys: ["value"],
+									yKeys: ["standby", "single"],
 									labelColor: colors.primaryVeryLight,
 									lineColor: colors.primary,
 									font: font,
@@ -115,47 +123,36 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 							domain={{
 								y: [0, maxWaitTime > 0 ? maxWaitTime * 1.1 : 60],
 							}}
-							chartPressState={state}
 						>
-							{({ points, chartBounds }) => (
-								<>
-									<Bar points={points.value} chartBounds={chartBounds} color={colors.primaryVeryLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} />
-									{isActive && <ToolTip x={state.x.position} y={state.y.value.position} value={state.y.value.value.value} day={state.x.value.value} />}
-								</>
-							)}
+							{({ points, chartBounds }) => {
+								return (
+									<>
+										<Bar points={points.standby} chartBounds={chartBounds} color={colors.primaryVeryLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} />
+										{hasSingleData && <Bar points={points.single} chartBounds={chartBounds} color={colors.accentLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} />}
+									</>
+								);
+							}}
 						</CartesianChart>
+						<View style={styles.legendContainer}>
+							<View style={styles.legendItem}>
+								<View style={[styles.legendColor, { backgroundColor: colors.primaryVeryLight }]} />
+								<Text style={styles.legendText}>Standby Wait</Text>
+							</View>
+							{hasSingleData && (
+								<View style={styles.legendItem}>
+									<View style={[styles.legendColor, { backgroundColor: colors.accentLight }]} />
+									<Text style={styles.legendText}>Single Rider</Text>
+								</View>
+							)}
+						</View>
 					</View>
 				</View>
 			</>
 		);
-	}, [isLoading, weekdayAverageData, processedData, maxWaitTime, isActive, state]);
+	}, [isLoading, processedData, maxWaitTime, hasSingleData]);
 
 	return contentToRender;
 };
-
-function ToolTip({ x, y, value, day }: { x: SharedValue<number>; y: SharedValue<number>; value: SharedValue<number>; day: SharedValue<string> }) {
-	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-
-	if (!font) return null;
-
-	const tooltipWidth = 80;
-	const tooltipHeight = 40;
-	const tooltipPadding = 8;
-
-	const displayValue = Math.round(value.value);
-	const displayDay = day.value;
-
-	return (
-		<Group>
-			{/* Tooltip background */}
-			<Rect x={x.value - tooltipWidth / 2} y={y.value - tooltipHeight - 10} width={tooltipWidth} height={tooltipHeight} color="rgba(0, 0, 0, 0.8)" borderRadius={4} />
-			{/* Day text */}
-			<SkiaText x={x.value} y={y.value - tooltipHeight + tooltipPadding + 8} text={displayDay} font={font} fontSize={12} color="white" textAlign="center" />
-			{/* Value text */}
-			<SkiaText x={x.value} y={y.value - tooltipHeight + tooltipPadding + 20} text={`${displayValue} min`} font={font} fontSize={12} color="white" textAlign="center" />
-		</Group>
-	);
-}
 
 const styles = StyleSheet.create({
 	legendContainer: {

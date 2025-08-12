@@ -3,7 +3,6 @@ import { View, StyleSheet } from "react-native";
 import { CartesianChart, Line } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
-import { normalizeWaitTimeRecord } from "@/src/utils/helpers/normalizeWaitTimeRecord";
 import { colors } from "@/src/styles";
 import { DateTime } from "luxon";
 import { useFont } from "@shopify/react-native-skia";

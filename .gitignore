@@ -45,3 +45,6 @@ planning.md
 .env.local
 
 .env.local
+
+# local docs
+.docs/

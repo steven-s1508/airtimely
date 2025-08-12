@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { CartesianChart, Bar, useChartPressState } from "victory-native";
+import { CartesianChart, Bar } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
-import { useFont, Group, Rect, Text as SkiaText } from "@shopify/react-native-skia";
+import { useFont } from "@shopify/react-native-skia";
 import { getAllTimeAverageHourlyWaitTimes } from "@/src/utils/api/getRideStatistics";
-import type { SharedValue } from "react-native-reanimated";
 import { DateTime } from "luxon";
 
 interface HourlyAverageBarChartVictoryProps {
@@ -18,6 +17,7 @@ interface HourlyDataPoint {
 	hourValue: number;
 	standby: number;
 	single: number;
+	[key: string]: number | string;
 }
 
 export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictoryProps> = ({ rideId, loading = false }) => {
@@ -25,7 +25,6 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 	const [standbyData, setStandbyData] = useState<number[]>([]);
 	const [singleData, setSingleData] = useState<number[]>([]);
 	const [dataLoading, setDataLoading] = useState(true);
-	const { state, isActive } = useChartPressState({ x: 0, y: { value: 0 } });
 
 	useEffect(() => {
 		const fetchHourlyAverageData = async () => {
@@ -34,9 +33,7 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 			try {
 				const result = await getAllTimeAverageHourlyWaitTimes(rideId);
 				setStandbyData(result.averageStandbyWaitTimes || []);
-				console.log("Fetched standby wait times:", result.averageStandbyWaitTimes);
 				setSingleData(result.averageSingleRiderWaitTimes || []);
-				console.log("Fetched single rider wait times:", result.averageSingleRiderWaitTimes);
 			} catch (error) {
 				console.error("Error fetching hourly average data:", error);
 				setStandbyData([]);
@@ -59,11 +56,13 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 		return filteredData;
 	}, [standbyData, singleData]);
 
-	console.log("Processed hourly average data:", processedData);
-
 	const maxWaitTime = useMemo(() => {
 		const values = processedData.flatMap((d) => [d.standby, d.single]);
 		return values.length ? Math.max(...values) : 0;
+	}, [processedData]);
+
+	const hasSingleData = useMemo(() => {
+		return processedData.some((item) => item.single > 0);
 	}, [processedData]);
 
 	const isLoading = loading || dataLoading;
@@ -98,7 +97,7 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 		<View style={chartStyles.chartContainer}>
 			<Text style={chartStyles.chartText}>All-Time Hourly Average Wait Times</Text>
 			<View style={{ height: 250 }}>
-				<CartesianChart<HourlyDataPoint>
+				<CartesianChart
 					data={processedData}
 					xKey="hourValue"
 					yKeys={["standby", "single"]}
@@ -120,40 +119,75 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 							formatYLabel: (value) => `${value}m`,
 						},
 					]}
-					domainPadding={{ left: 10, right: 10, top: 20 }}
+					domainPadding={{ left: 20, right: 20, top: 20 }}
 					domain={{
 						y: [0, maxWaitTime > 0 ? maxWaitTime * 1.1 : 60],
 					}}
-					/* chartPressState={state as any} */
 				>
-					{({ points, chartBounds }) => (
-						<>
-							<Bar points={points.standby} chartBounds={chartBounds} color={colors.primaryVeryLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} />
-							<Bar points={points.single} chartBounds={chartBounds} color={colors.accentLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} />
-							{isActive && <ToolTip x={state.x.position} y={state.y.value.position} hour={processedData[state.x.value.index].hourValue} standby={processedData[state.x.value.index].standby} single={processedData[state.x.value.index].single} />}
-						</>
-					)}
+					{({ points, chartBounds }) => {
+						// Calculate dynamic bar width based on chart width and number of data points
+						// We have 2 series (standby and single) so we divide the available space
+						const availableWidth = chartBounds.right - chartBounds.left;
+						const dataPointCount = processedData.length;
+						const seriesCount = 2; // standby and single
+
+						// Calculate bar width with minimum and maximum constraints
+						let barWidth = 0;
+						if (dataPointCount > 0) {
+							// Dynamically adjust gap percentage based on data density
+							// Fewer bars = more gaps (up to 70%), more bars = fewer gaps (down to 30%)
+							const gapPercentage = Math.max(0.1, Math.min(0.1, 0.1 + dataPointCount / 50));
+							const totalBarSpace = availableWidth * (1 - gapPercentage);
+							barWidth = totalBarSpace / (dataPointCount * seriesCount);
+							// Constrain bar width between 2px minimum and 25px maximum for better responsiveness
+							barWidth = Math.max(2, Math.min(25, barWidth));
+						}
+
+						return (
+							<>
+								<Bar points={points.standby} chartBounds={chartBounds} color={colors.primaryVeryLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} barWidth={barWidth} />
+								<Bar points={points.single} chartBounds={chartBounds} color={colors.accentLight} animate={{ type: "spring", duration: 300 }} roundedCorners={{ topLeft: 4, topRight: 4 }} barWidth={barWidth} />
+							</>
+						);
+					}}
 				</CartesianChart>
+				<View style={styles.legendContainer}>
+					<View style={styles.legendItem}>
+						<View style={[styles.legendColor, { backgroundColor: colors.primaryVeryLight }]} />
+						<Text style={styles.legendText}>Standby Wait</Text>
+					</View>
+					{hasSingleData && (
+						<View style={styles.legendItem}>
+							<View style={[styles.legendColor, { backgroundColor: colors.accentLight }]} />
+							<Text style={styles.legendText}>Single Rider</Text>
+						</View>
+					)}
+				</View>
 			</View>
 		</View>
 	);
 };
 
-/* function ToolTip({ x, y, hour, standby, single }: { x: SharedValue<number>; y: SharedValue<number>; hour: number; standby: number; single: number }) {
-	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-	if (!font) return null;
-	const tooltipWidth = 100;
-	const tooltipHeight = 60;
-	const padding = 8;
-
-	return (
-		<Group>
-			<Rect x={x.value - tooltipWidth / 2} y={y.value - tooltipHeight - 10} width={tooltipWidth} height={tooltipHeight} color="rgba(0,0,0,0.8)" r={4} />
-			<SkiaText x={x.value} y={y.value - tooltipHeight + padding + 12} text={`${hour}h`} font={font} size={12} color="white" textAlign="center" />
-			<SkiaText x={x.value} y={y.value - tooltipHeight + padding + 28} text={`Standby: ${standby}m`} font={font} size={12} color="white" textAlign="center" />
-			<SkiaText x={x.value} y={y.value - tooltipHeight + padding + 44} text={`Single: ${single}m`} font={font} size={12} color="white" textAlign="center" />
-		</Group>
-	);
-} */
-
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+	legendContainer: {
+		flexDirection: "row",
+		justifyContent: "center",
+		alignItems: "center",
+		marginTop: 8,
+		gap: 16,
+	},
+	legendItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
+	},
+	legendColor: {
+		width: 12,
+		height: 3,
+		borderRadius: 2,
+	},
+	legendText: {
+		color: colors.primaryVeryLight,
+		fontSize: 10,
+	},
+});
