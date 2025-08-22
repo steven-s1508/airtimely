@@ -11,22 +11,14 @@ import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 export const AttractionItem = React.memo(function AttractionItem({ id, parkId, name, waitTime, status, singleRiderWaitTime, hasVirtualQueue }: { id: string; parkId: string; name: string; waitTime?: number; status?: string; singleRiderWaitTime?: number; hasVirtualQueue?: boolean }) {
 	const router = useRouter();
-	const { pinnedAttractions, addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
-	const [isPinned, setIsPinned] = useState(false);
-
-	// Load pinned status on component mount
-	useEffect(() => {
-		const pinnedStatus = isAttractionPinned(id);
-		setIsPinned(pinnedStatus);
-	}, [id, isAttractionPinned]);
+	const { addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
+	const isPinned = isAttractionPinned(id);
 
 	const handleTogglePin = useCallback(() => {
 		if (isPinned) {
 			removePinnedAttraction(id);
-			setIsPinned(false);
 		} else {
 			addPinnedAttraction(id);
-			setIsPinned(true);
 		}
 	}, [id, isPinned, addPinnedAttraction, removePinnedAttraction]);
 

@@ -64,7 +64,8 @@ export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> =
 
 	const processedData = useMemo(() => {
 		return data.map((item) => {
-			const normalizedTime = item.recorded_at_local ? DateTime.fromISO(item.recorded_at_local) : null;
+			// Normalize the recorded_at_local time but keep the time as is, with no timezone application
+			const normalizedTime = item.recorded_at_local ? DateTime.fromFormat(item.recorded_at_local, "yyyy-MM-dd'T'HH:mm:ssZZ").toUTC() : null;
 			const timeInMs = normalizedTime?.toMillis() || 0;
 			// if the first data point is at
 			return {

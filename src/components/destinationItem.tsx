@@ -14,7 +14,7 @@ import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 export const DestinationItem = React.memo(
 	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
 		const router = useRouter();
-		const { addPinnedDestination, removePinnedDestination, isDestinationPinned, isParkPinned, addPinnedPark, removePinnedPark } = usePinnedItemsStore();
+		const { addPinnedDestination, removePinnedDestination, isDestinationPinned, addPinnedPark, removePinnedPark, isParkPinned } = usePinnedItemsStore();
 
 		const [status, setStatus] = useState<ParkStatus>("Unknown");
 		const [isLoadingStatus, setIsLoadingStatus] = useState(true);
@@ -27,13 +27,21 @@ export const DestinationItem = React.memo(
 
 		// Memoize callbacks
 		const handleTogglePin = useCallback(() => {
-			if (isPinned) {
-				removePinnedDestination(item.entity_id!);
+			if (item.entity_type === "park") {
+				if (isParkPinned(item.entity_id!)) {
+					removePinnedPark(item.entity_id!);
+				} else {
+					addPinnedPark(item.entity_id!);
+				}
 			} else {
-				addPinnedDestination(item.entity_id!);
+				if (isDestinationPinned(item.entity_id!)) {
+					removePinnedDestination(item.entity_id!);
+				} else {
+					addPinnedDestination(item.entity_id!);
+				}
 			}
 			onTogglePin(item.entity_id!);
-		}, [onTogglePin, item.entity_id, isPinned, addPinnedDestination, removePinnedDestination]);
+		}, [onTogglePin, item.entity_id, item.entity_type, isDestinationPinned, addPinnedDestination, removePinnedDestination, isParkPinned, addPinnedPark, removePinnedPark]);
 
 		const handleParkPress = useCallback(() => {
 			router.push({ pathname: "/park/[parkId]", params: { id: item.entity_id!, name: item.name!, country_code: item.country_code! } });
@@ -152,19 +160,11 @@ export const DestinationItem = React.memo(
 								<StatusBadge status={status} />
 								<CountryBadge country={country} status={status} />
 							</View>
-							{!isPinned ? (
-								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
-										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
-									</View>
-								</Pressable>
-							) : (
-								<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
-										<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
-									</View>
-								</Pressable>
-							)}
+							<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden", marginLeft: "auto" }}>
+								<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
+									<Icon name={isPinned ? "favoriteFilled" : "favorite"} fill={colors.primaryLight} height={21} width={21} />
+								</View>
+							</Pressable>
 						</HStack>
 						<View style={[destinationItemStyles.titleContainer, { borderBottomColor: borderBottomColor }]}>
 							<View style={destinationItemStyles.nameContainer}>
@@ -191,19 +191,11 @@ export const DestinationItem = React.memo(
 								<StatusBadge status={status} />
 								<CountryBadge country={country} status={status} />
 							</View>
-							{!isPinned ? (
-								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
-										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
-									</View>
-								</Pressable>
-							) : (
-								<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
-										<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
-									</View>
-								</Pressable>
-							)}
+							<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden", marginLeft: "auto" }}>
+								<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
+									<Icon name={isParkPinned(item.entity_id!) ? "favoriteFilled" : "favorite"} fill={colors.primaryLight} height={21} width={21} />
+								</View>
+							</Pressable>
 						</HStack>
 						<Pressable style={destinationItemStyles.titleContainerPark} android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleParkPress}>
 							<View style={destinationItemStyles.nameContainer}>

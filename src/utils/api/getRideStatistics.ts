@@ -68,8 +68,8 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 			return false;
 		}
 
-		const openingDateTime = DateTime.fromISO(`${operatingHours.opening_time}`, { zone: parkTimezone });
-		const closingDateTime = DateTime.fromISO(`${operatingHours.closing_time}`, { zone: parkTimezone });
+		const openingDateTime = DateTime.fromISO(`${operatingHours.opening_time}`, { setZone: true });
+		const closingDateTime = DateTime.fromISO(`${operatingHours.closing_time}`, { setZone: true });
 
 		if (!openingDateTime.isValid || !closingDateTime.isValid) {
 			console.error("Invalid opening/closing time format from DB.");
@@ -82,6 +82,8 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 			// Park operates past midnight - check if record time is either:
 			// 1. After opening time today, or
 			// 2. Before closing time (which is effectively next day)
+			console.log(`Park ${parkId} operates past midnight. Opening: ${openingDateTime.toISO()}, Closing: ${closingDateTime.toISO()}`);
+			console.log(`Record: ${recordDateTime.toISO()}`);
 			return recordDateTime >= openingDateTime || recordDateTime <= closingDateTime;
 		} else {
 			// Normal case - closing time is on the same day
@@ -212,76 +214,8 @@ export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ week
 	return { weeklyAverageWaitTimes: averageWaitTimes, weeklyAverageSingleWaitTimes: averageSingleWaitTimes };
 }
 
-// Get average weekday wait times of a given year
-export async function getWeekdayAverageWaitTimesByYear(rideId: string, year: number): Promise<{ weeklyAverageWaitTimes: number[]; weeklyAverageSingleWaitTimes: number[] }> {
-	// Fetch daily wait times for the specified year yyyy-mm-dd
-	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes, hourly_data").eq("ride_id", rideId).gte("date", `${year}-01-01`).lte("date", `${year}-12-31`);
-
-	if (error) {
-		console.error("Error fetching weekday average wait times by year:", error);
-		return { weeklyAverageWaitTimes: [], weeklyAverageSingleWaitTimes: [] };
-	}
-
-	// Process the data to get average wait times for each weekday
-	const waitTimesByWeekday: { [key: number]: { total: number; count: number } } = {
-		1: { total: 0, count: 0 },
-		2: { total: 0, count: 0 },
-		3: { total: 0, count: 0 },
-		4: { total: 0, count: 0 },
-		5: { total: 0, count: 0 },
-		6: { total: 0, count: 0 },
-		7: { total: 0, count: 0 },
-	};
-
-	const singleWaitTimesByWeekday: { [key: number]: { total: number; count: number } } = {
-		1: { total: 0, count: 0 },
-		2: { total: 0, count: 0 },
-		3: { total: 0, count: 0 },
-		4: { total: 0, count: 0 },
-		5: { total: 0, count: 0 },
-		6: { total: 0, count: 0 },
-		7: { total: 0, count: 0 },
-	};
-
-	data.forEach((record) => {
-		const dayOfWeek = DateTime.fromISO(record.date).weekday;
-		waitTimesByWeekday[dayOfWeek].total += record.avg_wait_time_minutes || 0;
-		waitTimesByWeekday[dayOfWeek].count += 1;
-
-		// Calculate single rider average from hourly data
-		if (record.hourly_data) {
-			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
-			let singleTotal = 0;
-			let singleCount = 0;
-
-			hourlyArray.forEach((entry) => {
-				if (entry.avg_s !== null && !isNaN(entry.avg_s)) {
-					singleTotal += entry.avg_s;
-					singleCount += 1;
-				}
-			});
-
-			if (singleCount > 0) {
-				const dailySingleAverage = singleTotal / singleCount;
-				singleWaitTimesByWeekday[dayOfWeek].count += 1;
-				singleWaitTimesByWeekday[dayOfWeek].total += dailySingleAverage;
-			}
-		}
-	});
-
-	const weeklyAverageWaitTimes = Object.values(waitTimesByWeekday).map((day) => {
-		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
-	});
-
-	const weeklyAverageSingleWaitTimes = Object.values(singleWaitTimesByWeekday).map((day) => {
-		return day.count > 0 ? parseFloat((day.total / day.count).toFixed(2)) : 0;
-	});
-
-	return { weeklyAverageWaitTimes, weeklyAverageSingleWaitTimes };
-}
-
 export default {
 	getLiveRideStatisticsWithTimezone,
+	getAllTimeAverageHourlyWaitTimes,
 	getWeekdayAverageWaitTimes,
-	getWeekdayAverageWaitTimesByYear,
 };

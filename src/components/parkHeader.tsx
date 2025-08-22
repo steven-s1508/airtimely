@@ -1,6 +1,6 @@
 // React / React Native Imports
 import React, { useState, useEffect } from "react";
-import { Text, Pressable } from "react-native";
+import { Text, Pressable, View } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
 // Local Imports

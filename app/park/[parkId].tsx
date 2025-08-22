@@ -27,23 +27,15 @@ export default function ParkScreen() {
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
 
-	// Use Zustand store for pinned attractions
-	const { pinnedAttractions, addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
+	// Use Zustand store for pinned items
+	const { pinnedAttractions } = usePinnedItemsStore();
 
-	// Load pinned attractions when the component mounts
+	// Load park children when the component mounts or ID changes
 	useEffect(() => {
 		if (id) {
 			loadParkChildren();
 		}
 	}, [id]);
-
-	// Load pinned items from storage when the component mounts
-	useEffect(() => {
-		const loadPinnedItems = async () => {
-			await usePinnedItemsStore.getState().loadPinnedItems();
-		};
-		loadPinnedItems();
-	}, []);
 
 	const loadParkChildren = async (isRefresh: boolean = false) => {
 		if (isRefresh) {
