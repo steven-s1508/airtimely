@@ -1,7 +1,5 @@
 import { supabase } from "@/src/utils/supabase";
 import { DateTime } from "luxon";
-import getParkTimezone from "@/src/utils/helpers/getParkTimezone";
-import getParkOperatingHours from "../helpers/getParkOperatingHours";
 
 // Get available live ride statistics with timezone conversion (more robust version)
 export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?: string) {
@@ -24,6 +22,7 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 			wait_time_minutes,
 			single_rider_wait_time_minutes,
 			recorded_at_local,
+			recorded_at_timestamp,
 			rides!inner(
 				park_id,
 				parks!inner(timezone)
@@ -57,11 +56,11 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 
 	// Filter wait times to only include those during operating hours
 	const filteredWaitTimeData = waitTimeData.filter((record) => {
-		if (!record.recorded_at_local) return false;
+		if (!record.recorded_at_timestamp) return false;
 
 		// Parse record time and set to park's timezone for comparison
 		// The recorded_at_local is stored as UTC string but represents local park time
-		const recordDateTime = DateTime.fromISO(record.recorded_at_local).setZone(parkTimezone, { keepLocalTime: true });
+		const recordDateTime = DateTime.fromISO(record.recorded_at_timestamp).setZone(parkTimezone);
 		if (!recordDateTime.isValid) return false;
 
 		if (recordDateTime.toISODate() !== todayInParkTZ) {
@@ -98,6 +97,8 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 		// For example, to show the local time at the park:
 		// recorded_at_local_park_time: DateTime.fromISO(record.recorded_at_local).setZone(parkTimezone).toISO()
 	}));
+
+	console.log("First wait time returned at: ", dataWithParkTimezone[0]?.recorded_at_local);
 
 	return { waitTimeData: dataWithParkTimezone, waitTimeError: null };
 }

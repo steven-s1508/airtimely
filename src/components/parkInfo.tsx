@@ -7,17 +7,17 @@ import { colors } from "@/src/styles/styles";
 import { formatTime } from "@/src/utils/formatTime";
 import { DateTime } from "luxon";
 import { SkeletonParkInfo } from "@components/skeletons/skeletonParkInfo";
+import getParkTimezone from "../utils/helpers/getParkTimezone";
 
 interface ParkInfoProps {
 	parkId: string;
-	timezone?: string;
 }
 
 function getCurrentDateInTimezone(timezone: string): string {
 	return DateTime.now().setZone(timezone).toFormat("yyyy-MM-dd");
 }
 
-export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "America/Los_Angeles" }: ParkInfoProps) {
+export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [scheduleData, setScheduleData] = useState<ParkScheduleItem[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -25,6 +25,7 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "Ameri
 	useEffect(() => {
 		const fetchSchedule = async () => {
 			setLoading(true);
+			const timezone = await getParkTimezone(parkId);
 			const currentDate = getCurrentDateInTimezone(timezone);
 			const data = await getParkSchedule(parkId);
 			if (data) {
@@ -37,7 +38,7 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "Ameri
 		if (parkId) {
 			fetchSchedule();
 		}
-	}, [parkId, timezone]);
+	}, [parkId]);
 
 	const toggleAccordion = () => {
 		setIsOpen(!isOpen);
