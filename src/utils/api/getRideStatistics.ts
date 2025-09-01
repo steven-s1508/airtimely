@@ -215,6 +215,69 @@ export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ week
 	return { weeklyAverageWaitTimes: averageWaitTimes, weeklyAverageSingleWaitTimes: averageSingleWaitTimes };
 }
 
+// Get all daily wait times and calculate average for days of the current month
+export async function getMonthlyAverageWaitTimes(rideId: string): Promise<{ monthlyAverageWaitTimes: number[]; monthlyAverageSingleWaitTimes: number[] }> {
+	const now = DateTime.now();
+	const startOfMonth = now.startOf("month").toISODate();
+	const endOfMonth = now.endOf("month").toISODate();
+
+	const { data, error } = await supabase.from("daily_ride_statistics").select("date, avg_wait_time_minutes, hourly_data").eq("ride_id", rideId).gte("date", startOfMonth).lte("date", endOfMonth);
+
+	if (error) {
+		console.error("Error fetching monthly average wait times:", error);
+		return { monthlyAverageWaitTimes: [], monthlyAverageSingleWaitTimes: [] };
+	}
+
+	// Initialize data structures to hold daily totals and counts
+	const dailyWaitTimes: { [day: number]: { total: number; count: number } } = {};
+	const dailySingleWaitTimes: { [day: number]: { total: number; count: number } } = {};
+
+	// Populate data structures with daily wait time data
+	data.forEach((record) => {
+		const dayOfMonth = DateTime.fromISO(record.date).day;
+		dailyWaitTimes[dayOfMonth] = dailyWaitTimes[dayOfMonth] || { total: 0, count: 0 };
+		dailySingleWaitTimes[dayOfMonth] = dailySingleWaitTimes[dayOfMonth] || { total: 0, count: 0 };
+
+		dailyWaitTimes[dayOfMonth].total += record.avg_wait_time_minutes || 0;
+		dailyWaitTimes[dayOfMonth].count += 1;
+
+		// Calculate single rider average from hourly data
+		if (record.hourly_data) {
+			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+			let singleTotal = 0;
+			let singleCount = 0;
+
+			hourlyArray.forEach((entry) => {
+				if (entry.avg_s !== null && !isNaN(entry.avg_s)) {
+					singleTotal += entry.avg_s;
+					singleCount += 1;
+				}
+			});
+
+			if (singleCount > 0) {
+				const dailySingleAverage = singleTotal / singleCount;
+				dailySingleWaitTimes[dayOfMonth].total += dailySingleAverage;
+				dailySingleWaitTimes[dayOfMonth].count += 1;
+			}
+		}
+	});
+
+	// Calculate monthly averages from daily totals
+	const daysInMonth = now.daysInMonth;
+	const monthlyAverageWaitTimes: number[] = Array(daysInMonth).fill(0);
+	const monthlyAverageSingleWaitTimes: number[] = Array(daysInMonth).fill(0);
+
+	for (let day = 1; day <= daysInMonth; day++) {
+		if (dailyWaitTimes[day] && dailyWaitTimes[day].count > 0) {
+			monthlyAverageWaitTimes[day - 1] = parseFloat((dailyWaitTimes[day].total / dailyWaitTimes[day].count).toFixed(2));
+		}
+		if (dailySingleWaitTimes[day] && dailySingleWaitTimes[day].count > 0) {
+			monthlyAverageSingleWaitTimes[day - 1] = parseFloat((dailySingleWaitTimes[day].total / dailySingleWaitTimes[day].count).toFixed(2));
+		}
+	}
+
+	return { monthlyAverageWaitTimes, monthlyAverageSingleWaitTimes };
+}
 export default {
 	getLiveRideStatisticsWithTimezone,
 	getAllTimeAverageHourlyWaitTimes,

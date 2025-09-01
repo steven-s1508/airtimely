@@ -98,7 +98,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 		return (
 			<>
 				<View style={[chartStyles.chartContainer, { flex: 0, padding: 0 }]}>
-					<Text style={chartStyles.chartText}>Average Wait Times by Day</Text>
+					<Text style={chartStyles.chartText}>Average Wait Times by Day of Week</Text>
 					<View style={{ height: 250 }}>
 						<CartesianChart
 							data={processedData}

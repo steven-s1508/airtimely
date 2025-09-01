@@ -13,6 +13,7 @@ import { getLiveRideStatisticsWithTimezone } from "@/src/utils/api/getRideStatis
 import { WaitTimeLineChartVictory } from "@/src/components/charts/WaitTimeLineChart.victory";
 import { WeekdayAverageBarChartVictory } from "@/src/components/charts/WeekdayAverageBarChart.victory";
 import { HourlyAverageBarChartVictory } from "@/src/components/charts/HourlyAverageBarChart.victory";
+import { MonthlyAverageBarChartVictory } from "@/src/components/charts/MonthlyAverageBarChart.victory";
 
 export default function RideScreen() {
 	console.log("RideScreen rendered");
@@ -54,6 +55,8 @@ export default function RideScreen() {
 					<WaitTimeLineChartVictory data={liveWaitTimes} loading={loading} parkId={params.parkId as string} />
 					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
 					<HourlyAverageBarChartVictory loading={loading} rideId={params.rideId as string} />
+					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
+					<MonthlyAverageBarChartVictory loading={loading} rideId={params.rideId as string} />
 					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
 					<WeekdayAverageBarChartVictory loading={loading} rideId={params.rideId as string} />
 				</View>
