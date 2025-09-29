@@ -81,8 +81,6 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 			// Park operates past midnight - check if record time is either:
 			// 1. After opening time today, or
 			// 2. Before closing time (which is effectively next day)
-			console.log(`Park ${parkId} operates past midnight. Opening: ${openingDateTime.toISO()}, Closing: ${closingDateTime.toISO()}`);
-			console.log(`Record: ${recordDateTime.toISO()}`);
 			return recordDateTime >= openingDateTime || recordDateTime <= closingDateTime;
 		} else {
 			// Normal case - closing time is on the same day
@@ -97,8 +95,6 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 		// For example, to show the local time at the park:
 		// recorded_at_local_park_time: DateTime.fromISO(record.recorded_at_local).setZone(parkTimezone).toISO()
 	}));
-
-	console.log("First wait time returned at: ", dataWithParkTimezone[0]?.recorded_at_local);
 
 	return { waitTimeData: dataWithParkTimezone, waitTimeError: null };
 }

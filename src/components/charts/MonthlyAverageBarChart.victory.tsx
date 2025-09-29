@@ -77,7 +77,6 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 		for (let i = 1; i <= daysInMonth; i += 1) {
 			values.push(i);
 		}
-		console.log("tickvalues: ", values);
 		return values;
 	}, [daysInMonth]);
 
