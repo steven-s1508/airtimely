@@ -2,7 +2,7 @@
 // React / React Native Imports
 import React, { useState, useRef, useEffect } from "react";
 import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 // Expo Imports
 import { Image } from "expo-image";
 // 3rd Party Imports
@@ -41,7 +41,7 @@ export default function HomeScreen() {
 	};
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
+		<SafeAreaProvider style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
 			{/* Header with Logo and Search */}
 			<View style={styles.homeHeader}>
 				{/* Logo */}
@@ -66,12 +66,12 @@ export default function HomeScreen() {
 			</View>
 
 			{/* Destinations View */}
-			<SafeAreaView style={{ paddingHorizontal: 16, flexGrow: 1 }}>
+			<SafeAreaProvider style={{ paddingHorizontal: 16, flexGrow: 1 }}>
 				<DestinationList ref={destinationListRef} searchFilter={debouncedParkFilter} />
-			</SafeAreaView>
+			</SafeAreaProvider>
 
 			{/* Footer with Waitingtimes.APP credits */}
 			<FooterCredits />
-		</SafeAreaView>
+		</SafeAreaProvider>
 	);
 }

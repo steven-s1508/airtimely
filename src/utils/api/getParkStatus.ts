@@ -1,5 +1,5 @@
 import { supabase } from "@/src/utils/supabase";
-import type { Tables } from "@/src/types/database.types";
+import type { Tables } from "@/src/types/supabase";
 import { DateTime } from "luxon";
 import getParkTimezone from "@/src/utils/helpers/getParkTimezone";
 

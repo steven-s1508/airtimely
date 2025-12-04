@@ -1,5 +1,5 @@
 import { supabase } from "@/src/utils/supabase";
-import type { Tables } from "@/src/types/database.types";
+import type { Tables } from "@/src/types/supabase";
 
 /**
  * Fetches parks associated with a specific destination.

@@ -107,7 +107,7 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 	if (isLoading) {
 		return (
 			<View style={[chartStyles.chartContainer, { flex: 0, padding: 0 }]}>
-				<Text style={chartStyles.chartText}>Average Wait Times by Day of Month</Text>
+				<Text style={chartStyles.chartText}>Average Wait Times in ${DateTime.now().toFormat("LLLL yyyy")}</Text>
 				<View style={{ height: 250 }}>
 					<View style={chartStyles.chartContainerLoading}>
 						<Text style={chartStyles.chartText}>Loading chart...</Text>
@@ -120,7 +120,7 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 	if (processedData.every((d) => d.standby === 0 && d.single === 0)) {
 		return (
 			<View style={[chartStyles.chartContainer, { flex: 0, padding: 0 }]}>
-				<Text style={chartStyles.chartText}>Average Wait Times by Day of Month</Text>
+				<Text style={chartStyles.chartText}>Average Wait Times in ${DateTime.now().toFormat("LLLL yyyy")}</Text>
 				<View style={{ height: 250 }}>
 					<View style={chartStyles.chartContainer}>
 						<Text style={chartStyles.chartText}>No average wait time data available</Text>
@@ -132,7 +132,7 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 
 	return (
 		<View style={chartStyles.chartContainer}>
-			<Text style={chartStyles.chartText}>Average Wait Times by Day of Month</Text>
+			<Text style={chartStyles.chartText}>Average Wait Times in {DateTime.now().toFormat("LLLL yyyy")}</Text>
 			<ScrollView horizontal={true}>
 				<View style={{ width: chartWidth, height: 250 }}>
 					<CartesianChart

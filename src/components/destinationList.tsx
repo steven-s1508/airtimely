@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallbac
 
 import { supabase } from "@src/utils/supabase";
 
-import type { Tables } from "@src/types/database.types";
+import type { Tables } from "@src/types/supabase";
 
 import { View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
