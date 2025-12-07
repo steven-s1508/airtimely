@@ -12,13 +12,13 @@ import { colors, styles, parkScreenStyles } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
+import { isValidUUID } from "@/src/utils/helpers/validation";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
 }
 
 export default function ParkScreen() {
-	console.log("ParkScreen rendered");
 	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
 	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
@@ -26,6 +26,12 @@ export default function ParkScreen() {
 	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
+
+	// Validate park ID is a valid UUID
+	if (!id || !isValidUUID(id)) {
+		console.error(`Invalid park ID: ${id}`);
+		return <ActivityIndicator />;
+	}
 
 	// Use Zustand store for pinned items
 	const { pinnedAttractions } = usePinnedItemsStore();
