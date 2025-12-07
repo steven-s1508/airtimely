@@ -14,13 +14,19 @@ import { WaitTimeLineChartVictory } from "@/src/components/charts/WaitTimeLineCh
 import { WeekdayAverageBarChartVictory } from "@/src/components/charts/WeekdayAverageBarChart.victory";
 import { HourlyAverageBarChartVictory } from "@/src/components/charts/HourlyAverageBarChart.victory";
 import { MonthlyAverageBarChartVictory } from "@/src/components/charts/MonthlyAverageBarChart.victory";
+import { isValidUUID } from "@/src/utils/helpers/validation";
 
 export default function RideScreen() {
-	console.log("RideScreen rendered");
 	const params = useLocalSearchParams<{ parkId: string; rideId: string; name: string; status: string }>();
 	const [liveWaitTimes, setLiveWaitTimes] = useState<{ status: string | null; wait_time_minutes: number | null; single_rider_wait_time_minutes: number | null; recorded_at_local: string | null }[]>([]);
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(true);
+
+	// Validate ride ID and park ID are valid UUIDs
+	if (!params.rideId || !isValidUUID(params.rideId) || !params.parkId || !isValidUUID(params.parkId)) {
+		console.error(`Invalid ride ID: ${params.rideId} or park ID: ${params.parkId}`);
+		return <View />;
+	}
 
 	const handleRefresh = async () => {
 		setRefreshing(true);
