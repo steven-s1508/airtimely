@@ -5,8 +5,6 @@ import { Icon } from "./Icon";
 import { colors, rideStatusBadgeStyles } from "@/src/styles";
 
 export const RideStatusBadge = React.memo(function StatusBadge({ status }: { status: string }) {
-	console.log("RideStatusBadge rendered with status:", status);
-
 	const getStatusConfig = (status: string) => {
 		switch (status.toLowerCase()) {
 			case "operating":
