@@ -1,0 +1,27 @@
+name: Build Android AAB on VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build"
+        required: true
+        default: "main"
+      repo_name:
+        description: "Repository folder name on VPS (inside /root/android-builds)"
+        required: true
+        default: "airtimely"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to VPS and run build
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /root/android-builds
+            ./build-aab.sh "${{ github.event.inputs.repo_name }}" "${{ github.event.inputs.branch }}"
