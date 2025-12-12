@@ -1,11 +1,9 @@
 // React / React Native Imports
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { SectionList, View, StyleSheet, SectionListData } from "react-native";
 // 3rd Party Imports
-import { Text, Select, SelectBackdrop, SelectContent, SelectInput, SelectItem, SelectIcon, SelectPortal, SelectTrigger, SelectDragIndicatorWrapper, SelectDragIndicator, VStack } from "@/src/components/ui";
-import { ChevronDown } from "lucide-react-native";
+import { Text } from "@/src/components/ui";
 // Local Imports
-import { ridesListStyles } from "@/src/styles";
 import { AttractionItem } from "./attractionItem";
 import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
 import { colors } from "@/src/styles/styles";

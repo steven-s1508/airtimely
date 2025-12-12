@@ -5,6 +5,7 @@ import { SvgProps } from "react-native-svg";
 // Import your generated SVG components
 // Adjust paths if your SVGR output directory is different
 import AttractionIconComponent from "@/src/assets/icons/components/Attraction";
+import CheckIconComponent from "@/src/assets/icons/components/Check";
 import ChevronLeftIconComponent from "@/src/assets/icons/components/ChevronLeft";
 import ChevronRightIconComponent from "@/src/assets/icons/components/ChevronRight";
 import ClockIconComponent from "@/src/assets/icons/components/Clock";
@@ -32,7 +33,7 @@ import WaitTimeIconComponent from "@/src/assets/icons/components/WaitTime";
 import FavoriteIconComponent from "@/src/assets/icons/components/Favorite";
 import FavoriteFilledIconComponent from "@/src/assets/icons/components/FavoriteFilled";
 
-export type IconName = "destination" | "park" | "attraction" | "restaurant" | "show" | "stats" | "waitTime" | "singleRider" | "virtualQueue" | "clock" | "open" | "down" | "closed" | "refurbishment" | "mapPin" | "filter" | "search" | "chevronRight" | "chevronLeft" | "map" | "refresh" | "expand" | "collapse" | "info" | "close" | "favorite" | "favoriteFilled";
+export type IconName = "destination" | "park" | "attraction" | "restaurant" | "show" | "stats" | "waitTime" | "singleRider" | "virtualQueue" | "clock" | "open" | "down" | "closed" | "refurbishment" | "mapPin" | "filter" | "search" | "chevronRight" | "chevronLeft" | "map" | "refresh" | "expand" | "collapse" | "info" | "close" | "favorite" | "favoriteFilled" | "check" | string;
 
 interface IconProps extends SvgProps {
 	name: IconName;
@@ -42,6 +43,7 @@ interface IconProps extends SvgProps {
 
 const iconComponentMap: Record<IconName, React.FC<SvgProps>> = {
 	attraction: AttractionIconComponent,
+	check: CheckIconComponent,
 	chevronLeft: ChevronLeftIconComponent,
 	chevronRight: ChevronRightIconComponent,
 	clock: ClockIconComponent,

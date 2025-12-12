@@ -41,7 +41,7 @@ export const CountryBadge = React.memo(function CountryBadge({ country, status, 
 
 	return (
 		<View style={[destinationCountryBadgeStyles.container, containerStyle, style]}>
-			<Icon name="mapPin" fill={iconColor} height={14} width={14} />
+			{/* <Icon name="mapPin" fill={iconColor} height={14} width={14} /> */}
 			<Text style={[destinationCountryBadgeStyles.text, textColor]}>{countryName}</Text>
 		</View>
 	);

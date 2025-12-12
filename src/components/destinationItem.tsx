@@ -90,6 +90,10 @@ export const DestinationItem = React.memo(
 			return status.toLowerCase() === "open" ? destinationItemStyles.containerOpen : status.toLowerCase() === "closed" ? destinationItemStyles.containerClosed : destinationItemStyles.container;
 		}, [status]);
 
+		const containerParkStyle = useMemo(() => {
+			return status.toLowerCase() === "open" ? destinationItemStyles.titleContainerParkOpen : status.toLowerCase() === "closed" ? destinationItemStyles.titleContainerParkClosed : destinationItemStyles.titleContainerPark;
+		}, [status]);
+
 		const borderBottomColor = useMemo(() => {
 			return status.toLowerCase() === "open" ? colors.primaryDark : status.toLowerCase() === "closed" ? colors.secondaryDark : colors.secondaryDark;
 		}, [status]);
@@ -119,7 +123,7 @@ export const DestinationItem = React.memo(
 				return (
 					<Pressable key={park.id} style={[destinationParkChildrenStyles.container, parkContainerStyle]} android_ripple={{ color: `${colors.primary}86`, foreground: true }} onPress={handleChildParkPress}>
 						<View style={destinationParkChildrenStyles.nameContainer}>
-							<Icon name="park" fill={color} height={18} width={18} />
+							<StatusBadge status={park.status} size={18} />
 							<Text style={[textStyles, { fontSize: 18 }]}>{park.name_override || park.name}</Text>
 						</View>
 						<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -147,13 +151,13 @@ export const DestinationItem = React.memo(
 							</View>
 							{!isPinned ? (
 								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>
 							) : (
 								<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, borderWidth: 1, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>
@@ -161,7 +165,6 @@ export const DestinationItem = React.memo(
 						</HStack>
 						<View style={[destinationItemStyles.titleContainer, { borderBottomColor: borderBottomColor }]}>
 							<View style={destinationItemStyles.nameContainer}>
-								<Icon name="destination" fill={iconColor} height={24} width={24} />
 								<Text style={textStyles}>{item.name}</Text>
 							</View>
 						</View>
@@ -186,21 +189,20 @@ export const DestinationItem = React.memo(
 							</View>
 							{!isPinned ? (
 								<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>
 							) : (
 								<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-									<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
+									<View style={{ padding: 6, borderWidth: 1, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
 										<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
 									</View>
 								</Pressable>
 							)}
 						</HStack>
-						<Pressable style={destinationItemStyles.titleContainerPark} android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleParkPress}>
+						<Pressable style={[destinationItemStyles.titleContainerPark, containerParkStyle]} android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleParkPress}>
 							<View style={destinationItemStyles.nameContainer}>
-								<Icon name="park" fill={iconColor} height={24} width={24} />
 								<Text style={textStyles}>{item.name}</Text>
 							</View>
 							<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
