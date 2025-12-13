@@ -103,22 +103,18 @@ export const colors = {
 			closed: base.secondary[300],
 		},
 		pressable: {
-			default: base.primary[100],
-			pressed: base.primary[200],
-			closed: {
-				default: base.secondary[100],
-				pressed: base.secondary[200],
-			},
+			open: base.primary[100],
+			openPressed: base.primary[200],
+			closed: base.secondary[100],
+			pressedClosed: base.secondary[200],
 		},
 	},
 	favorite: {
 		bg: {
 			default: base.primary[200],
 			pressed: base.primary[300],
-			pinned: {
-				default: base.primary[300],
-				pressed: base.primary[400],
-			},
+			pinned: base.primary[300],
+			pinnedPressed: base.primary[400],
 		},
 		icon: {
 			default: base.primary[800],
@@ -373,10 +369,10 @@ export const cardStyles = StyleSheet.create({
 		overflow: "hidden",
 	},
 	pressableDestinationPressed: {
-		backgroundColor: colors.card.pressable.pressed,
+		backgroundColor: colors.card.pressable.openPressed,
 	},
 	pressableDestinationClosedPressed: {
-		backgroundColor: colors.card.pressable.closed.pressed,
+		backgroundColor: colors.card.pressable.pressedClosed,
 	},
 	parksContainer: {
 		flex: 1,
@@ -394,10 +390,10 @@ export const cardStyles = StyleSheet.create({
 		borderColor: colors.card.border.open,
 		borderRadius: 6,
 		overflow: "hidden",
-		backgroundColor: colors.card.pressable.default,
+		backgroundColor: colors.card.pressable.open,
 	},
 	pressableParkPressed: {
-		backgroundColor: colors.card.pressable.pressed,
+		backgroundColor: colors.card.pressable.openPressed,
 	},
 	pressableParkClosed: {
 		flexDirection: "row",
@@ -410,10 +406,10 @@ export const cardStyles = StyleSheet.create({
 		borderColor: colors.card.border.closed,
 		borderRadius: 6,
 		overflow: "hidden",
-		backgroundColor: colors.card.pressable.closed.default,
+		backgroundColor: colors.card.pressable.closed,
 	},
 	pressableParkClosedPressed: {
-		backgroundColor: colors.card.pressable.closed.pressed,
+		backgroundColor: colors.card.pressable.pressedClosed
 	},
 	pressableParkText: {
 		fontFamily: tokens.font.primary,
@@ -437,7 +433,7 @@ export const favoriteButtonStyles = StyleSheet.create({
 		backgroundColor: colors.favorite.bg.default,
 	},
 	pinned: {
-		backgroundColor: colors.favorite.bg.pinned.default,
+		backgroundColor: colors.favorite.bg.pinned,
 	},
 	icon: {
 		color: colors.favorite.icon.default,
@@ -449,7 +445,7 @@ export const favoriteButtonStyles = StyleSheet.create({
 		backgroundColor: colors.favorite.bg.pressed,
 	},
 	pinnedPressed: {
-		backgroundColor: colors.favorite.bg.pinned.pressed,
+		backgroundColor: colors.favorite.bg.pinnedPressed,
 	},
 
 });

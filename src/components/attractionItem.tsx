@@ -112,21 +112,21 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 				};
 			case "down":
 				return {
-					containerColor: "#211213",
-					containerBorderColor: "#A3000E",
-					rideNameColor: "#FFCCD9",
-					statusContainerColor: "#3D1215",
-					leftIconColor: "#FFCCD9",
-					statusTextColor: "#FFCCD9",
-					statusBorderColor: "#A3000E",
-					statusBackgroundColor: "#FFCCD9",
-					statusIconColor: "#A3000E",
+					containerColor: base.error[50],
+					containerBorderColor: base.error[300],
+					rideNameColor: base.error[900],
+					statusContainerColor: base.error[200],
+					leftIconColor: base.error[900],
+					statusTextColor: base.error[900],
+					statusBorderColor: base.error[400],
+					statusBackgroundColor: base.error[50],
+					statusIconColor: base.error[700],
 					statusText: "Down",
 				};
 			case "closed":
 				return {
 					containerColor: colors.secondaryVeryDark,
-					containerBorderColor: colors.secondary,
+					containerBorderColor: colors.card.border.closed,
 					rideNameColor: colors.secondaryVeryLight,
 					statusContainerColor: colors.secondaryDark,
 					leftIconColor: colors.secondaryVeryLight,
@@ -138,15 +138,15 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 				};
 			case "refurbishment":
 				return {
-					containerColor: colors.accentBlack,
-					containerBorderColor: colors.accent,
-					rideNameColor: colors.accentVeryLight,
-					statusContainerColor: colors.accentVeryDark,
-					leftIconColor: colors.accentLight,
-					statusTextColor: colors.accentLight,
-					statusBorderColor: colors.accent,
-					statusBackgroundColor: colors.accent,
-					statusIconColor: colors.accentBlack,
+					containerColor: base.accent[50],
+					containerBorderColor: base.accent[300],
+					rideNameColor: base.accent[900],
+					statusContainerColor: base.accent[200],
+					leftIconColor: base.accent[900],
+					statusTextColor: base.accent[900],
+					statusBorderColor: colors.rideStatus.border.maintenance,
+					statusBackgroundColor: colors.rideStatus.bg.maintenance,
+					statusIconColor: colors.rideStatus.onBg.maintenance,
 					statusText: "Refurbishment",
 				};
 			default:
@@ -187,19 +187,19 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 				);
 			} else if (normalizedStatus === "down") {
 				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
+					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
 						<Icon name="down" fill={styling.statusIconColor} height={24} width={24} />
 					</View>
 				);
 			} else if (normalizedStatus === "closed") {
 				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
+					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
 						<Icon name="closed" fill={styling.statusIconColor} height={24} width={24} />
 					</View>
 				);
 			} else if (normalizedStatus === "refurbishment") {
 				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
+					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
 						<Icon name="refurbishment" fill={styling.statusIconColor} height={24} width={24} />
 					</View>
 				);

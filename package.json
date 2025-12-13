@@ -1,6 +1,6 @@
 {
 	"name": "airtimely",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"main": "index.ts",
 	"expo": {
 		"doctor": {
@@ -35,12 +35,12 @@
 		"@legendapp/motion": "^2.5.3",
 		"@react-native-async-storage/async-storage": "2.2.0",
 		"@sentry/react-native": "~7.2.0",
-		"@supabase/supabase-js": "^2.86.2",
+		"@supabase/supabase-js": "^2.87.1",
 		"@tanstack/query-async-storage-persister": "^5.90.14",
 		"@tanstack/react-query": "^5.90.12",
 		"@tanstack/react-query-persist-client": "^5.90.14",
 		"babel-plugin-module-resolver": "^5.0.2",
-		"expo": "^54.0.27",
+		"expo": "^54.0.29",
 		"expo-constants": "~18.0.11",
 		"expo-crypto": "~15.0.8",
 		"expo-dev-client": "~6.0.20",
@@ -63,15 +63,15 @@
 		"react-native-screens": "~4.16.0",
 		"react-native-svg": "15.12.1",
 		"react-native-url-polyfill": "^2.0.0",
-		"react-native-worklets": "^0.5.1"
+		"react-native-worklets": "0.5.1"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.28.5",
 		"@svgr/cli": "^8.1.0",
 		"@types/react": "~19.1.10",
 		"jscodeshift": "^17.3.0",
-		"supabase": "^2.65.6",
 		"prettier-plugin-tailwindcss": "^0.5.14",
+		"supabase": "^2.67.1",
 		"tailwindcss": "^3.4.19",
 		"typescript": "^5.9.3"
 	},
