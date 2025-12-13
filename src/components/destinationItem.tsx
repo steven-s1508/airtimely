@@ -112,7 +112,7 @@ export const DestinationItem = React.memo(
 				return (
 					<Pressable key={park.id} onPress={handleChildParkPress}>
 						{({ pressed }) =>
-							status.toLowerCase() === "open" ? (
+							park.status.toLowerCase() === "open" ? (
 								<View style={[cardStyles.pressablePark, pressed ? cardStyles.pressableParkPressed : null]}>
 									<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 										<StatusBadge type="round" status={park.status} />
@@ -122,7 +122,7 @@ export const DestinationItem = React.memo(
 										<Icon name="chevronRight" fill={color} height={24} width={24} />
 									</View>
 								</View>
-							) : status.toLowerCase() === "closed" ? (
+							) : park.status.toLowerCase() === "closed" ? (
 								<View style={[cardStyles.pressableParkClosed, pressed ? cardStyles.pressableParkClosedPressed : null]}>
 									<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 										<StatusBadge type="round" status={park.status} />
