@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 // Local Imports
 import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
 import { Icon } from "@/src/components/Icon";
-import { colors } from "@/src/styles/styles";
+import { base, colors, favoriteButtonStyles, tokens } from "@/src/styles/styles";
 import { getPinnedAttractionIds, addPinnedAttractionId, removePinnedAttractionId } from "@/src/utils/pinAttractions";
 
 export const AttractionItem = React.memo(function AttractionItem({ id, name, waitTime, status, singleRiderWaitTime, hasVirtualQueue }: { id: string; name: string; waitTime?: number; status?: string; singleRiderWaitTime?: number; hasVirtualQueue?: boolean }) {
@@ -47,21 +47,21 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 
 		if (displayWaitTime < 45) {
 			return {
-				statusBackgroundColor: colors.primaryVeryDark,
-				statusBorderColor: colors.primaryLight,
-				waitTimeTextColor: colors.primaryLight,
+				statusBackgroundColor: colors.rideStatus.bg.lowWait,
+				statusBorderColor: colors.rideStatus.border.lowWait,
+				waitTimeTextColor: colors.rideStatus.onBg.lowWait,
 			};
 		} else if (displayWaitTime < 60) {
 			return {
-				statusBackgroundColor: colors.accentVeryDark,
-				statusBorderColor: colors.accentLight,
-				waitTimeTextColor: colors.accentLight,
+				statusBackgroundColor: colors.rideStatus.bg.mediumWait,
+				statusBorderColor: colors.rideStatus.border.mediumWait,
+				waitTimeTextColor: colors.rideStatus.onBg.mediumWait,
 			};
 		} else {
 			return {
-				statusBackgroundColor: colors.highWaitingtimeVeryDark,
-				statusBorderColor: colors.highWaitingtimeVeryLight,
-				waitTimeTextColor: colors.highWaitingtimeVeryLight,
+				statusBackgroundColor: colors.rideStatus.bg.highWait,
+				statusBorderColor: colors.rideStatus.border.highWait,
+				waitTimeTextColor: colors.rideStatus.onBg.highWait,
 			};
 		}
 	}, [waitTime]);
@@ -71,21 +71,21 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 
 		if (displaySingleRiderWaitTime < 45) {
 			return {
-				statusBackgroundColor: colors.primaryVeryDark,
-				statusBorderColor: colors.primaryLight,
-				waitTimeTextColor: colors.primaryLight,
+				statusBackgroundColor: colors.rideStatus.bg.lowWait,
+				statusBorderColor: colors.rideStatus.border.lowWait,
+				waitTimeTextColor: colors.rideStatus.onBg.lowWait,
 			};
 		} else if (displayWaitTime < 60) {
 			return {
-				statusBackgroundColor: colors.accentVeryDark,
-				statusBorderColor: colors.accentLight,
-				waitTimeTextColor: colors.accentLight,
+				statusBackgroundColor: colors.rideStatus.bg.mediumWait,
+				statusBorderColor: colors.rideStatus.border.mediumWait,
+				waitTimeTextColor: colors.rideStatus.onBg.mediumWait,
 			};
 		} else {
 			return {
-				statusBackgroundColor: colors.highWaitingtimeVeryDark,
-				statusBorderColor: colors.highWaitingtimeVeryLight,
-				waitTimeTextColor: colors.highWaitingtimeVeryLight,
+				statusBackgroundColor: colors.rideStatus.bg.highWait,
+				statusBorderColor: colors.rideStatus.border.highWait,
+				waitTimeTextColor: colors.rideStatus.onBg.highWait,
 			};
 		}
 	}, [singleRiderWaitTime]);
@@ -96,15 +96,16 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 		switch (normalizedStatus) {
 			case "operating":
 				return {
-					containerColor: colors.primaryVeryDark,
-					containerBorderColor: colors.primary,
-					rideNameColor: colors.primaryWhite,
-					statusContainerColor: colors.primaryDark,
-					leftIconColor: colors.primaryLight,
+					containerColor: colors.card.bg.open,
+					containerBorderColor: colors.card.border.open,
+					rideNameColor: colors.text.primary,
+					statusContainerColor: base.primary[200],
+					leftIconColor: base.primary[900],
 					statusTextColor: colors.primaryVeryLight,
-					statusBackgroundColor: waitTimeStyles.statusBackgroundColor,
-					statusBorderColor: waitTimeStyles.statusBorderColor,
-					waitTimeTextColor: waitTimeStyles.waitTimeTextColor,
+					statusBackgroundColor: base.primary[100],
+					statusBorderColor: base.primary[900],
+					statusIconColor: base.primary[900],
+					waitTimeTextColor: colors.primaryVeryLight,
 					vqIconColor: colors.primaryLight,
 					vqTextColor: colors.primaryVeryLight,
 					statusText: "Standby Wait",
@@ -180,8 +181,8 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 
 			if (normalizedStatus === "operating" || normalizedStatus === "open") {
 				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBackgroundColor : styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBorderColor : styling.statusBorderColor }}>
-						<Text style={{ color: waitType === "singleRider" ? singleRiderWaitTimeStyles.waitTimeTextColor : styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
+					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBackgroundColor : waitTimeStyles.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBorderColor : waitTimeStyles.statusBorderColor }}>
+						<Text style={{ color: waitType === "singleRider" ? singleRiderWaitTimeStyles.waitTimeTextColor : waitTimeStyles.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
 					</View>
 				);
 			} else if (normalizedStatus === "down") {
@@ -213,33 +214,37 @@ export const AttractionItem = React.memo(function AttractionItem({ id, name, wai
 		}, [status, displayWaitTime, styling, waitTimeStyles, displaySingleRiderWaitTime, waitType]);
 
 	return (
-		<VStack style={{ gap: 16, padding: 8, borderWidth: 1, borderColor: styling.containerBorderColor, backgroundColor: styling.containerColor, borderRadius: 6 }}>
-			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-				<Text style={{ flexShrink: 1, color: styling.rideNameColor, fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+		<VStack style={{ gap: tokens.gap.card, borderWidth: 1, borderColor: styling.containerBorderColor, backgroundColor: styling.containerColor, borderRadius: tokens.radius.sm, overflow: "hidden" }}>
+			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 8, paddingLeft: 10 }}>
+				<Text style={{ flexShrink: 1, color: styling.rideNameColor, fontSize: 16, fontWeight: "bold", paddingTop: 8, paddingBottom: 4 }}>{name}</Text>
 				{!isPinned ? (
-					<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-						<View style={{ padding: 6, backgroundColor: colors.primaryBlack, borderWidth: 2, borderColor: colors.primary, borderRadius: 8, overflow: "hidden" }}>
-							<Icon name="favorite" fill={colors.primaryLight} height={21} width={21} />
-						</View>
+					<Pressable onPress={handleTogglePin}>
+						{({ pressed }) => (
+							<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pressed] : favoriteButtonStyles.container}>
+								<Icon name="favorite" fill={colors.favorite.icon.default} height={20} width={20} />
+							</View>
+						)}
 					</Pressable>
 				) : (
-					<Pressable android_ripple={{ color: colors.primaryTransparentDark, foreground: true }} onPress={handleTogglePin} style={{ borderRadius: 8, overflow: "hidden" }}>
-						<View style={{ padding: 6, borderWidth: 2, borderColor: colors.primaryLight, backgroundColor: colors.primaryBlack, borderRadius: 8, overflow: "hidden" }}>
-							<Icon name="favoriteFilled" fill={colors.primaryLight} height={21} width={21} />
-						</View>
+					<Pressable onPress={handleTogglePin}>
+						{({ pressed }) => (
+							<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pinned, favoriteButtonStyles.pinnedPressed] : [favoriteButtonStyles.container, favoriteButtonStyles.pinned]}>
+								<Icon name="favoriteFilled" fill={colors.favorite.icon.pinned} height={20} width={20} />
+							</View>
+						)}
 					</Pressable>
 				)}
 			</HStack>
-			<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+			<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8, paddingHorizontal: 8, paddingBottom: 10 }}>
+				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 4, backgroundColor: styling.statusContainerColor }}>
 					<Icon name="waitTime" fill={styling.leftIconColor} height={24} width={24} />
 					<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>{styling.statusText}</Text>
 					{statusView("standby")}
 				</HStack>
 				{displaySingleRiderWaitTime !== undefined && (
-					<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-						<Icon name="singleRider" fill={colors.primaryLight} height={24} width={24} />
-						<Text style={{ color: colors.primaryLight, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
+					<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 4, backgroundColor: styling.statusContainerColor }}>
+						<Icon name="singleRider" fill={styling.statusIconColor} height={24} width={24} />
+						<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
 						{statusView("singleRider")}
 					</HStack>
 				)}
