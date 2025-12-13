@@ -1,3 +1,156 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base colors */
+:root {
+	/* primary */
+	--color--primary-50: #010808;
+	--color--primary-100: #031e1e;
+	--color--primary-200: #053535;
+	--color--primary-300: #085454;
+	--color--primary-400: #0b7272;
+	--color--primary-500: #0e9898;
+	--color--primary-600: #4ab2b2;
+	--color--primary-700: #7ac6c6;
+	--color--primary-800: #9fd6d6;
+	--color--primary-900: #c3e5e5;
+	--color--primary-950: #e7f5f5;
+
+	/* secondary */
+	--color--secondary-50: #070707;
+	--color--secondary-100: #1b1b1b;
+	--color--secondary-200: #2f2f2f;
+	--color--secondary-300: #4a4a4a;
+	--color--secondary-400: #656565;
+	--color--secondary-500: #868686;
+	--color--secondary-600: #a4a4a4;
+	--color--secondary-700: #bcbcbc;
+	--color--secondary-800: #cfcfcf;
+	--color--secondary-900: #e1e1e1;
+	--color--secondary-950: #f3f3f3;
+
+	/* accent */
+	--color--accent-50: #0d0800;
+	--color--accent-100: #321e01;
+	--color--accent-200: #583501;
+	--color--accent-300: #8b5302;
+	--color--accent-400: #bd7102;
+	--color--accent-500: #fc9603;
+	--color--accent-600: #fdb042;
+	--color--accent-700: #fdc574;
+	--color--accent-800: #fed59a;
+	--color--accent-900: #fee5c0;
+	--color--accent-950: #fff5e6;
+
+	/* high-wait-time */
+	--color--high-wait-time-50: #0c0107;
+	--color--high-wait-time-100: #2f041e;
+	--color--high-wait-time-200: #530634;
+	--color--high-wait-time-300: #820a52;
+	--color--high-wait-time-400: #b20e70;
+	--color--high-wait-time-500: #ed1295;
+	--color--high-wait-time-600: #f24db0;
+	--color--high-wait-time-700: #f57dc5;
+	--color--high-wait-time-800: #f8a0d5;
+	--color--high-wait-time-900: #fbc4e5;
+	--color--high-wait-time-950: #fde7f4;
+
+	/* error */
+	--color--error-50: #0d0203;
+	--color--error-100: #32090b;
+	--color--error-200: #580f13;
+	--color--error-300: #8a181e;
+	--color--error-400: #bc2129;
+	--color--error-500: #fb2c36;
+	--color--error-600: #fc6168;
+	--color--error-700: #fd8b90;
+	--color--error-800: #fdabaf;
+	--color--error-900: #fecacd;
+	--color--error-950: #ffeaeb;
+
+	/* success */
+	--color--success-50: #000a04;
+	--color--success-100: #002810;
+	--color--success-200: #00461c;
+	--color--success-300: #006f2c;
+	--color--success-400: #00973c;
+	--color--success-500: #00c950;
+	--color--success-600: #40d77c;
+	--color--success-700: #73e19f;
+	--color--success-800: #99e9b9;
+	--color--success-900: #bff2d3;
+	--color--success-950: #e6faee;
+
+	/* fonts */
+	--font-primary: "Bebas Neue Pro", sans-serif;
+	--font-secondary: "Noto Sans", sans-serif;
+
+	/* spacing */
+	--gap-card: 4dp;
+
+	/* radius */
+	--radius-sm: 4dp;
+	--radius-md: 6dp;
+	--radius-lg: 8dp;
+	--radius-xl: 12dp;
+	--radius-round: 100dp;
+
+	/* general */
+	--bg-app: var(--color--primary-50);
+	--bg-disabled: var(--color--secondary-700);
+
+	/* text */
+	--text-primary: var(--color--secondary-800);
+	--text-closed: var(--color--secondary-800);
+	--text-muted: var(--color--primary-700);
+	--text-disabled: var(--color--secondary-600);
+	--text-on-disabled: var(--color--secondary-400);
+
+	/* card */
+	--bg-card: var(--color--primary-50);
+	--border-card: var(--color--primary-300);
+	--border-card-open: var(--color--accent-600);
+	--bg-pressable: var(--color--primary-100);
+	--bg-pressable-pressed: var(--color--primary-200);
+	--bg-card-closed: var(--color--secondary-50);
+	--border-card-closed: var(--color--secondary-300);
+	--bg-pressable-closed: var(--color--secondary-100);
+	--bg-pressable-closed-pressed: var(--color--secondary-200);
+
+	/* park status */
+	--bg-park-status-open: var(--color--success-600);
+	--bg-park-status-closed: var(--color--secondary-300);
+	--on-bg-park-status-open: var(--color--primary-50);
+	--on-bg-park-status-closed: var(--color--secondary-950);
+
+	/* favorite */
+	--bg-favorite: var(--color--primary-200);
+	--bg-favorite-pressed: var(--color--primary-300);
+	--icon-favorite: var(--color--primary-800);
+	--bg-favorite-pinned: var(--color--primary-100);
+	--bg-favorite-pinned-pressed: var(--color--primary-200);
+	--icon-favorite-pinned: var(--color--accent-500);
+
+	/* ride status */
+	/* high wait */
+	--bg-ride-status-high-wait: var(--color--high-wait-time-100);
+	--border-ride-status-high-wait: var(--color--high-wait-time-500);
+	--on-bg-ride-status-high-wait: var(--color--primary-900);
+	/* medium wait */
+	--bg-ride-status-medium-wait: var(--color--accent-100);
+	--border-ride-status-medium-wait: var(--color--accent-500);
+	--on-bg-ride-status-medium-wait: var(--color--primary-700);
+	/* low wait */
+	--bg-ride-status-low-wait: var(--color--success-100);
+	--border-ride-status-low-wait: var(--color--success-500);
+	--on-bg-ride-status-low-wait: var(--color--primary-900);
+	/* closed */
+	--bg-ride-status-closed: var(--color--secondary-300);
+	--border-ride-status-closed: var(--color--secondary-500);
+	--on-bg-ride-status-closed: var(--color--secondary-900);
+	/* maintenance */
+	--bg-ride-status-maintenance: var(--color--accent-200);
+	--border-ride-status-maintenance: var(--color--accent-700);
+	--on-bg-ride-status-maintenance: var(--color--accent-900);
+}
