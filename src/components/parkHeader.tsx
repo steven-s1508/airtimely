@@ -85,7 +85,7 @@ export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, cou
 			</HStack>
 			<HStack style={parkScreenStyles.parkScreenHeaderMetadata}>
 				<CountryBadge country={country_code} status={status} isPark />
-				<StatusBadge status={status} />
+				<StatusBadge status={status} type="round"/>
 			</HStack>
 			<ParkInfo parkId={id} />
 		</VStack>

@@ -8,7 +8,7 @@ import { Input, InputField, InputSlot, Text } from "@/src/components/ui";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
-import { colors, styles, parkScreenStyles } from "@/src/styles/styles";
+import { colors, styles, parkScreenStyles, base } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
@@ -248,8 +248,9 @@ export default function ParkScreen() {
 						style={{
 							fontFamily: "Bebas Neue Pro",
 							fontWeight: 800,
-							fontSize: 18,
-							padding: 8,
+							fontSize: 14,
+							paddingVertical: 8,
+							paddingHorizontal: 10,
 							paddingTop: 0,
 							color: colors.primaryLight,
 						}}
@@ -262,11 +263,12 @@ export default function ParkScreen() {
 			return (
 				<Text
 					style={{
-						color: colors.primaryLight,
-						fontSize: 16,
+						color: section.title.toLowerCase() === "open" ? base.primary[900] : section.title.toLowerCase() === "down" ? base.error[900] : section.title.toLowerCase() === "closed" ? base.secondary[900] : section.title.toLowerCase() === "refurbishment" ? base.accent[900] : base.primary[900],
+						fontSize: 14,
 						fontWeight: "bold",
-						backgroundColor: colors.primaryVeryDark,
-						padding: 12,
+						backgroundColor: section.title.toLowerCase() === "open" ? base.primary[300] : section.title.toLowerCase() === "down" ? base.error[200] : section.title.toLowerCase() === "closed" ? base.secondary[300] : section.title.toLowerCase() === "refurbishment" ? base.accent[300] : base.primary[300],
+						paddingVertical: 8,
+						paddingHorizontal: 10,
 						marginTop: 8,
 						borderRadius: 6,
 					}}

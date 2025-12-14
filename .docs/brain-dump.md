@@ -1,0 +1,10 @@
+- new "current_wait_time" table (only keep latest entry per attraction_id; append past wait times to in array in "hourly_ride_statistics" table)
+- rolling updates of hourly wait times with every new "current_wait_time" entry
+- add supabase subscription to listen for new "current_wait_time" entries and update the UI in real-time
+- show current wait time against historical averages for that hour/day
+- add ability to filter attractions by current wait time (e.g., show only rides with wait times under 30 minutes)
+- add "last updated" timestamp to attraction details page to show when the wait time was last
+- optimize database queries for fetching current wait times to reduce load times
+- add caching for current wait times to reduce database load
+- add ability to sort attractions by current wait time (ascending or descending)
+- add notifications for users when wait times for their favorite rides drop below a certain threshold
