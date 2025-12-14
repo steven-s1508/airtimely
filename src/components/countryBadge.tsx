@@ -31,17 +31,14 @@ export const CountryBadge = React.memo(function CountryBadge({ country, status, 
 	const countryName = countryNames[country] || country;
 
 	let containerStyle = status.toLowerCase() === "open" ? destinationCountryBadgeStyles.containerOpen : destinationCountryBadgeStyles.containerClosed;
-	let iconColor = status.toLowerCase() === "open" ? destinationCountryBadgeStyles.iconOpen.color : destinationCountryBadgeStyles.iconClosed.color;
 	let textColor = status.toLowerCase() === "open" ? destinationCountryBadgeStyles.textOpen : destinationCountryBadgeStyles.textClosed;
 	if (isPark) {
 		containerStyle = status.toLowerCase() === "open" ? parkScreenStyles.parkScreenCountryBadge : parkScreenStyles.parkScreenCountryBadgeClosed;
-		iconColor = status.toLowerCase() === "open" ? parkScreenStyles.parkScreenCountryBadgeIcon.color : parkScreenStyles.parkScreenCountryBadgeIconClosed.color;
 		textColor = status.toLowerCase() === "open" ? parkScreenStyles.parkScreenCountryBadgeText : parkScreenStyles.parkScreenCountryBadgeTextClosed;
 	}
 
 	return (
 		<View style={[destinationCountryBadgeStyles.container, containerStyle, style]}>
-			<Icon name="mapPin" fill={iconColor} height={14} width={14} />
 			<Text style={[destinationCountryBadgeStyles.text, textColor]}>{countryName}</Text>
 		</View>
 	);

@@ -14,7 +14,7 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Local Imports
-import "@/global.css";
+import "./global.css";
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({

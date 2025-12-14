@@ -180,14 +180,14 @@ export const DestinationList = React.memo(
 								fontSize: 18,
 								padding: 8,
 								paddingTop: 0,
-								color: colors.primaryLight,
+								color: colors.text.primary,
 							}}
 						>
 							{title}
 						</Text>
 					);
 				} else if (title === "All Destinations" && sectionListData.length > 1) {
-					return <View style={{ padding: 2, backgroundColor: colors.primary, marginBottom: 16 }}></View>;
+					return <View style={{ padding: 2, backgroundColor: colors.ui.border, marginBottom: 16 }}></View>;
 				}
 				return null; // No header for other sections
 			},

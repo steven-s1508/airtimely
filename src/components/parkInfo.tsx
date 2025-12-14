@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Text, Pressable, HStack, VStack } from "@components/ui";
 import { getParkSchedule, ParkScheduleItem } from "@/src/utils/api/getParkSchedule";
 import { Icon } from "@/src/components/Icon";
-import { colors } from "@/src/styles/styles";
+import { base, colors } from "@/src/styles/styles";
 import { formatTime } from "@/src/utils/formatTime";
 import { DateTime } from "luxon";
 import { SkeletonParkInfo } from "@components/skeletons/skeletonParkInfo";
@@ -59,15 +59,16 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) 
 				gap: 4,
 				paddingHorizontal: 12,
 				paddingVertical: 4,
+				backgroundColor: base.primary[50],
 				borderWidth: 1,
-				borderColor: colors.primaryDark,
+				borderColor: base.primary[500],
 				borderRadius: 100,
 				marginHorizontal: 16,
 				marginBottom: 8,
 			}}
 		>
-			<Text style={{ color: colors.primary }}>Show Info</Text>
-			<Icon name="expand" fill={colors.primary} height={16} width={16} />
+			<Text style={{ color: base.primary[700] }}>Show Info</Text>
+			<Icon name="expand" fill={base.primary[700]} height={16} width={16} />
 		</Pressable>
 	);
 
@@ -81,16 +82,16 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) 
 				gap: 4,
 				paddingHorizontal: 12,
 				paddingVertical: 4,
-				backgroundColor: colors.primaryVeryDark,
+				backgroundColor: base.primary[100],
 				borderWidth: 1,
-				borderColor: colors.primaryDark,
+				borderColor: base.primary[500],
 				borderRadius: 100,
 				marginHorizontal: 16,
 				marginBottom: 8,
 			}}
 		>
-			<Text style={{ color: colors.primaryLight }}>Hide Info</Text>
-			<Icon name="collapse" fill={colors.primaryLight} height={16} width={16} />
+			<Text style={{ color: base.primary[700] }}>Hide Info</Text>
+			<Icon name="collapse" fill={base.primary[700]} height={16} width={16} />
 		</Pressable>
 	);
 

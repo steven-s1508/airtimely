@@ -14,6 +14,9 @@
 			"resizeMode": "contain",
 			"backgroundColor": "#0E9898"
 		},
+		"web": {
+			"bundler": "metro"
+		},
 		"android": {
 			"adaptiveIcon": {
 				"foregroundImage": "./src/assets/adaptive-icon.png",

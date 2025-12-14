@@ -40,7 +40,7 @@ export default function HomeScreen() {
 	};
 
 	return (
-		<SafeAreaProvider style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
+		<SafeAreaView style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
 			{/* Header with Logo and Search */}
 			<View style={styles.homeHeader}>
 				{/* Logo */}
