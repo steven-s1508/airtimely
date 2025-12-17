@@ -796,6 +796,10 @@ export const rideItemStyles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 8,
+		paddingVertical: 4,
+	},
+	nameContainerPressed: {
+		backgroundColor: colors.card.pressable.openPressed,
 	},
 	icon: {
 		color: colors.primaryVeryLight,
