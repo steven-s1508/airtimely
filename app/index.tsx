@@ -71,6 +71,6 @@ export default function HomeScreen() {
 
 			{/* Footer with Waitingtimes.APP credits */}
 			<FooterCredits />
-		</SafeAreaProvider>
+		</SafeAreaView>
 	);
 }

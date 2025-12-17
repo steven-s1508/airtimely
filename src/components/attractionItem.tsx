@@ -214,11 +214,13 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 	return (
 		<VStack style={{ gap: tokens.gap.card, borderWidth: 1, borderColor: styling.containerBorderColor, backgroundColor: styling.containerColor, borderRadius: tokens.radius.sm, overflow: "hidden" }}>
 			<HStack style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 8, paddingLeft: 10 }}>
-				<Pressable style={rideItemStyles.titleContainerPark} android_ripple={{ color: colors.primaryTransparent, foreground: true }} onPress={handleRidePress}>
-					<View style={rideItemStyles.nameContainer}>
-						<Text style={{ flex: 1, color: styling.rideNameColor, fontSize: 18, fontWeight: "bold" }}>{name}</Text>
-					</View>
-					<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
+				<Pressable style={rideItemStyles.titleContainerPark} onPress={handleRidePress}>
+					{({ pressed }) => (
+						<View style={[rideItemStyles.nameContainer, pressed && rideItemStyles.nameContainerPressed]}>
+							<Text style={{ flex: 1, color: styling.rideNameColor, fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+							<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
+						</View>
+					)}
 				</Pressable>
 				{!isPinned ? (
 					<Pressable onPress={handleTogglePin}>
