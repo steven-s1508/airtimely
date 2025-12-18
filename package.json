@@ -10,11 +10,15 @@
 	}
 	},
 	"scripts": {
-	"start": "expo start",
-	"android": "DARK_MODE=media expo run:android",
-	"ios": "DARK_MODE=media expo run:ios",
-	"web": "DARK_MODE=media expo start --web",
-	"generate-icons": "svgr --native --typescript --out-dir src/assets/icons/components --ext tsx --ignore-existing src/assets/icons/*.svg"
+		"start": "expo start",
+		"android": "DARK_MODE=media expo run:android",
+		"ios": "DARK_MODE=media expo run:ios",
+		"web": "DARK_MODE=media expo start --web",
+		"generate-icons": "svgr --native --typescript --out-dir src/assets/icons/components --ext tsx --ignore-existing src/assets/icons/*.svg",
+		"build:android:dev": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js development",
+		"build:android:preview": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js preview --watch",
+		"build:android:prod": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js production --watch",
+		"build:open-dashboard": "open http://your-vps-ip:3000"
 	},
 	"dependencies": {
 		"@animatereactnative/accordion": "^0.1.5",
