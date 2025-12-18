@@ -9,7 +9,27 @@ interface PinnedItemsState {
 	pinnedParks: string[];
 }
 
-export const usePinnedItemsStore = create<PinnedItemsState>()(
+type PinnedItemsActions = {
+	addPinnedAttraction: (id: string) => void;
+	removePinnedAttraction: (id: string) => void;
+	isAttractionPinned: (id: string) => boolean;
+
+	addPinnedDestination: (id: string) => void;
+	removePinnedDestination: (id: string) => void;
+	isDestinationPinned: (id: string) => boolean;
+
+	addPinnedShow: (id: string) => void;
+	removePinnedShow: (id: string) => void;
+	isShowPinned: (id: string) => boolean;
+
+	addPinnedPark: (id: string) => void;
+	removePinnedPark: (id: string) => void;
+	isParkPinned: (id: string) => boolean;
+};
+
+type PinnedItemsStore = PinnedItemsState & PinnedItemsActions;
+
+export const usePinnedItemsStore = create<PinnedItemsStore>()(
 	persist(
 		(set, get) => ({
 			pinnedAttractions: [],

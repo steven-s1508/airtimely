@@ -1,5 +1,5 @@
 // React / React Native Imports
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
@@ -9,7 +9,23 @@ import { Icon } from "@/src/components/Icon";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 import { base, colors, favoriteButtonStyles, rideItemStyles, tokens } from "@/src/styles/styles";
 
-export const AttractionItem = React.memo(function AttractionItem({ id, parkId, name, waitTime, status, singleRiderWaitTime, hasVirtualQueue }: { id: string; parkId: string; name: string; waitTime?: number; status?: string; singleRiderWaitTime?: number; hasVirtualQueue?: boolean }) {
+export const AttractionItem = React.memo(function AttractionItem({
+	id,
+	parkId,
+	name,
+	waitTime,
+	status,
+	singleRiderWaitTime,
+	hasVirtualQueue,
+}: {
+	id: string;
+	parkId: string;
+	name: string;
+	waitTime?: number;
+	status?: string;
+	singleRiderWaitTime?: number;
+	hasVirtualQueue?: boolean;
+}) {
 	const router = useRouter();
 	const { addPinnedAttraction, removePinnedAttraction, isAttractionPinned } = usePinnedItemsStore();
 	const isPinned = isAttractionPinned(id);
@@ -23,7 +39,7 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 	}, [id, isPinned, addPinnedAttraction, removePinnedAttraction]);
 
 	const virtualQueue = (
-		<HStack style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 16, borderTopWidth: 1, borderBottomColor: colors.primaryVeryLight }}>
+		<HStack style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.primaryVeryLight }}>
 			<Icon name="virtualQueue" fill={colors.primaryLight} height={21} width={21} />
 			<VStack>
 				<Text style={{ color: colors.primaryLight, fontWeight: "bold", fontStyle: "italic", fontFamily: "Bebas Neue Pro, sans-serif" }}>Virtual Queue Options:</Text>
@@ -32,9 +48,10 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 		</HStack>
 	);
 
-	const waitTimeStyles = useMemo(() => {
-		const displayWaitTime = waitTime ?? 0;
+	const displayWaitTime = waitTime ?? 0;
+	const displaySingleRiderWaitTime = singleRiderWaitTime;
 
+	const waitTimeStyles = useMemo(() => {
 		if (displayWaitTime < 45) {
 			return {
 				statusBackgroundColor: colors.rideStatus.bg.lowWait,
@@ -47,38 +64,36 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 				statusBorderColor: colors.rideStatus.border.mediumWait,
 				waitTimeTextColor: colors.rideStatus.onBg.mediumWait,
 			};
-		} else {
-			return {
-				statusBackgroundColor: colors.rideStatus.bg.highWait,
-				statusBorderColor: colors.rideStatus.border.highWait,
-				waitTimeTextColor: colors.rideStatus.onBg.highWait,
-			};
 		}
-	}, [waitTime]);
+		return {
+			statusBackgroundColor: colors.rideStatus.bg.highWait,
+			statusBorderColor: colors.rideStatus.border.highWait,
+			waitTimeTextColor: colors.rideStatus.onBg.highWait,
+		};
+	}, [displayWaitTime]);
 
 	const singleRiderWaitTimeStyles = useMemo(() => {
-		const displaySingleRiderWaitTime = singleRiderWaitTime ?? 0;
+		const display = displaySingleRiderWaitTime ?? 0;
 
-		if (displaySingleRiderWaitTime < 45) {
+		if (display < 45) {
 			return {
 				statusBackgroundColor: colors.rideStatus.bg.lowWait,
 				statusBorderColor: colors.rideStatus.border.lowWait,
 				waitTimeTextColor: colors.rideStatus.onBg.lowWait,
 			};
-		} else if (displayWaitTime < 60) {
+		} else if (display < 60) {
 			return {
 				statusBackgroundColor: colors.rideStatus.bg.mediumWait,
 				statusBorderColor: colors.rideStatus.border.mediumWait,
 				waitTimeTextColor: colors.rideStatus.onBg.mediumWait,
 			};
-		} else {
-			return {
-				statusBackgroundColor: colors.rideStatus.bg.highWait,
-				statusBorderColor: colors.rideStatus.border.highWait,
-				waitTimeTextColor: colors.rideStatus.onBg.highWait,
-			};
 		}
-	}, [singleRiderWaitTime]);
+		return {
+			statusBackgroundColor: colors.rideStatus.bg.highWait,
+			statusBorderColor: colors.rideStatus.border.highWait,
+			waitTimeTextColor: colors.rideStatus.onBg.highWait,
+		};
+	}, [displaySingleRiderWaitTime]);
 
 	const styling = useMemo(() => {
 		const normalizedStatus = status?.toLowerCase();
@@ -141,10 +156,10 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 				};
 			default:
 				return {
-					containerColor: colors.primaryVeryDark,
-					containerBorderColor: colors.primary,
-					textColor: colors.primaryLight,
-					headerColor: colors.primaryDark,
+					containerColor: colors.card.bg.open,
+					containerBorderColor: colors.card.border.open,
+					textColor: colors.text.primary,
+					headerColor: colors.text.primary,
 				};
 		}
 	}, [status]);
@@ -153,62 +168,71 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 		router.push({ pathname: `/park/[parkId]/ride/[rideId]`, params: { parkId, rideId: id, name, waitTime, status, singleRiderWaitTime } });
 	}, [router, parkId, id, name, waitTime, status, singleRiderWaitTime]);
 
-	// Default wait time to 0 if not provided (for shows/restaurants)
-	const displayWaitTime = waitTime ?? 0;
-	const displaySingleRiderWaitTime = singleRiderWaitTime;
+	const standbyStatusView = useMemo(() => {
+		const normalizedStatus = status?.toLowerCase();
 
-	const statusView = (waitType = "standby") =>
-		useMemo(() => {
-			const normalizedStatus = status?.toLowerCase();
-
-			// Determine the wait time to display based on wait type
-			let waitTimeToDisplay;
-			if (waitType === "standby") {
-				waitTimeToDisplay = displayWaitTime;
-			} else if (waitType === "singleRider") {
-				waitTimeToDisplay = displaySingleRiderWaitTime ?? 0;
-			}
-
-			if (normalizedStatus === "operating" || normalizedStatus === "open") {
-				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBackgroundColor : waitTimeStyles.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: waitType === "singleRider" ? singleRiderWaitTimeStyles.statusBorderColor : waitTimeStyles.statusBorderColor }}>
-						<Text style={{ color: waitType === "singleRider" ? singleRiderWaitTimeStyles.waitTimeTextColor : waitTimeStyles.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
-					</View>
-				);
-			} else if (normalizedStatus === "down") {
-				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
-						<Icon name="down" fill={styling.statusIconColor} height={24} width={24} />
-					</View>
-				);
-			} else if (normalizedStatus === "closed") {
-				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
-						<Icon name="closed" fill={styling.statusIconColor} height={24} width={24} />
-					</View>
-				);
-			} else if (normalizedStatus === "refurbishment") {
-				return (
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
-						<Icon name="refurbishment" fill={styling.statusIconColor} height={24} width={24} />
-					</View>
-				);
-			}
-
-			// Default case - show wait time
+		if (normalizedStatus === "operating" || normalizedStatus === "open") {
 			return (
-				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
-					<Text style={{ color: styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
+				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitTimeStyles.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: waitTimeStyles.statusBorderColor }}>
+					<Text style={{ color: waitTimeStyles.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{displayWaitTime}</Text>
 				</View>
 			);
-		}, [status, displayWaitTime, styling, waitTimeStyles, displaySingleRiderWaitTime, waitType]);
+		}
+		if (normalizedStatus === "down") {
+			return (
+				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
+					<Icon name="down" fill={styling.statusIconColor} height={24} width={24} />
+				</View>
+			);
+		}
+		if (normalizedStatus === "closed") {
+			return (
+				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
+					<Icon name="closed" fill={styling.statusIconColor} height={24} width={24} />
+				</View>
+			);
+		}
+		if (normalizedStatus === "refurbishment") {
+			return (
+				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: styling.statusBorderColor }}>
+					<Icon name="refurbishment" fill={styling.statusIconColor} height={24} width={24} />
+				</View>
+			);
+		}
+
+		return (
+			<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
+				<Text style={{ color: styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{displayWaitTime}</Text>
+			</View>
+		);
+	}, [status, displayWaitTime, styling, waitTimeStyles]);
+
+	const singleRiderStatusView = useMemo(() => {
+		const normalizedStatus = status?.toLowerCase();
+		const value = displaySingleRiderWaitTime ?? 0;
+
+		if (normalizedStatus === "operating" || normalizedStatus === "open") {
+			return (
+				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: singleRiderWaitTimeStyles.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 6, borderColor: singleRiderWaitTimeStyles.statusBorderColor }}>
+					<Text style={{ color: singleRiderWaitTimeStyles.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{value}</Text>
+				</View>
+			);
+		}
+
+		// For non-operating statuses, reuse the same icon logic
+		if (normalizedStatus === "down" || normalizedStatus === "closed" || normalizedStatus === "refurbishment") {
+			return standbyStatusView;
+		}
+
+		return (
+			<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
+				<Text style={{ color: styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{value}</Text>
+			</View>
+		);
+	}, [status, displaySingleRiderWaitTime, singleRiderWaitTimeStyles, styling, standbyStatusView]);
 
 	const iconColor = useMemo(() => {
 		return status?.toLowerCase() === "open" ? rideItemStyles.icon.color : status?.toLowerCase() === "closed" ? rideItemStyles.iconClosed.color : rideItemStyles.icon.color;
-	}, [status]);
-
-	const textStyles = useMemo(() => {
-		return status?.toLowerCase() === "open" ? rideItemStyles.name : status?.toLowerCase() === "closed" ? rideItemStyles.nameClosed : rideItemStyles.name;
 	}, [status]);
 
 	return (
@@ -222,6 +246,7 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 						</View>
 					)}
 				</Pressable>
+
 				{!isPinned ? (
 					<Pressable onPress={handleTogglePin}>
 						{({ pressed }) => (
@@ -240,20 +265,23 @@ export const AttractionItem = React.memo(function AttractionItem({ id, parkId, n
 					</Pressable>
 				)}
 			</HStack>
+
 			<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8, paddingHorizontal: 8, paddingBottom: 10 }}>
 				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 4, backgroundColor: styling.statusContainerColor }}>
 					<Icon name="waitTime" fill={styling.leftIconColor} height={24} width={24} />
 					<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>{styling.statusText}</Text>
-					{statusView("standby")}
+					{standbyStatusView}
 				</HStack>
+
 				{displaySingleRiderWaitTime !== undefined && (
 					<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 4, backgroundColor: styling.statusContainerColor }}>
 						<Icon name="singleRider" fill={styling.statusIconColor} height={24} width={24} />
 						<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
-						{statusView("singleRider")}
+						{singleRiderStatusView}
 					</HStack>
 				)}
 			</HStack>
+
 			{hasVirtualQueue && virtualQueue}
 		</VStack>
 	);
