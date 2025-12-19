@@ -2,7 +2,7 @@
 // React / React Native Imports
 import React, { useState, useRef, useEffect } from "react";
 import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 // Expo Imports
 import { Image } from "expo-image";
 // 3rd Party Imports
@@ -40,7 +40,7 @@ export default function HomeScreen() {
 	};
 
 	return (
-		<SafeAreaView style={ styles.app }>
+		<SafeAreaView style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
 			{/* Header with Logo and Search */}
 			<View style={styles.homeHeader}>
 				{/* Logo */}
@@ -49,7 +49,7 @@ export default function HomeScreen() {
 				<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 					{/* Search Input */}
 					<Input style={[styles.parkFilterInput, { flex: 1 }]}>
-						<InputField placeholder="Search for park..." placeholderTextColor={colors.primaryLight} value={parkFilterInput} onChangeText={setParkFilterInput} style={styles.parkFilterInputField} />
+						<InputField placeholder="Search by park, country, or status..." placeholderTextColor={colors.primaryLight} value={parkFilterInput} onChangeText={setParkFilterInput} style={styles.parkFilterInputField} />
 						{parkFilterInput.length > 0 && (
 							<InputSlot onPress={() => setParkFilterInput("")} style={styles.clearButton} hitSlop={10}>
 								<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />
@@ -65,9 +65,9 @@ export default function HomeScreen() {
 			</View>
 
 			{/* Destinations View */}
-			<SafeAreaView style={{ paddingHorizontal: 16, flexGrow: 1 }}>
+			<SafeAreaProvider style={{ paddingHorizontal: 16, flexGrow: 1 }}>
 				<DestinationList ref={destinationListRef} searchFilter={debouncedParkFilter} />
-			</SafeAreaView>
+			</SafeAreaProvider>
 
 			{/* Footer with Waitingtimes.APP credits */}
 			<FooterCredits />

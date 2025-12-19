@@ -5,26 +5,19 @@ import { getParkSchedule, ParkScheduleItem } from "@/src/utils/api/getParkSchedu
 import { Icon } from "@/src/components/Icon";
 import { base, colors } from "@/src/styles/styles";
 import { formatTime } from "@/src/utils/formatTime";
+import { DateTime } from "luxon";
+import { SkeletonParkInfo } from "@components/skeletons/skeletonParkInfo";
+import getParkTimezone from "../utils/helpers/getParkTimezone";
 
 interface ParkInfoProps {
 	parkId: string;
-	timezone?: string;
 }
 
 function getCurrentDateInTimezone(timezone: string): string {
-	const now = new Date();
-	const options: Intl.DateTimeFormatOptions = {
-		timeZone: timezone,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	};
-
-	const formatter = new Intl.DateTimeFormat("en-CA", options);
-	return formatter.format(now);
+	return DateTime.now().setZone(timezone).toFormat("yyyy-MM-dd");
 }
 
-export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "America/Los_Angeles" }: ParkInfoProps) {
+export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [scheduleData, setScheduleData] = useState<ParkScheduleItem[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -32,9 +25,10 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "Ameri
 	useEffect(() => {
 		const fetchSchedule = async () => {
 			setLoading(true);
+			const timezone = await getParkTimezone(parkId);
+			const currentDate = getCurrentDateInTimezone(timezone);
 			const data = await getParkSchedule(parkId);
 			if (data) {
-				const currentDate = getCurrentDateInTimezone(data.timezone || timezone);
 				const todaySchedule = data.schedule.filter((item) => item.date === currentDate);
 				setScheduleData(todaySchedule);
 			}
@@ -44,7 +38,7 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "Ameri
 		if (parkId) {
 			fetchSchedule();
 		}
-	}, [parkId, timezone]);
+	}, [parkId]);
 
 	const toggleAccordion = () => {
 		setIsOpen(!isOpen);
@@ -177,7 +171,7 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId, timezone = "Ameri
 				)}
 
 				{/* Loading or No Data States */}
-				{loading && <Text style={{ fontFamily: "Noto Sans", fontSize: 14, color: colors.primaryVeryLight, textAlign: "center" }}>Loading schedule...</Text>}
+				{loading && <SkeletonParkInfo />}
 
 				{!loading && scheduleData.length === 0 && <Text style={{ fontFamily: "Noto Sans", fontSize: 14, color: colors.primaryVeryLight, textAlign: "center" }}>No schedule information available for today.</Text>}
 			</VStack>

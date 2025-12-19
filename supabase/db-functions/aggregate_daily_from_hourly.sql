@@ -97,9 +97,14 @@ BEGIN
         park_info.opening_time IS NULL OR 
         park_info.closing_time IS NULL OR
         (
-            (hrs.hour >= EXTRACT(HOUR FROM park_info.opening_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = r.park_id)))
+            -- Create timestamp for this hour and check if it falls within park hours
+            (p_date + make_interval(hours => hrs.hour::integer))::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            >= park_info.opening_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
             AND
-            (hrs.hour < EXTRACT(HOUR FROM park_info.closing_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = r.park_id)))
+            (p_date + make_interval(hours => hrs.hour::integer) + INTERVAL '1 hour')::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            <= park_info.closing_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
         )
     );
     
@@ -115,8 +120,16 @@ BEGIN
     AND (
         park_info.opening_time IS NULL OR 
         park_info.closing_time IS NULL OR
-        hrs.hour >= EXTRACT(HOUR FROM park_info.opening_time::TIME) AND 
-        hrs.hour < EXTRACT(HOUR FROM park_info.closing_time::TIME)
+        (
+            -- Create timestamp for this hour and check if it falls within park hours
+            (p_date + make_interval(hours => hrs.hour::integer))::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            >= park_info.opening_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            AND
+            (p_date + make_interval(hours => hrs.hour::integer) + INTERVAL '1 hour')::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            <= park_info.closing_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+        )
     )
     ORDER BY hrs.avg_wait_time_minutes DESC, hrs.max_wait_time_minutes DESC
     LIMIT 1;
@@ -132,8 +145,16 @@ BEGIN
     AND (
         park_info.opening_time IS NULL OR 
         park_info.closing_time IS NULL OR
-        hrs.hour >= EXTRACT(HOUR FROM park_info.opening_time::TIME) AND 
-        hrs.hour < EXTRACT(HOUR FROM park_info.closing_time::TIME)
+        (
+            -- Create timestamp for this hour and check if it falls within park hours
+            (p_date + make_interval(hours => hrs.hour::integer))::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            >= park_info.opening_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            AND
+            (p_date + make_interval(hours => hrs.hour::integer) + INTERVAL '1 hour')::timestamptz
+            AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+            <= park_info.closing_time AT TIME ZONE (SELECT timezone FROM parks WHERE id = park_info.park_id)
+        )
     )
     ORDER BY hrs.avg_wait_time_minutes ASC, hrs.min_wait_time_minutes ASC
     LIMIT 1;

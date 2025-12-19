@@ -16,8 +16,6 @@ export interface ParkChild {
 
 export interface ParkChildrenResponse {
 	attractions: ParkChild[];
-	shows: ParkChild[];
-	restaurants: ParkChild[];
 }
 
 /**
@@ -49,22 +47,6 @@ export async function getParkChildren(parkId: string): Promise<ParkChildrenRespo
 			return null;
 		}
 
-		// Fetch shows (no wait times)
-		const { data: shows, error: showsError } = await supabase.from("shows").select("id, external_id, name, entity_type, latitude, longitude").eq("park_id", parkId).eq("is_active", true);
-
-		if (showsError) {
-			console.error("Error fetching shows:", showsError);
-			return null;
-		}
-
-		// Fetch restaurants (no wait times)
-		const { data: restaurants, error: restaurantsError } = await supabase.from("restaurants").select("id, external_id, name, entity_type, latitude, longitude").eq("park_id", parkId).eq("is_active", true);
-
-		if (restaurantsError) {
-			console.error("Error fetching restaurants:", restaurantsError);
-			return null;
-		}
-
 		// Transform attractions data to include wait times
 		const attractionsWithWaitTimes = (attractions || []).map((attraction) => ({
 			id: attraction.id,
@@ -81,8 +63,6 @@ export async function getParkChildren(parkId: string): Promise<ParkChildrenRespo
 
 		return {
 			attractions: attractionsWithWaitTimes,
-			shows: shows || [],
-			restaurants: restaurants || [],
 		};
 	} catch (error) {
 		console.error("Error in getParkChildren:", error);

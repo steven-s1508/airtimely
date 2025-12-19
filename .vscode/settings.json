@@ -1,0 +1,12 @@
+{
+    "buildServer.url": "http://your-vps-ip:3000",
+    "terminal.integrated.env.osx": {
+        "BUILD_SERVER": "http://your-vps-ip:3000"
+    },
+    "terminal.integrated.env.linux": {
+        "BUILD_SERVER": "http://your-vps-ip:3000"
+    },
+    "terminal.integrated.env.windows": {
+        "BUILD_SERVER": "http://your-vps-ip:3000"
+    }
+}
