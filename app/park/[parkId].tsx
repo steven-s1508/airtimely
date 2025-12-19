@@ -10,10 +10,9 @@ import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
 import { colors, styles, parkScreenStyles, base } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
-import { ShowItem } from "@/src/components/showItem";
 import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
-import { getPinnedAttractionIds } from "@/src/utils/pinAttractions";
-import { getPinnedShowIds } from "@/src/utils/pinShows";
+import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
+import { isValidUUID } from "@/src/utils/helpers/validation";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
@@ -27,30 +26,22 @@ export default function ParkScreen() {
 	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
-	const [activeTab, setActiveTab] = useState<"attractions" | "shows" | "restaurants">("attractions");
-	const [pinnedAttractionIds, setPinnedAttractionIds] = useState<string[]>([]);
-	const [pinnedShowIds, setPinnedShowIds] = useState<string[]>([]);
 
+	// Validate park ID is a valid UUID
+	if (!id || !isValidUUID(id)) {
+		console.error(`Invalid park ID: ${id}`);
+		return <ActivityIndicator />;
+	}
+
+	// Use Zustand store for pinned items
+	const { pinnedAttractions } = usePinnedItemsStore();
+
+	// Load park children when the component mounts or ID changes
 	useEffect(() => {
 		if (id) {
 			loadParkChildren();
 		}
 	}, [id]);
-
-	// Load pinned attractions and shows
-	useEffect(() => {
-		const loadPinnedIds = async () => {
-			const storedPinnedAttractionIds = await getPinnedAttractionIds();
-			const storedPinnedShowIds = await getPinnedShowIds();
-			setPinnedAttractionIds(storedPinnedAttractionIds);
-			setPinnedShowIds(storedPinnedShowIds);
-		};
-		loadPinnedIds();
-
-		// Set up an interval to refresh pinned status
-		const interval = setInterval(loadPinnedIds, 1000);
-		return () => clearInterval(interval);
-	}, []);
 
 	const loadParkChildren = async (isRefresh: boolean = false) => {
 		if (isRefresh) {
@@ -111,7 +102,7 @@ export default function ParkScreen() {
 		let currentPinnedIds: string[] = [];
 
 		items = parkChildren.attractions;
-		currentPinnedIds = pinnedAttractionIds;
+		currentPinnedIds = pinnedAttractions;
 		if (items.length === 0) {
 			return <Text style={{ color: colors.primaryLight, textAlign: "center", padding: 16 }}>No attractions found for this park.</Text>;
 		}
@@ -124,7 +115,15 @@ export default function ParkScreen() {
 
 		// Apply search filter
 		if (debouncedAttractionFilter.trim() !== "") {
-			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => item.name.toLowerCase().includes(debouncedAttractionFilter.toLowerCase()));
+			const lowerFilter = debouncedAttractionFilter.toLowerCase();
+			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => {
+				const nameMatch = item.name.toLowerCase().includes(lowerFilter);
+				const statusMatch = item.status && item.status.toLowerCase().includes(lowerFilter);
+				// Also handle "operating" as "open" for search consistency
+				const operatingMatch = lowerFilter === "open" && item.status?.toLowerCase() === "operating";
+
+				return nameMatch || statusMatch || operatingMatch;
+			});
 		}
 
 		// If no results after filtering, show message
@@ -238,6 +237,7 @@ export default function ParkScreen() {
 				<AttractionItem
 					key={`${item.id}-${refreshing ? "refreshed" : "initial"}`}
 					id={item.id}
+					parkId={id}
 					name={item.name}
 					waitTime={item.wait_time_minutes ?? undefined}
 					singleRiderWaitTime={item.single_rider_wait_time_minutes ?? undefined}
@@ -249,7 +249,7 @@ export default function ParkScreen() {
 
 		const renderSectionHeader = ({ section }: { section: SectionListData<ParkChildWithPinnedStatus> & { isPinnedSection?: boolean } }) => {
 			if (section.isPinnedSection) {
-				const sectionTitle = activeTab === "shows" ? "Pinned Shows" : activeTab === "restaurants" ? "Pinned Restaurants" : "Pinned Attractions";
+				const sectionTitle = "Pinned Attractions";
 
 				return (
 					<Text
@@ -296,7 +296,7 @@ export default function ParkScreen() {
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				{/* Search Input */}
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
-					<InputField placeholder="Search for attraction..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
+					<InputField placeholder="Search by attraction or status..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
 					{attractionFilterInput.length > 0 && (
 						<InputSlot onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
 							<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />

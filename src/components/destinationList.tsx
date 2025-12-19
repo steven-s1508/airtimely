@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallbac
 
 import { supabase } from "@src/utils/supabase";
 
-import type { Tables } from "@src/types/database.types";
+import type { Tables } from "@src/types/supabase";
 
 import { View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
@@ -10,16 +10,20 @@ import { Text } from "./ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@src/styles/styles";
 
-import { getPinnedDestinationIds, addPinnedDestinationId, removePinnedDestinationId } from "@src/utils/pinDestinations";
+import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
+import { getCountryName } from "@src/utils/helpers/countryMapping";
+import { getParkStatus, getDestinationStatus, type ParkStatus } from "@src/utils/api/getParkStatus";
+import { fetchChildParks } from "@src/utils/api/getParksByDestination";
 
 // Define the type for items from the 'displayable_entities' view
 // Ideally, you would regenerate your Supabase types to include this view.
 // If not, you can define it manually like this:
 export type DisplayableEntity = Tables<"displayable_destinations">;
 
-// Augmented type to include pinned status
+// Augmented type to include pinned status and current status
 export type DisplayableEntityWithPinnedStatus = DisplayableEntity & {
 	isPinned?: boolean;
+	currentStatus?: ParkStatus;
 };
 
 /**
@@ -44,7 +48,7 @@ export async function fetchDisplayableEntities(): Promise<DisplayableEntity[]> {
 	}
 
 	// Sort the data by name in ascending order
-	data.sort((a, b) => a.name.localeCompare(b.name));
+	data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 	// Ensure the data is in the expected format
 	if (!Array.isArray(data)) {
 		console.error("Fetched data is not an array:", data);
@@ -59,12 +63,12 @@ export interface DestinationListRef {
 
 export const DestinationList = React.memo(
 	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
-		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
-		const [pinnedIds, setPinnedIds] = useState<string[]>([]);
+		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntityWithPinnedStatus[]>([]);
 		const [isLoading, setIsLoading] = useState(true);
 		const [refreshing, setRefreshing] = useState(false);
 		const [error, setError] = useState<string | null>(null);
 		const [refreshKey, setRefreshKey] = useState(0);
+		const { pinnedDestinations } = usePinnedItemsStore();
 
 		useImperativeHandle(ref, () => ({
 			refresh: async () => {
@@ -80,16 +84,32 @@ export const DestinationList = React.memo(
 					setIsLoading(true);
 				}
 
-				const [fetched, storedPinnedIds] = await Promise.all([fetchDisplayableEntities(), getPinnedDestinationIds()]);
-				setFetchedEntities(fetched);
-				setPinnedIds(storedPinnedIds);
+				const fetched = await fetchDisplayableEntities();
+
+				// Fetch statuses for all entities to enable filtering
+				const entitiesWithStatus = await Promise.all(
+					fetched.map(async (entity) => {
+						let status: ParkStatus = "Unknown";
+						try {
+							if (entity.entity_type === "park") {
+								status = await getParkStatus(entity.entity_id!);
+							} else if (entity.entity_type === "destination_group") {
+								const childParks = await fetchChildParks(entity.original_destination_id!);
+								status = await getDestinationStatus(childParks);
+							}
+						} catch (e) {
+							console.error(`Failed to fetch status for ${entity.name}:`, e);
+						}
+						return { ...entity, currentStatus: status };
+					})
+				);
+
+				setFetchedEntities(entitiesWithStatus);
 				setError(null);
-				setRefreshKey((prev) => prev + 1);
 			} catch (e) {
 				console.error("Failed to load initial data:", e);
 				setError("Failed to load destinations.");
 				setFetchedEntities([]);
-				setPinnedIds([]);
 			} finally {
 				if (isRefresh) {
 					setRefreshing(false);
@@ -100,6 +120,7 @@ export const DestinationList = React.memo(
 		}, []);
 
 		const handleRefresh = async () => {
+			setRefreshKey((prev) => prev + 1);
 			await loadInitialData(true);
 		};
 
@@ -113,21 +134,29 @@ export const DestinationList = React.memo(
 
 			let entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
 				...entity,
-				isPinned: pinnedIds.includes(entity.entity_id),
+				isPinned: pinnedDestinations.includes(entity.entity_id!),
 			}));
 
 			if (searchFilter.trim() !== "") {
-				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => entity.name.toLowerCase().includes(searchFilter.toLowerCase()));
+				const lowerFilter = searchFilter.toLowerCase();
+				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => {
+					const nameMatch = entity.name && entity.name.toLowerCase().includes(lowerFilter);
+					const countryCodeMatch = entity.country_code && entity.country_code.toLowerCase().includes(lowerFilter);
+					const countryNameMatch = getCountryName(entity.country_code).toLowerCase().includes(lowerFilter);
+					const statusMatch = entity.currentStatus && entity.currentStatus.toLowerCase().includes(lowerFilter);
+
+					return nameMatch || countryCodeMatch || countryNameMatch || statusMatch;
+				});
 			}
 
 			entitiesWithPinnedStatus.sort((a, b) => {
 				if (a.isPinned && !b.isPinned) return -1;
 				if (!a.isPinned && b.isPinned) return 1;
-				return a.name.localeCompare(b.name);
+				return (a.name || "").localeCompare(b.name || "");
 			});
 
 			return entitiesWithPinnedStatus;
-		}, [fetchedEntities, pinnedIds, searchFilter]);
+		}, [fetchedEntities, pinnedDestinations, searchFilter]);
 
 		// Memoize section list data
 		const sectionListData = useMemo(() => {
@@ -155,20 +184,18 @@ export const DestinationList = React.memo(
 
 		const handleTogglePin = useCallback(
 			async (entityId: string) => {
-				const isCurrentlyPinned = pinnedIds.includes(entityId);
-				let updatedPinnedIds;
+				const isCurrentlyPinned = pinnedDestinations.includes(entityId);
 				if (isCurrentlyPinned) {
-					updatedPinnedIds = await removePinnedDestinationId(entityId);
+					usePinnedItemsStore.getState().removePinnedDestination(entityId);
 				} else {
-					updatedPinnedIds = await addPinnedDestinationId(entityId);
+					usePinnedItemsStore.getState().addPinnedDestination(entityId);
 				}
-				setPinnedIds(updatedPinnedIds);
 			},
-			[pinnedIds]
+			[pinnedDestinations]
 		);
 
 		// Memoize render functions
-		const renderItem = useCallback(({ item }: { item: DisplayableEntityWithPinnedStatus }) => <DestinationItem item={item} isPinned={item.isPinned || false} onTogglePin={handleTogglePin} />, [handleTogglePin]);
+		const renderItem = useCallback(({ item }: { item: DisplayableEntityWithPinnedStatus }) => <DestinationItem item={item} isPinned={item.isPinned || false} onTogglePin={handleTogglePin} refreshKey={refreshKey} />, [handleTogglePin, refreshKey]);
 
 		const renderSectionHeader = useCallback(
 			({ section: { title } }: { section: { title: string } }) => {
@@ -196,7 +223,7 @@ export const DestinationList = React.memo(
 			[sectionListData.length]
 		);
 
-		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id, []);
+		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id ?? "unknown", []);
 
 		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
 		const SectionSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
@@ -219,7 +246,7 @@ export const DestinationList = React.memo(
 		}
 
 		if (!processedEntities || processedEntities.length === 0) {
-			return <Text>No destinations found.</Text>;
+			return <Text style={{ color: colors.text.primary, textAlign: "center", marginTop: 20 }}>No destinations found.</Text>;
 		}
 
 		return (

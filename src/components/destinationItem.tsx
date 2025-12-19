@@ -8,13 +8,15 @@ import { Pressable, Text, VStack, HStack } from "@/src/components/ui";
 import { fetchChildParks } from "@/src/utils/api/getParksByDestination";
 import { useRouter } from "expo-router";
 import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatus, type ParkWithStatus } from "@/src/utils/api/getParkStatus";
+import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 // Style imports
 import { colors, styles, cardStyles, favoriteButtonStyles, destinationItemStyles, destinationParkChildrenStyles, skeletonDestinationItemStyles } from "@/src/styles";
 
 export const DestinationItem = React.memo(
-	function DestinationItem({ item, isPinned, onTogglePin }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void }) {
+	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
 		const router = useRouter();
+		const { addPinnedDestination, removePinnedDestination, isDestinationPinned, addPinnedPark, removePinnedPark, isParkPinned } = usePinnedItemsStore();
 
 		const [status, setStatus] = useState<ParkStatus>("Unknown");
 		const [isLoadingStatus, setIsLoadingStatus] = useState(true);
@@ -27,11 +29,25 @@ export const DestinationItem = React.memo(
 
 		// Memoize callbacks
 		const handleTogglePin = useCallback(() => {
-			onTogglePin(item.entity_id || "");
-		}, [onTogglePin, item.entity_id]);
+			if (item.entity_type === "park") {
+				if (isParkPinned(item.entity_id!)) {
+					removePinnedPark(item.entity_id!);
+				} else {
+					addPinnedPark(item.entity_id!);
+				}
+			} else {
+				if (isDestinationPinned(item.entity_id!)) {
+					removePinnedDestination(item.entity_id!);
+				} else {
+					addPinnedDestination(item.entity_id!);
+				}
+			}
+			onTogglePin(item.entity_id!);
+		}, [onTogglePin, item.entity_id, item.entity_type, isDestinationPinned, addPinnedDestination, removePinnedDestination, isParkPinned, addPinnedPark, removePinnedPark]);
 
 		const handleParkPress = useCallback(() => {
-			router.push({ pathname: "/park/[id]", params: { id: item.entity_id, name: item.name, country_code: item.country_code } });
+			router.push({ pathname: "/park/[parkId]", params: { id: item.entity_id!, name: item.name!, country_code: item.country_code! } });
+			onTogglePin(item.entity_id || "");
 		}, [router, item.entity_id, item.name]);
 
 		// Load park status for single parks
@@ -53,7 +69,7 @@ export const DestinationItem = React.memo(
 			} else {
 				setIsLoadingStatus(false); // Not a park, no status loading needed
 			}
-		}, [isParkTypeDisplay, item.entity_id]);
+		}, [isParkTypeDisplay, item.entity_id, refreshKey]);
 
 		useEffect(() => {
 			if (item.entity_type === "destination_group" && item.original_destination_id) {
@@ -86,7 +102,7 @@ export const DestinationItem = React.memo(
 				setChildParks([]); // Clear if not a destination group or no ID
 				setIsLoadingStatus(false);
 			}
-		}, [item.entity_type, item.original_destination_id, item.entity_id, item.name]);
+		}, [item.entity_type, item.original_destination_id, item.entity_id, item.name, refreshKey]);
 
 		// Memoize styling calculations
 		const iconColor = useMemo(() => {
@@ -106,7 +122,7 @@ export const DestinationItem = React.memo(
 				const textStyles = park.status.toLowerCase() === "open" ? [cardStyles.pressableParkText] : park.status.toLowerCase() === "closed" ? [cardStyles.pressableParkText, cardStyles.pressableParkTextClosed] : [cardStyles.pressableParkText];
 
 				const handleChildParkPress = () => {
-					router.push({ pathname: "/park/[id]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
+					router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
 				};
 
 				return (
@@ -232,7 +248,7 @@ export const DestinationItem = React.memo(
 	},
 	(prevProps, nextProps) => {
 		// Custom comparison function for better memoization
-		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type;
+		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type && prevProps.refreshKey === nextProps.refreshKey;
 	}
 );
 

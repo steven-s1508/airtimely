@@ -1,6 +1,6 @@
 // React / React Native Imports
 import React, { useState, useEffect } from "react";
-import { Text, Pressable } from "react-native";
+import { Text, Pressable, View } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
 // Local Imports
@@ -11,7 +11,7 @@ import { CountryBadge } from "./countryBadge";
 import { StatusBadge } from "./statusBadge";
 import { getParkStatus, ParkStatus } from "@/src/utils/api/getParkStatus";
 import { ParkInfo } from "./parkInfo";
-import populateShowTimes from "@/app/api/populateShowTimes";
+import { SkeletonParkHeader } from "@components/skeletons/skeletonParkHeader";
 
 export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefreshing = false }: { item: { id: string; name: string; country_code: string }; onRefresh?: () => void; isRefreshing?: boolean }) {
 	const router = useRouter();
@@ -43,11 +43,11 @@ export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, cou
 	};
 
 	if (!id || !name) {
-		return <Text style={{ color: colors.primaryLight }}>Loading...</Text>;
+		return <SkeletonParkHeader />;
 	}
 
 	if (isLoadingStatus) {
-		return <Text style={{ color: colors.primaryLight }}>Loading status...</Text>;
+		return <SkeletonParkHeader />;
 	}
 
 	return (

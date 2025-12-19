@@ -1,6 +1,12 @@
 import { supabase } from "@/src/utils/supabase";
-import type { Tables } from "@/src/types/database.types";
+import type { Tables } from "@/src/types/supabase";
 
+/**
+ * Fetches parks associated with a specific destination.
+ *
+ * @param {string} destinationId - The ID of the destination to fetch parks for.
+ * @returns {Promise<Tables<"parks">[]>} - A promise that resolves to an array of parks.
+ */
 export default async function getParksByDestination(destinationId: string): Promise<Tables<"parks">[]> {
 	if (!destinationId) {
 		return [];
@@ -14,6 +20,12 @@ export default async function getParksByDestination(destinationId: string): Prom
 	return data || [];
 }
 
+/**
+ * Fetches child parks associated with a specific destination.
+ *
+ * @param {string} destinationId - The ID of the destination to fetch child parks for.
+ * @returns {Promise<Tables<"parks">[]>} - A promise that resolves to an array of child parks.
+ */
 export async function fetchChildParks(destinationId: string): Promise<Tables<"parks">[]> {
 	if (!destinationId) {
 		return [];

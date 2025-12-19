@@ -1,20 +1,24 @@
 {
 	"name": "airtimely",
-	"version": "1.0.6",
+	"version": "1.1.0",
 	"main": "index.ts",
 	"expo": {
-		"doctor": {
-			"reactNativeDirectoryCheck": {
-				"listUnknownPackages": false
-			}
+	"doctor": {
+		"reactNativeDirectoryCheck": {
+		"listUnknownPackages": false
 		}
+	}
 	},
 	"scripts": {
 		"start": "expo start",
 		"android": "DARK_MODE=media expo run:android",
 		"ios": "DARK_MODE=media expo run:ios",
 		"web": "DARK_MODE=media expo start --web",
-		"generate-icons": "svgr --native --typescript --out-dir src/assets/icons/components --ext tsx --ignore-existing src/assets/icons/*.svg"
+		"generate-icons": "svgr --native --typescript --out-dir src/assets/icons/components --ext tsx --ignore-existing src/assets/icons/*.svg",
+		"build:android:dev": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js development",
+		"build:android:preview": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js preview --watch",
+		"build:android:prod": "BUILD_SERVER=http://your-vps-ip:3000 node build-scripts/upload-build.js production --watch",
+		"build:open-dashboard": "open http://your-vps-ip:3000"
 	},
 	"dependencies": {
 		"@animatereactnative/accordion": "^0.1.5",
@@ -35,43 +39,52 @@
 		"@legendapp/motion": "^2.5.3",
 		"@react-native-async-storage/async-storage": "2.2.0",
 		"@sentry/react-native": "~7.2.0",
-		"@supabase/supabase-js": "^2.87.1",
-		"@tanstack/query-async-storage-persister": "^5.90.14",
-		"@tanstack/react-query": "^5.90.12",
-		"@tanstack/react-query-persist-client": "^5.90.14",
+		"@shopify/react-native-skia": "2.2.12",
+		"@supabase/supabase-js": "^2.86.0",
+		"@tanstack/query-async-storage-persister": "^5.90.13",
+		"@tanstack/react-query": "^5.90.11",
+		"@tanstack/react-query-persist-client": "^5.90.13",
 		"babel-plugin-module-resolver": "^5.0.2",
-		"expo": "^54.0.29",
-		"expo-constants": "~18.0.11",
-		"expo-crypto": "~15.0.8",
-		"expo-dev-client": "~6.0.20",
-		"expo-font": "~14.0.10",
-		"expo-image": "~3.0.11",
-		"expo-linear-gradient": "~15.0.8",
-		"expo-linking": "~8.0.10",
-		"expo-router": "~6.0.17",
-		"expo-status-bar": "~3.0.9",
+		"expo": "^54.0.25",
+		"expo-constants": "~18.0.10",
+		"expo-crypto": "~15.0.7",
+		"expo-dev-client": "~6.0.18",
+		"expo-font": "~14.0.9",
+		"expo-image": "~3.0.10",
+		"expo-linear-gradient": "~15.0.7",
+		"expo-linking": "~8.0.9",
+		"expo-router": "~6.0.15",
+		"expo-status-bar": "~3.0.8",
 		"lucide-react-native": "^0.513.0",
+		"luxon": "^3.7.2",
 		"nativewind": "^4.2.1",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",
 		"react-native": "0.81.5",
 		"react-native-animatable": "^1.4.0",
+		"react-native-async-storage": "^0.0.1",
+		"react-native-chart-kit": "^6.12.0",
 		"react-native-css-interop": "^0.1.22",
+		"react-native-gesture-handler": "~2.28.0",
 		"react-native-localize": "^3.6.0",
 		"react-native-reanimated": "~4.1.1",
 		"react-native-safe-area-context": "~5.6.0",
 		"react-native-screens": "~4.16.0",
 		"react-native-svg": "15.12.1",
 		"react-native-url-polyfill": "^2.0.0",
-		"react-native-worklets": "0.5.1"
+		"react-native-worklets": "0.5.1",
+		"tailwindcss": "^3.4.18",
+		"victory-native": "^41.20.2",
+		"zustand": "^5.0.9"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.28.5",
 		"@svgr/cli": "^8.1.0",
+		"@types/luxon": "^3.7.1",
 		"@types/react": "~19.1.10",
 		"jscodeshift": "^17.3.0",
 		"prettier-plugin-tailwindcss": "^0.5.14",
-		"supabase": "^2.67.1",
+		"supabase": "^2.64.2",
 		"tailwindcss": "^3.4.19",
 		"typescript": "^5.9.3"
 	},

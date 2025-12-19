@@ -1,4 +1,6 @@
 import { supabase } from "@/src/utils/supabase";
+import { DateTime } from "luxon";
+import getParkTimezone from "@/src/utils/helpers/getParkTimezone";
 
 export interface ParkScheduleItem {
 	date: string;
@@ -29,7 +31,11 @@ export interface ParkScheduleResponse {
 
 export async function getParkSchedule(parkId: string, date?: string): Promise<ParkScheduleResponse | null> {
 	try {
-		const targetDate = date || new Date().toISOString().split("T")[0];
+		const timezone = await getParkTimezone(parkId);
+		if (!timezone) {
+			return null;
+		}
+		const targetDate = date || DateTime.now().setZone(timezone).toISODate();
 
 		// Get park info and schedule data
 		const { data: parkData, error: parkError } = await supabase
