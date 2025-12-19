@@ -115,7 +115,15 @@ export default function ParkScreen() {
 
 		// Apply search filter
 		if (debouncedAttractionFilter.trim() !== "") {
-			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => item.name.toLowerCase().includes(debouncedAttractionFilter.toLowerCase()));
+			const lowerFilter = debouncedAttractionFilter.toLowerCase();
+			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => {
+				const nameMatch = item.name.toLowerCase().includes(lowerFilter);
+				const statusMatch = item.status && item.status.toLowerCase().includes(lowerFilter);
+				// Also handle "operating" as "open" for search consistency
+				const operatingMatch = lowerFilter === "open" && item.status?.toLowerCase() === "operating";
+
+				return nameMatch || statusMatch || operatingMatch;
+			});
 		}
 
 		// If no results after filtering, show message
@@ -288,7 +296,7 @@ export default function ParkScreen() {
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				{/* Search Input */}
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
-					<InputField placeholder="Search for attraction..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
+					<InputField placeholder="Search by attraction or status..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
 					{attractionFilterInput.length > 0 && (
 						<InputSlot onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
 							<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />

@@ -11,15 +11,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
+import { getCountryName } from "@src/utils/helpers/countryMapping";
+import { getParkStatus, getDestinationStatus, type ParkStatus } from "@src/utils/api/getParkStatus";
+import { fetchChildParks } from "@src/utils/api/getParksByDestination";
 
 // Define the type for items from the 'displayable_entities' view
 // Ideally, you would regenerate your Supabase types to include this view.
 // If not, you can define it manually like this:
 export type DisplayableEntity = Tables<"displayable_destinations">;
 
-// Augmented type to include pinned status
+// Augmented type to include pinned status and current status
 export type DisplayableEntityWithPinnedStatus = DisplayableEntity & {
 	isPinned?: boolean;
+	currentStatus?: ParkStatus;
 };
 
 /**
@@ -59,12 +63,12 @@ export interface DestinationListRef {
 
 export const DestinationList = React.memo(
 	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
-		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
+		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntityWithPinnedStatus[]>([]);
 		const [isLoading, setIsLoading] = useState(true);
 		const [refreshing, setRefreshing] = useState(false);
 		const [error, setError] = useState<string | null>(null);
 		const [refreshKey, setRefreshKey] = useState(0);
-		const { pinnedDestinations, addPinnedDestination, removePinnedDestination } = usePinnedItemsStore();
+		const { pinnedDestinations } = usePinnedItemsStore();
 
 		useImperativeHandle(ref, () => ({
 			refresh: async () => {
@@ -81,7 +85,26 @@ export const DestinationList = React.memo(
 				}
 
 				const fetched = await fetchDisplayableEntities();
-				setFetchedEntities(fetched);
+
+				// Fetch statuses for all entities to enable filtering
+				const entitiesWithStatus = await Promise.all(
+					fetched.map(async (entity) => {
+						let status: ParkStatus = "Unknown";
+						try {
+							if (entity.entity_type === "park") {
+								status = await getParkStatus(entity.entity_id!);
+							} else if (entity.entity_type === "destination_group") {
+								const childParks = await fetchChildParks(entity.original_destination_id!);
+								status = await getDestinationStatus(childParks);
+							}
+						} catch (e) {
+							console.error(`Failed to fetch status for ${entity.name}:`, e);
+						}
+						return { ...entity, currentStatus: status };
+					})
+				);
+
+				setFetchedEntities(entitiesWithStatus);
 				setError(null);
 			} catch (e) {
 				console.error("Failed to load initial data:", e);
@@ -111,11 +134,19 @@ export const DestinationList = React.memo(
 
 			let entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
 				...entity,
-				isPinned: pinnedDestinations.includes(entity.entity_id),
+				isPinned: pinnedDestinations.includes(entity.entity_id!),
 			}));
 
 			if (searchFilter.trim() !== "") {
-				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => entity.name && entity.name.toLowerCase().includes(searchFilter.toLowerCase()));
+				const lowerFilter = searchFilter.toLowerCase();
+				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => {
+					const nameMatch = entity.name && entity.name.toLowerCase().includes(lowerFilter);
+					const countryCodeMatch = entity.country_code && entity.country_code.toLowerCase().includes(lowerFilter);
+					const countryNameMatch = getCountryName(entity.country_code).toLowerCase().includes(lowerFilter);
+					const statusMatch = entity.currentStatus && entity.currentStatus.toLowerCase().includes(lowerFilter);
+
+					return nameMatch || countryCodeMatch || countryNameMatch || statusMatch;
+				});
 			}
 
 			entitiesWithPinnedStatus.sort((a, b) => {
@@ -159,8 +190,6 @@ export const DestinationList = React.memo(
 				} else {
 					usePinnedItemsStore.getState().addPinnedDestination(entityId);
 				}
-				// Update local state to trigger re-render
-				// No need to setPinnedIds as we're using Zustand store directly
 			},
 			[pinnedDestinations]
 		);
@@ -217,7 +246,7 @@ export const DestinationList = React.memo(
 		}
 
 		if (!processedEntities || processedEntities.length === 0) {
-			return <Text>No destinations found.</Text>;
+			return <Text style={{ color: colors.text.primary, textAlign: "center", marginTop: 20 }}>No destinations found.</Text>;
 		}
 
 		return (
