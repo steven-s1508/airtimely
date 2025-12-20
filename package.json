@@ -1,6 +1,6 @@
 {
 	"name": "airtimely",
-	"version": "1.0.7",
+	"version": "1.0.7-1",
 	"main": "index.ts",
 	"expo": {
 	"doctor": {
