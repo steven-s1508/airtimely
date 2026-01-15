@@ -1,32 +1,44 @@
 /**
- * Mapping of ISO country codes to full country names.
- * This is used to enhance the search functionality, allowing users to search by country name.
+ * Mapping of ISO country codes to an array of searchable country names and aliases.
+ * The first item in the array is considered the primary display name.
  */
-export const countryCodeToName: Record<string, string> = {
-	CN: "China",
-	FR: "France",
-	JP: "Japan",
-	DE: "Germany",
-	DK: "Denmark",
-	IT: "Italy",
-	ES: "Spain",
-	US: "United States",
-	GB: "UK",
-	BE: "Belgium",
-	CA: "Canada",
-	NL: "Netherlands",
-	KR: "South Korea",
-	SE: "Sweden",
-	MX: "Mexico",
+export const countryAliases: Record<string, string[]> = {
+	CN: ["China", "中华人民共和国", "中国"],
+	FR: ["France", "Français"],
+	JP: ["Japan", "日本", "日本国", "日本國"],
+	DE: ["Germany", "Deutschland"],
+	DK: ["Denmark", "Danmark"],
+	IT: ["Italy", "Italia"],
+	ES: ["Spain", "España"],
+	US: ["United States", "USA", "America"],
+	GB: ["UK", "United Kingdom", "Great Britain"],
+	BE: ["Belgium", "België", "Belgique"],
+	CA: ["Canada", "Canadá", "Kanada"],
+	NL: ["Netherlands", "Holland", "Nederland"],
+	KR: ["South Korea", "Korea", "한국"],
+	SE: ["Sweden", "Sverige"],
+	MX: ["Mexico", "México", "Meksiko"],
 };
 
 /**
- * Returns the full country name for a given ISO country code.
+ * Returns the primary country name for a given ISO country code.
  * @param code The ISO country code (e.g., "US", "DE").
- * @returns The full country name, or the code itself if no mapping is found.
+ * @returns The primary country name, or the code itself if no mapping is found.
  */
 export function getCountryName(code: string | null | undefined): string {
 	if (!code) return "";
 	const upperCode = code.toUpperCase();
-	return countryCodeToName[upperCode] || upperCode;
+	const aliases = countryAliases[upperCode];
+	return aliases && aliases.length > 0 ? aliases[0] : upperCode;
+}
+
+/**
+ * Returns all searchable aliases for a given ISO country code.
+ * @param code The ISO country code (e.g., "US", "DE").
+ * @returns An array of country names and aliases.
+ */
+export function getCountryAliases(code: string | null | undefined): string[] {
+	if (!code) return [];
+	const upperCode = code.toUpperCase();
+	return countryAliases[upperCode] || [upperCode];
 }
