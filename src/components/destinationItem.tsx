@@ -47,7 +47,6 @@ export const DestinationItem = React.memo(
 
 		const handleParkPress = useCallback(() => {
 			router.push({ pathname: "/park/[parkId]", params: { id: item.entity_id!, name: item.name!, country_code: item.country_code! } });
-			onTogglePin(item.entity_id || "");
 		}, [router, item.entity_id, item.name]);
 
 		// Load park status for single parks
