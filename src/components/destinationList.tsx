@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
-import { getCountryName } from "@src/utils/helpers/countryMapping";
+import { getCountryAliases } from "@src/utils/helpers/countryMapping";
 import { getParkStatus, getDestinationStatus, type ParkStatus } from "@src/utils/api/getParkStatus";
 import { fetchChildParks } from "@src/utils/api/getParksByDestination";
 
@@ -142,10 +142,11 @@ export const DestinationList = React.memo(
 				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => {
 					const nameMatch = entity.name && entity.name.toLowerCase().includes(lowerFilter);
 					const countryCodeMatch = entity.country_code && entity.country_code.toLowerCase().includes(lowerFilter);
-					const countryNameMatch = getCountryName(entity.country_code).toLowerCase().includes(lowerFilter);
+					const aliases = getCountryAliases(entity.country_code);
+					const countryAliasMatch = aliases.some((alias) => alias.toLowerCase().includes(lowerFilter));
 					const statusMatch = entity.currentStatus && entity.currentStatus.toLowerCase().includes(lowerFilter);
 
-					return nameMatch || countryCodeMatch || countryNameMatch || statusMatch;
+					return nameMatch || countryCodeMatch || countryAliasMatch || statusMatch;
 				});
 			}
 
