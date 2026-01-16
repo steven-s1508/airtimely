@@ -2,6 +2,7 @@ import { supabase } from "@/src/utils/supabase";
 import type { Tables } from "@/src/types/supabase";
 import { DateTime } from "luxon";
 import getParkTimezone from "@/src/utils/helpers/getParkTimezone";
+import { getBulkParkStatus } from "./getBulkParkStatus";
 
 export type ParkStatus = "Open" | "Closed" | "Unknown";
 
@@ -19,14 +20,12 @@ export async function getParkStatus(parkId: string): Promise<ParkStatus> {
 	}
 
 	const timezone = await getParkTimezone(parkId);
-	const todayString = DateTime.now().setZone(timezone).toString();
+	const todayString = DateTime.now().setZone(timezone).toISODate();
 	const today = DateTime.now().setZone(timezone).toJSDate();
 
 	try {
 		// Get today's operating hours for the park
-		const { data: operatingHours, error } = await supabase.from("park_operating_hours").select("opening_time, closing_time").eq("park_id", parkId).eq("date", todayString).order("opening_time", { ascending: true });
-
-		const parkName = await supabase.from("parks").select("name").eq("id", parkId).single();
+		const { data: operatingHours, error } = await supabase.from("park_operating_hours").select("opening_time, closing_time").eq("park_id", parkId).eq("date", todayString!).order("opening_time", { ascending: true });
 
 		if (error) {
 			console.error(`Error fetching operating hours for park ${parkId}:`, error);
@@ -34,7 +33,6 @@ export async function getParkStatus(parkId: string): Promise<ParkStatus> {
 		}
 
 		if (!operatingHours || operatingHours.length === 0) {
-			console.warn(`No operating hours found for park ${parkName.data?.name} on ${todayString}`);
 			return "Closed"; // No operating hours means closed
 		}
 
@@ -69,8 +67,9 @@ export async function getDestinationStatus(parks: Tables<"parks">[]): Promise<Pa
 	}
 
 	// Multiple parks - destination is open if at least one park is open
-	const statusPromises = parks.map((park) => getParkStatus(park.id));
-	const statuses = await Promise.all(statusPromises);
+	const parkIds = parks.map((park) => park.id);
+	const statusesMap = await getBulkParkStatus(parkIds);
+	const statuses = Object.values(statusesMap);
 
 	// If any park is open, destination is open
 	if (statuses.includes("Open")) return "Open";
@@ -86,10 +85,11 @@ export async function getDestinationStatus(parks: Tables<"parks">[]): Promise<Pa
  * Gets parks with their individual statuses
  */
 export async function getParksWithStatus(parks: Tables<"parks">[]): Promise<ParkWithStatus[]> {
-	const statusPromises = parks.map(async (park) => ({
-		...park,
-		status: await getParkStatus(park.id),
-	}));
+	const parkIds = parks.map((park) => park.id);
+	const statusesMap = await getBulkParkStatus(parkIds);
 
-	return Promise.all(statusPromises);
+	return parks.map((park) => ({
+		...park,
+		status: statusesMap[park.id] || "Unknown",
+	}));
 }

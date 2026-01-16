@@ -12,8 +12,11 @@ import { colors } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
 import { getCountryAliases } from "@src/utils/helpers/countryMapping";
-import { getParkStatus, getDestinationStatus, type ParkStatus } from "@src/utils/api/getParkStatus";
-import { fetchChildParks } from "@src/utils/api/getParksByDestination";
+import { useDestinations } from "@src/hooks/api/useDestinations";
+import { useLiveStatuses } from "@src/hooks/api/useLiveStatuses";
+import { useChildParks } from "@src/hooks/api/useChildParks";
+import { type ParkStatus } from "@src/utils/api/getParkStatus";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the type for items from the 'displayable_entities' view
 // Ideally, you would regenerate your Supabase types to include this view.
@@ -63,70 +66,74 @@ export interface DestinationListRef {
 
 export const DestinationList = React.memo(
 	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
-		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntityWithPinnedStatus[]>([]);
-		const [isLoading, setIsLoading] = useState(true);
+		const queryClient = useQueryClient();
+		const { data: fetched = [], isLoading: isLoadingDestinations, isError: isErrorDestinations } = useDestinations();
+
+		// 1. Identify destination groups to fetch their child parks
+		const groupIds = useMemo(() => {
+			return fetched
+				.filter((e) => e.entity_type === "destination_group")
+				.map((e) => e.original_destination_id!)
+				.filter(Boolean);
+		}, [fetched]);
+
+		const { data: allChildParks = [], isLoading: isLoadingChildParks } = useChildParks(groupIds);
+
+		// 2. Collect all park IDs that need status
+		const allParkIds = useMemo(() => {
+			const ids = new Set<string>();
+			fetched.filter((e) => e.entity_type === "park").forEach((e) => ids.add(e.entity_id!));
+			allChildParks.forEach((p) => ids.add(p.id));
+			return Array.from(ids);
+		}, [fetched, allChildParks]);
+
+		const { data: statusesMap = {}, isLoading: isLoadingStatuses } = useLiveStatuses(allParkIds);
+
 		const [refreshing, setRefreshing] = useState(false);
-		const [error, setError] = useState<string | null>(null);
 		const [refreshKey, setRefreshKey] = useState(0);
 		const { pinnedDestinations } = usePinnedItemsStore();
 
+		const handleRefresh = useCallback(async () => {
+			setRefreshKey((prev) => prev + 1);
+			setRefreshing(true);
+			// Invalidate all relevant queries to trigger background revalidation
+			await queryClient.invalidateQueries({ queryKey: ["destinations"] });
+			await queryClient.invalidateQueries({ queryKey: ["childParks"] });
+			await queryClient.invalidateQueries({ queryKey: ["liveStatuses"] });
+			setRefreshing(false);
+		}, [queryClient]);
+
 		useImperativeHandle(ref, () => ({
-			refresh: async () => {
-				await loadInitialData(true);
-			},
+			refresh: handleRefresh,
 		}));
 
-		const loadInitialData = useCallback(async (isRefresh: boolean = false) => {
-			try {
-				if (isRefresh) {
-					setRefreshing(true);
-				} else {
-					setIsLoading(true);
-				}
-
-				const fetched = await fetchDisplayableEntities();
-
-				// Fetch statuses for all entities to enable filtering
-				const entitiesWithStatus = await Promise.all(
-					fetched.map(async (entity) => {
-						let status: ParkStatus = "Unknown";
-						try {
-							if (entity.entity_type === "park") {
-								status = await getParkStatus(entity.entity_id!);
-							} else if (entity.entity_type === "destination_group") {
-								const childParks = await fetchChildParks(entity.original_destination_id!);
-								status = await getDestinationStatus(childParks);
-							}
-						} catch (e) {
-							console.error(`Failed to fetch status for ${entity.name}:`, e);
+		// Map statuses back to entities
+		const fetchedEntities = useMemo(() => {
+			return fetched.map((entity) => {
+				let status: ParkStatus = "Unknown";
+				if (entity.entity_type === "park") {
+					status = statusesMap[entity.entity_id!] || "Unknown";
+				} else if (entity.entity_type === "destination_group") {
+					const childParksForGroup = allChildParks.filter((p) => p.destination_id === entity.original_destination_id);
+					if (childParksForGroup.length === 0) {
+						status = "Unknown";
+					} else {
+						const childStatuses = childParksForGroup.map((p) => statusesMap[p.id] || "Unknown");
+						if (childStatuses.includes("Open")) {
+							status = "Open";
+						} else if (childStatuses.every((s) => s === "Closed")) {
+							status = "Closed";
+						} else {
+							status = "Unknown";
 						}
-						return { ...entity, currentStatus: status };
-					})
-				);
-
-				setFetchedEntities(entitiesWithStatus);
-				setError(null);
-			} catch (e) {
-				console.error("Failed to load initial data:", e);
-				setError("Failed to load destinations.");
-				setFetchedEntities([]);
-			} finally {
-				if (isRefresh) {
-					setRefreshing(false);
-				} else {
-					setIsLoading(false);
+					}
 				}
-			}
-		}, []);
+				return { ...entity, currentStatus: status };
+			});
+		}, [fetched, statusesMap, allChildParks]);
 
-		const handleRefresh = async () => {
-			setRefreshKey((prev) => prev + 1);
-			await loadInitialData(true);
-		};
-
-		useEffect(() => {
-			loadInitialData();
-		}, [loadInitialData]);
+		const isLoading = isLoadingDestinations || (groupIds.length > 0 && isLoadingChildParks) || (allParkIds.length > 0 && isLoadingStatuses);
+		const error = isErrorDestinations ? "Failed to load destinations." : null;
 
 		// Memoize processed entities to prevent unnecessary recalculations
 		const processedEntities = useMemo(() => {
