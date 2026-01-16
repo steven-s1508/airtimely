@@ -10,22 +10,25 @@ import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
 import { colors, styles, parkScreenStyles, base } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
-import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
+import { SkeletonAttractionItem } from "@/src/components/skeletons/skeletonAttractionItem";
+import { ParkChild } from "@/src/utils/api/getParkChildren";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
+import { useParkChildren } from "@/src/hooks/api/useParkChildren";
 import { isValidUUID } from "@/src/utils/helpers/validation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
 }
 
 export default function ParkScreen() {
+	const queryClient = useQueryClient();
 	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
 	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
 	const { id, name, country_code, status } = params;
-	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [refreshing, setRefreshing] = useState(false);
+	
+	const { data: parkChildren, isLoading: loading, isRefetching: refreshing, refetch: loadParkChildren } = useParkChildren(id!);
 
 	// Validate park ID is a valid UUID
 	if (!id || !isValidUUID(id)) {
@@ -35,34 +38,6 @@ export default function ParkScreen() {
 
 	// Use Zustand store for pinned items
 	const { pinnedAttractions } = usePinnedItemsStore();
-
-	// Load park children when the component mounts or ID changes
-	useEffect(() => {
-		if (id) {
-			loadParkChildren();
-		}
-	}, [id]);
-
-	const loadParkChildren = async (isRefresh: boolean = false) => {
-		if (isRefresh) {
-			setRefreshing(true);
-		} else {
-			setLoading(true);
-		}
-
-		try {
-			const children = await getParkChildren(id);
-			setParkChildren(children);
-		} catch (error) {
-			console.error("Error loading park children:", error);
-		} finally {
-			if (isRefresh) {
-				setRefreshing(false);
-			} else {
-				setLoading(false);
-			}
-		}
-	};
 
 	// Debounce the search input
 	useEffect(() => {
@@ -74,20 +49,23 @@ export default function ParkScreen() {
 	}, [attractionFilterInput]);
 
 	const handleRefresh = async () => {
-		await loadParkChildren(true);
+		await queryClient.invalidateQueries({ queryKey: ["parkChildren", id] });
 	};
 
 	if (!id || !name) {
 		return <ActivityIndicator />;
 	}
 
-	if (loading) {
+	if (loading && !parkChildren) {
 		return (
 			<View style={parkScreenStyles.parkScreenContainer}>
 				<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<ActivityIndicator size="large" color={colors.primaryLight} />
-					<Text style={{ color: colors.primaryLight, marginTop: 16 }}>Loading park data...</Text>
+				<View style={{ flex: 1, paddingHorizontal: 16, gap: 8 }}>
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
 				</View>
 			</View>
 		);

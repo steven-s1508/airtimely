@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View } from "react-native";
 import { Text, Pressable, HStack, VStack } from "@components/ui";
-import { getParkSchedule, ParkScheduleItem } from "@/src/utils/api/getParkSchedule";
+import { useParkSchedule } from "@/src/hooks/api/useParkSchedule";
+import { ParkScheduleItem } from "@/src/utils/api/getParkSchedule";
 import { Icon } from "@/src/components/Icon";
 import { base, colors } from "@/src/styles/styles";
 import { formatTime } from "@/src/utils/formatTime";
@@ -19,34 +20,30 @@ function getCurrentDateInTimezone(timezone: string): string {
 
 export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [scheduleData, setScheduleData] = useState<ParkScheduleItem[]>([]);
-	const [loading, setLoading] = useState(false);
+	const [timezone, setTimezone] = useState("UTC");
+	const { data, isLoading: loading } = useParkSchedule(parkId);
 
 	useEffect(() => {
-		const fetchSchedule = async () => {
-			setLoading(true);
-			const timezone = await getParkTimezone(parkId);
-			const currentDate = getCurrentDateInTimezone(timezone);
-			const data = await getParkSchedule(parkId);
-			if (data) {
-				const todaySchedule = data.schedule.filter((item) => item.date === currentDate);
-				setScheduleData(todaySchedule);
-			}
-			setLoading(false);
+		const loadTimezone = async () => {
+			const tz = await getParkTimezone(parkId);
+			setTimezone(tz);
 		};
-
-		if (parkId) {
-			fetchSchedule();
-		}
+		loadTimezone();
 	}, [parkId]);
+
+	const scheduleData = useMemo<ParkScheduleItem[]>(() => {
+		if (!data) return [];
+		const currentDate = getCurrentDateInTimezone(timezone);
+		return data.schedule.filter((item) => item.date === currentDate);
+	}, [data, timezone]);
 
 	const toggleAccordion = () => {
 		setIsOpen(!isOpen);
 	};
 
-	const operatingHours = scheduleData.find((item) => item.type === "OPERATING");
-	const infoItems = scheduleData.filter((item) => item.type === "INFO" || item.type === "EXTRA_HOURS");
-	const ticketedEvents = scheduleData.filter((item) => item.type === "TICKETED_EVENT");
+	const operatingHours = scheduleData.find((item: ParkScheduleItem) => item.type === "OPERATING");
+	const infoItems = scheduleData.filter((item: ParkScheduleItem) => item.type === "INFO" || item.type === "EXTRA_HOURS");
+	const ticketedEvents = scheduleData.filter((item: ParkScheduleItem) => item.type === "TICKETED_EVENT");
 	const purchases = operatingHours?.purchases || [];
 
 	const buttonClosed = (
