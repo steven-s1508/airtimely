@@ -3,6 +3,7 @@
  * The first item in the array is considered the primary display name.
  */
 export const countryAliases: Record<string, string[]> = {
+	AU: ["Australia", "Aussie"],
 	CN: ["China", "中华人民共和国", "中国"],
 	FR: ["France", "Français"],
 	JP: ["Japan", "日本", "日本国", "日本國"],
