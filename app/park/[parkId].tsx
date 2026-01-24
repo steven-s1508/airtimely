@@ -280,7 +280,7 @@ export default function ParkScreen() {
 	return (
 		<View style={parkScreenStyles.parkScreenContainer}>
 			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} lastUpdatedText={lastUpdatedText} />
-			{/* Search and Last Updated Container */}
+			{/* Search Container */}
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				{/* Search Input */}
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
