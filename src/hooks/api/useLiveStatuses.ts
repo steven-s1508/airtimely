@@ -7,7 +7,7 @@ export function useLiveStatuses(parkIds: string[]) {
 		queryKey: ["liveStatuses", parkIds.sort()], // Sort to ensure stable query key
 		queryFn: () => getBulkParkStatus(parkIds),
 		enabled: parkIds.length > 0,
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+		staleTime: 1000 * 60 * 30, // 30 minutes - data considered fresh
+		refetchInterval: 1000 * 60 * 30, // Auto-refetch every 30 minutes
 	});
 }

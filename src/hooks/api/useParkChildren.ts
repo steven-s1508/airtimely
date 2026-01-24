@@ -6,7 +6,8 @@ export function useParkChildren(parkId: string) {
 		queryKey: ["parkChildren", parkId],
 		queryFn: () => getParkChildren(parkId),
 		enabled: !!parkId,
-		staleTime: 1000 * 60 * 60 * 24, // 24 hours
+		staleTime: 1000 * 60 * 5, // 5 minutes - data considered fresh
+		refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
 		gcTime: 1000 * 60 * 60 * 24 * 7, // Keep in cache for 7 days
 	});
 }

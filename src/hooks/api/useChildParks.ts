@@ -17,7 +17,8 @@ export function useChildParks(destinationIds: string[]) {
 			return data || [];
 		},
 		enabled: destinationIds.length > 0,
-		staleTime: 1000 * 60 * 60 * 24, // 24 hours
+		staleTime: 1000 * 60 * 30, // 30 minutes - data considered fresh
+		refetchInterval: 1000 * 60 * 30, // Auto-refetch every 30 minutes
 		gcTime: 1000 * 60 * 60 * 24 * 7, // Keep in cache for 7 days
 	});
 }
