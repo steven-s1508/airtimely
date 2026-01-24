@@ -19,6 +19,7 @@ export interface EntityLocation {
 export interface EntityChild {
     id: string;
     name: string;
+    slug?: string;
     entityType: EntityType;
     parentId?: string;
     externalId?: string;
@@ -28,6 +29,7 @@ export interface EntityChild {
 export interface EntityChildrenResponse {
     id?: string;
     name?: string;
+    slug?: string;
     entityType?: EntityType;
     timezone?: string;
     children?: EntityChild[];
@@ -38,6 +40,18 @@ const THEMEPARKS_API_REQUEST_DELAY_MS = 210;
 
 async function delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function slugify(text: string): string {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-") // Replace spaces with -
+        .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+        .replace(/\-\-+/g, "-") // Replace multiple - with single -
+        .replace(/^-+/, "") // Trim - from start of text
+        .replace(/-+$/, ""); // Trim - from end of text
 }
 
 async function fetchParkRides(externalId: string): Promise<EntityChild[]> {
@@ -68,7 +82,7 @@ async function updateRidesTable(supabase: any) {
         // Get existing rides for this park
         const { data: dbRides, error: dbRidesError } = await supabase
             .from("rides")
-            .select("id, external_id, name, is_active")
+            .select("id, external_id, name, slug, is_active")
             .eq("park_id", park.id);
 
         if (dbRidesError) {
@@ -80,12 +94,13 @@ async function updateRidesTable(supabase: any) {
 
         // Insert or update rides
         for (const apiRide of apiRides) {
-          const dbRide = dbRidesMap.get(apiRide.id); // Use API 'id' for matching
+          const dbRide = dbRidesMap.get(apiRide.id) as any; // Use API 'id' for matching
           if (!dbRide) {
             console.log(`Inserting new ride with data: ${apiRide.name} (${JSON.stringify(apiRide)})`);
               // New ride: insert
               const { error: insertError } = await supabase.from("rides").insert({
                   name: apiRide.name,
+                  slug: apiRide.slug || slugify(apiRide.name),
                   external_id: apiRide.id,
                   park_id: park.id,
                   entity_type: "ATTRACTION",
@@ -104,6 +119,10 @@ async function updateRidesTable(supabase: any) {
               // Existing ride: update name if changed, and set is_active to true if currently false
               const updates: any = {};
               if (dbRide.name !== apiRide.name) updates.name = apiRide.name;
+              
+              const expectedSlug = apiRide.slug || slugify(apiRide.name);
+              if (!dbRide.slug || dbRide.slug !== expectedSlug) updates.slug = expectedSlug;
+
               if (!dbRide.is_active) {
                   updates.is_active = true;
                   console.log(`Reactivating ride: ${dbRide.name} (${dbRide.external_id})`);
