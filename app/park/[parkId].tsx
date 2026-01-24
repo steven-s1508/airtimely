@@ -1,10 +1,11 @@
 // React / React Native Imports
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View, ActivityIndicator, SectionList, SectionListData, RefreshControl } from "react-native";
 // Expo Imports
 import { useLocalSearchParams } from "expo-router";
 // 3rd Party Imports
-import { Input, InputField, InputSlot, Text } from "@/src/components/ui";
+import { Input, InputField, InputSlot, Text, HStack } from "@/src/components/ui";
+import { DateTime } from "luxon";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
@@ -25,10 +26,17 @@ export default function ParkScreen() {
 	const queryClient = useQueryClient();
 	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
 	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
+	const [isManualRefreshing, setIsManualRefreshing] = useState(false); // Track manual pull-to-refresh
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
 	const { id, name, country_code, status } = params;
 	
-	const { data: parkChildren, isLoading: loading, isRefetching: refreshing, refetch: loadParkChildren } = useParkChildren(id!);
+	const { data: parkChildren, isLoading: loading, isRefetching: refreshing, refetch: loadParkChildren, dataUpdatedAt } = useParkChildren(id!);
+	
+	// Format the last updated time
+	const lastUpdatedText = useMemo(() => {
+		if (!dataUpdatedAt) return null;
+		return DateTime.fromMillis(dataUpdatedAt).toFormat("h:mm a");
+	}, [dataUpdatedAt]);
 
 	// Validate park ID is a valid UUID
 	if (!id || !isValidUUID(id)) {
@@ -49,7 +57,9 @@ export default function ParkScreen() {
 	}, [attractionFilterInput]);
 
 	const handleRefresh = async () => {
+		setIsManualRefreshing(true);
 		await queryClient.invalidateQueries({ queryKey: ["parkChildren", id] });
+		setIsManualRefreshing(false);
 	};
 
 	if (!id || !name) {
@@ -264,13 +274,13 @@ export default function ParkScreen() {
 			);
 		};
 
-		return <SectionList sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`} stickySectionHeadersEnabled={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />} />;
+		return <SectionList sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`} stickySectionHeadersEnabled={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} refreshControl={<RefreshControl refreshing={isManualRefreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />} />;
 	};
 
 	return (
 		<View style={parkScreenStyles.parkScreenContainer}>
-			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
-			{/* Search and Refresh Container */}
+			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} lastUpdatedText={lastUpdatedText} />
+			{/* Search and Last Updated Container */}
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				{/* Search Input */}
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>

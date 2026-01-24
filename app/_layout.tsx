@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
-import { QueryClient } from "@tanstack/react-query";
+import { AppState, Platform } from "react-native";
+import { QueryClient, focusManager } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +28,17 @@ const asyncStoragePersistor = createAsyncStoragePersister({
 export default function RootLayout() {
 	const { pinnedParks, pinnedDestinations } = usePinnedItemsStore();
 
+	// Connect React Query to app state for proper refetchInterval behavior
+	useEffect(() => {
+		const onAppStateChange = (status: string) => {
+			if (Platform.OS !== "web") {
+				focusManager.setFocused(status === "active");
+			}
+		};
+		const subscription = AppState.addEventListener("change", onAppStateChange);
+		return () => subscription.remove();
+	}, []);
+
 	useEffect(() => {
 		// Prefetch attractions for pinned parks and destinations
 		const prefetchPinnedData = async () => {
@@ -37,7 +49,7 @@ export default function RootLayout() {
 				queryClient.prefetchQuery({
 					queryKey: ["parkChildren", parkId],
 					queryFn: () => getParkChildren(parkId),
-					staleTime: 1000 * 60 * 60 * 24, // 24 hours
+					staleTime: 1000 * 60 * 5, // 5 minutes - match useParkChildren hook
 				});
 			}
 		};
