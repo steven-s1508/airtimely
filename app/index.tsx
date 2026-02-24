@@ -12,6 +12,7 @@ import { FooterCredits } from "@/src/components/footerCredits";
 import { colors, styles } from "@/src/styles/styles";
 import { DestinationList } from "@/src/components/destinationList";
 import { Icon } from "@/src/components/Icon";
+import { SortControl } from "@/src/components/sortControl";
 
 export default function HomeScreen() {
 	const [parkFilterInput, setParkFilterInput] = useState(""); // Actual input value
@@ -47,6 +48,9 @@ export default function HomeScreen() {
 				<Image source={require("@/src/assets/images/Airtimely Logo Teal.svg")} style={styles.logo} contentFit="contain" />
 				{/* Search and Refresh Container */}
 				<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+					{/* Sort Button */}
+					<SortControl />
+
 					{/* Search Input */}
 					<Input style={[styles.parkFilterInput, { flex: 1 }]}>
 						<InputField placeholder="Search by park, country, or status..." placeholderTextColor={colors.primaryLight} value={parkFilterInput} onChangeText={setParkFilterInput} style={styles.parkFilterInputField} />
@@ -64,13 +68,12 @@ export default function HomeScreen() {
 				</View>
 			</View>
 
-			{/* Destinations View */}
-			<SafeAreaProvider style={{ paddingHorizontal: 16, flexGrow: 1 }}>
+			{/* Destinations View */} 
 				<DestinationList ref={destinationListRef} searchFilter={debouncedParkFilter} />
-			</SafeAreaProvider>
+			
 
 			{/* Footer with Waitingtimes.APP credits */}
-			<FooterCredits />
+			<FooterCredits /> 
 		</SafeAreaView>
 	);
 }
