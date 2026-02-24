@@ -45,8 +45,7 @@ ios
 # planning doc
 planning.md
 .env.local
-
-.env.local
+.env
 
 # local docs
 .docs/
