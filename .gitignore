@@ -2,8 +2,6 @@
 
 # dependencies
 node_modules/
-package-lock.json
-yarn.lock
 
 # Expo
 .expo/
@@ -45,6 +43,8 @@ ios
 # planning doc
 planning.md
 .env.local
+.env.development.local
+.env.production.local
 .env
 
 # local docs
