@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
 
 import { supabase } from "@src/utils/supabase";
 
@@ -11,7 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
-import { getCountryAliases } from "@src/utils/helpers/countryMapping";
+import { usePreferencesStore, type DestinationSortOption } from "@src/stores/preferencesStore";
+import { getCountryAliases, getCountryName } from "@src/utils/helpers/countryMapping";
 import { useDestinations } from "@src/hooks/api/useDestinations";
 import { useLiveStatuses } from "@src/hooks/api/useLiveStatuses";
 import { useChildParks } from "@src/hooks/api/useChildParks";
@@ -92,6 +93,7 @@ export const DestinationList = React.memo(
 		const [refreshing, setRefreshing] = useState(false);
 		const [refreshKey, setRefreshKey] = useState(0);
 		const { pinnedDestinations } = usePinnedItemsStore();
+		const { destinationSortBy } = usePreferencesStore();
 
 		const handleRefresh = useCallback(async () => {
 			setRefreshKey((prev) => prev + 1);
@@ -157,14 +159,45 @@ export const DestinationList = React.memo(
 				});
 			}
 
-			entitiesWithPinnedStatus.sort((a, b) => {
-				if (a.isPinned && !b.isPinned) return -1;
-				if (!a.isPinned && b.isPinned) return 1;
-				return (a.name || "").localeCompare(b.name || "");
-			});
+			// Separate pinned and unpinned items
+			const pinned = entitiesWithPinnedStatus.filter((e) => e.isPinned);
+			const unpinned = entitiesWithPinnedStatus.filter((e) => !e.isPinned);
 
-			return entitiesWithPinnedStatus;
-		}, [fetchedEntities, pinnedDestinations, searchFilter]);
+			// Status priority for sorting (Open first, then Closed, then Unknown)
+			const STATUS_PRIORITY: Record<string, number> = {
+				Open: 0,
+				Closed: 1,
+				Unknown: 2,
+			};
+
+			// Sort function based on selected sort option
+			const sortFn = (a: DisplayableEntityWithPinnedStatus, b: DisplayableEntityWithPinnedStatus) => {
+				switch (destinationSortBy) {
+					case "country": {
+						const countryA = getCountryName(a.country_code);
+						const countryB = getCountryName(b.country_code);
+						const countryCompare = countryA.localeCompare(countryB);
+						return countryCompare !== 0 ? countryCompare : (a.name || "").localeCompare(b.name || "");
+					}
+					case "status": {
+						const statusA = STATUS_PRIORITY[a.currentStatus || "Unknown"];
+						const statusB = STATUS_PRIORITY[b.currentStatus || "Unknown"];
+						const statusCompare = statusA - statusB;
+						return statusCompare !== 0 ? statusCompare : (a.name || "").localeCompare(b.name || "");
+					}
+					case "name":
+					default:
+						return (a.name || "").localeCompare(b.name || "");
+				}
+			};
+
+			// Sort each group independently
+			pinned.sort(sortFn);
+			unpinned.sort(sortFn);
+
+			// Return pinned first, then unpinned
+			return [...pinned, ...unpinned];
+		}, [fetchedEntities, pinnedDestinations, searchFilter, destinationSortBy]);
 
 		// Memoize section list data
 		const sectionListData = useMemo(() => {
@@ -258,7 +291,7 @@ export const DestinationList = React.memo(
 		}
 
 		return (
-			<View style={{ flex: 1 }}>
+			<View style={{ flex: 1, paddingHorizontal: 16 }}>
 				<SectionList
 					sections={sectionListData}
 					keyExtractor={keyExtractor}

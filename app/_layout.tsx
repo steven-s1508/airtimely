@@ -1,12 +1,11 @@
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
-import { AppState, Platform } from "react-native";
+import { AppState, Platform, useColorScheme } from "react-native";
 import { QueryClient, focusManager } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GluestackUIProvider } from "@/src/components/ui/gluestack-ui-provider";
-import { ToastProvider } from "@gluestack-ui/toast";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 import { getParkChildren } from "@/src/utils/api/getParkChildren";
 
@@ -25,9 +24,11 @@ const asyncStoragePersistor = createAsyncStoragePersister({
 	storage: AsyncStorage,
 });
 
+
 export default function RootLayout() {
 	const { pinnedParks, pinnedDestinations } = usePinnedItemsStore();
-
+	const colorScheme = useColorScheme();
+	
 	// Connect React Query to app state for proper refetchInterval behavior
 	useEffect(() => {
 		const onAppStateChange = (status: string) => {
@@ -58,19 +59,17 @@ export default function RootLayout() {
 	}, [pinnedParks, pinnedDestinations]);
 
 	return (
-		<GluestackUIProvider mode="light">
-			<ToastProvider>
-				<PersistQueryClientProvider
-					client={queryClient}
-					persistOptions={{ persister: asyncStoragePersistor }}
-				>
-					<Stack>
-						<Stack.Screen name="index" options={{ headerShown: false }} />
-						<Stack.Screen name="park/[parkId]" options={{ headerShown: false }} />
-						<Stack.Screen name="park/[parkId]/ride/[rideId]" options={{ headerShown: false }} />
-					</Stack>
-				</PersistQueryClientProvider>
-			</ToastProvider>
+		<GluestackUIProvider mode={colorScheme ?? "light"}>
+			<PersistQueryClientProvider
+				client={queryClient}
+				persistOptions={{ persister: asyncStoragePersistor }}
+			>
+				<Stack>
+					<Stack.Screen name="index" options={{ headerShown: false }} />
+					<Stack.Screen name="park/[parkId]" options={{ headerShown: false }} />
+					<Stack.Screen name="park/[parkId]/ride/[rideId]" options={{ headerShown: false }} />
+				</Stack>
+			</PersistQueryClientProvider>
 		</GluestackUIProvider>
 	);
 }
