@@ -11,7 +11,7 @@ import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatu
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 // Style imports
-import { colors, styles, cardStyles, favoriteButtonStyles, destinationItemStyles, destinationParkChildrenStyles, skeletonDestinationItemStyles } from "@/src/styles";
+import { colors, tokens, cardStyles, favoriteButtonStyles, destinationItemStyles, parkButtonStyles, skeletonDestinationItemStyles } from "@/src/styles";
 
 export const DestinationItem = React.memo(
 	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
@@ -44,11 +44,6 @@ export const DestinationItem = React.memo(
 			}
 			onTogglePin(item.entity_id!);
 		}, [onTogglePin, item.entity_id, item.entity_type, isDestinationPinned, addPinnedDestination, removePinnedDestination, isParkPinned, addPinnedPark, removePinnedPark]);
-
-		const handleParkPress = useCallback(() => {
-			router.push({ pathname: "/park/[parkId]", params: { id: item.entity_id!, name: item.name!, country_code: item.country_code! } });
-			onTogglePin(item.entity_id || "");
-		}, [router, item.entity_id, item.name]);
 
 		// Load park status for single parks
 		useEffect(() => {
@@ -104,69 +99,27 @@ export const DestinationItem = React.memo(
 			}
 		}, [item.entity_type, item.original_destination_id, item.entity_id, item.name, refreshKey]);
 
-		// Memoize styling calculations
-		const iconColor = useMemo(() => {
-			return status.toLowerCase() === "open" ? destinationItemStyles.icon.color : status.toLowerCase() === "closed" ? destinationItemStyles.iconClosed.color : destinationItemStyles.icon.color;
-		}, [status]);
+		const statusKey = (status.toLowerCase() === "open" || status.toLowerCase() === "closed") ? status.toLowerCase() as "open" | "closed" : "closed";
 
-		const textStyles = useMemo(() => {
-			return status.toLowerCase() === "open" ? destinationItemStyles.name : status.toLowerCase() === "closed" ? destinationItemStyles.nameClosed : destinationItemStyles.name;
-		}, [status]);
-
-		// Memoize child park renderers
-		const renderChildPark = useCallback(
-			(park: ParkWithStatus) => {
-				// Apply status-based styling to individual park items
-				const color = park.status.toLowerCase() === "open" ? colors.text.primary : park.status.toLowerCase() === "closed" ? colors.text.closed : colors.secondaryVeryLight;
-
-				const textStyles = park.status.toLowerCase() === "open" ? [cardStyles.pressableParkText] : park.status.toLowerCase() === "closed" ? [cardStyles.pressableParkText, cardStyles.pressableParkTextClosed] : [cardStyles.pressableParkText];
-
-				const handleChildParkPress = () => {
-					router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } });
-				};
-
-				return (
-					<Pressable key={park.id} onPress={handleChildParkPress}>
-						{({ pressed }) =>
-							park.status.toLowerCase() === "open" ? (
-								<View style={[cardStyles.pressablePark, pressed ? cardStyles.pressableParkPressed : null]}>
-									<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-										<StatusBadge type="round" status={park.status} />
-										<Text style={[textStyles]}>{park.name_override || park.name}</Text>
-									</HStack>
-									<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-										<Icon name="chevronRight" fill={color} height={24} width={24} />
-									</View>
-								</View>
-							) : park.status.toLowerCase() === "closed" ? (
-								<View style={[cardStyles.pressableParkClosed, pressed ? cardStyles.pressableParkClosedPressed : null]}>
-									<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-										<StatusBadge type="round" status={park.status} />
-										<Text style={[textStyles]}>{park.name_override || park.name}</Text>
-									</HStack>
-									<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-										<Icon name="chevronRight" fill={color} height={24} width={24} />
-									</View>
-								</View>
-							) : null
-						}
-					</Pressable>
-				);
-			},
-			[router, status]
-		);
+		const parksToRender: ParkWithStatus[] = useMemo(() => {
+			if (isParkTypeDisplay) {
+				return [{ id: item.entity_id!, name: item.name!, name_override: null, country_code: item.country_code!, status } as ParkWithStatus];
+			}
+			return childParks;
+		}, [isParkTypeDisplay, item.entity_id, item.name, item.country_code, status, childParks]);
 
 		if (isLoadingStatus) {
 			return <SkeletonDestinationItem />;
 		}
 
-		if (!isParkTypeDisplay) {
-			// This is a 'destination_group'
-			return (
-				<View style={[status.toLowerCase() === "open" ? [cardStyles.default, cardStyles.cardOpen] : null, status.toLowerCase() === "closed" ? [cardStyles.default, cardStyles.cardClosed] : null]}>
+		return (
+			<VStack style={{ borderColor: colors.card.destination[statusKey].border, backgroundColor: colors.card.destination[statusKey].bg, borderWidth: 1, borderRadius: 6, marginBottom: 16, overflow: "hidden" }}>
+				<VStack style={{ paddingBottom: 2 }}>
+					{/* Header */}
 					<HStack style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
-						<StatusBadge type="corner" status={status} />
-						<CountryBadge country={country} status={status} />
+						<View style={{ paddingLeft: 6, paddingTop: 4, paddingBottom: 2 }}>
+							<CountryBadge country={country} status={status} />
+						</View>
 						{!isPinned ? (
 							<Pressable onPress={handleTogglePin}>
 								{({ pressed }) => (
@@ -185,66 +138,38 @@ export const DestinationItem = React.memo(
 							</Pressable>
 						)}
 					</HStack>
-					<View style={cardStyles.cardBody}>
-						<View style={[destinationItemStyles.titleContainer]}>
-							<View style={destinationItemStyles.nameContainer}>
-								<Text style={textStyles}>{item.name}</Text>
-							</View>
+					{!isParkTypeDisplay && (
+						<View style={{ paddingHorizontal: 8, paddingTop: 4, paddingBottom: 6 }}>
+							<Text style={{ color: colors.card.destination[statusKey].title, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{item.name}</Text>
 						</View>
-
-						{isLoadingParks && <Text style={{ color: colors.primaryLight, paddingVertical: 8 }}>Loading parks...</Text>}
-						{errorLoadingParks && <Text style={{ color: colors.highWaitingtime, paddingVertical: 8 }}>{errorLoadingParks}</Text>}
-
-						{!isLoadingParks && !errorLoadingParks && childParks.length > 0 && <VStack style={cardStyles.parksContainer}>{childParks.map(renderChildPark)}</VStack>}
-						{!isLoadingParks && !errorLoadingParks && childParks.length === 0 && item.entity_type === "destination_group" && <Text style={{ color: colors.secondaryLight, paddingVertical: 8 }}>No individual parks listed under this group.</Text>}
-					</View>
-				</View>
-			);
-		} else {
-			// This is a 'park' type display
-			return (
-				<View style={[status.toLowerCase() === "open" ? [cardStyles.default, cardStyles.isPark, cardStyles.cardOpen] : null, status.toLowerCase() === "closed" ? [cardStyles.default, cardStyles.isPark, cardStyles.cardClosed] : null]}>
-					<VStack style={destinationItemStyles.containerInner}>
-						<HStack style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
-							<StatusBadge type="corner" status={status} />
-							<CountryBadge country={country} status={status} />
-							{!isPinned ? (
-								<Pressable onPress={handleTogglePin}>
-									{({ pressed }) => (
-										<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pressed] : favoriteButtonStyles.container}>
-											<Icon name="favorite" fill={colors.favorite.icon.default} height={20} width={20} />
-										</View>
-									)}
-								</Pressable>
-							) : (
-								<Pressable onPress={handleTogglePin}>
-									{({ pressed }) => (
-										<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pinned, favoriteButtonStyles.pinnedPressed] : [favoriteButtonStyles.container, favoriteButtonStyles.pinned]}>
-											<Icon name="favoriteFilled" fill={colors.favorite.icon.pinned} height={20} width={20} />
-										</View>
-									)}
-								</Pressable>
-							)}
-						</HStack>
-						<Pressable onPress={handleParkPress}>
-							{({ pressed }) =>
-								status.toLowerCase() === "open" ? (
-									<View style={pressed ? [cardStyles.pressableDestination, cardStyles.pressableDestinationPressed] : [cardStyles.pressableDestination]}>
-										<Text style={[cardStyles.cardTitle, cardStyles.cardTitleOpen]}>{item.name}</Text>
-										<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
+					)}
+				</VStack>
+				<VStack>
+					{/* Park Buttons */}
+					{isLoadingParks && <Text style={{ color: colors.primaryLight, paddingVertical: 8, paddingHorizontal: 8 }}>Loading parks...</Text>}
+					{errorLoadingParks && <Text style={{ color: colors.highWaitingtime, paddingVertical: 8, paddingHorizontal: 8 }}>{errorLoadingParks}</Text>}
+					{!isLoadingParks && !errorLoadingParks && parksToRender.length === 0 && !isParkTypeDisplay && (
+						<Text style={{ color: colors.secondaryLight, paddingVertical: 8, paddingHorizontal: 8 }}>No individual parks listed under this group.</Text>
+					)}
+					{!isLoadingParks && !errorLoadingParks && parksToRender.map((park) => {
+						const parkStatusKey = (park.status.toLowerCase() === "open" || park.status.toLowerCase() === "closed") ? park.status.toLowerCase() as "open" | "closed" : "closed";
+						return (
+							<Pressable key={park.id} onPress={() => router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } })}>
+								{({ pressed }) => (
+									<View style={[parkButtonStyles.container, pressed ? { backgroundColor: colors.card.destination.pressable[parkStatusKey].bgPressed } : { backgroundColor: colors.card.destination.pressable[parkStatusKey].bg }, { borderTopColor: colors.card.destination.pressable[parkStatusKey].border }]}>
+										<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+											<StatusBadge type="round" status={park.status} />
+											<Text style={{ color: colors.card.destination.pressable[parkStatusKey].onBg, fontFamily: "Noto Sans Condensed", fontSize: tokens.text.size[300], lineHeight: tokens.text.size[300] * 1.3, fontWeight: "700" }}>{park.name_override || park.name}</Text>
+										</HStack>
+										<Icon name="chevronRight" fill={colors.card.destination.pressable[parkStatusKey].onBg} height={24} width={24} />
 									</View>
-								) : status.toLowerCase() === "closed" ? (
-									<View style={pressed ? [cardStyles.pressableDestination, cardStyles.pressableDestinationClosedPressed] : [cardStyles.pressableDestination]}>
-										<Text style={[cardStyles.cardTitle, cardStyles.cardTitleClosed]}>{item.name}</Text>
-										<Icon name="chevronRight" fill={iconColor} height={24} width={24} />
-									</View>
-								) : null
-							}
-						</Pressable>
-					</VStack>
-				</View>
-			);
-		}
+								)}
+							</Pressable>
+						);
+					})}
+				</VStack>
+			</VStack>
+		);
 	},
 	(prevProps, nextProps) => {
 		// Custom comparison function for better memoization
@@ -255,18 +180,23 @@ export const DestinationItem = React.memo(
 export const SkeletonDestinationItem = React.memo(function SkeletonDestinationItem() {
 	return (
 		<View style={skeletonDestinationItemStyles.container}>
-			<VStack style={skeletonDestinationItemStyles.containerInner}>
-				<View style={skeletonDestinationItemStyles.header}>
-					<View style={skeletonDestinationItemStyles.statusBadge} />
-					<View style={skeletonDestinationItemStyles.countryBadge} />
-					<View style={skeletonDestinationItemStyles.favoriteButton} />
-				</View>
-				<View style={skeletonDestinationItemStyles.body}>
-					<View style={skeletonDestinationItemStyles.titleContainer}>
-						<View style={skeletonDestinationItemStyles.titleBar} />
-					</View>
-				</View>
-			</VStack>
+			{/* Header */}
+			<View style={skeletonDestinationItemStyles.header}>
+				<View style={skeletonDestinationItemStyles.countryBadge} />
+				<View style={skeletonDestinationItemStyles.favoriteButton} />
+			</View>
+			{/* Title */}
+			<View style={skeletonDestinationItemStyles.titleContainer}>
+				<View style={skeletonDestinationItemStyles.titleBar} />
+			</View>
+			{/* Park button placeholder */}
+			<View style={skeletonDestinationItemStyles.parkButton}>
+				<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+					<View style={skeletonDestinationItemStyles.parkButtonDot} />
+					<View style={skeletonDestinationItemStyles.parkButtonText} />
+				</HStack>
+				<View style={skeletonDestinationItemStyles.parkButtonChevron} />
+			</View>
 		</View>
 	);
 });

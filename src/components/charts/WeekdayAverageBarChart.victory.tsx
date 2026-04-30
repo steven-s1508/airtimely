@@ -114,7 +114,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 								{
 									yKeys: ["standby", "single"],
 									labelColor: colors.primaryVeryLight,
-									lineColor: colors.primary,
+									lineColor: colors.primaryVeryLight,
 									font: font,
 									formatYLabel: (value) => `${value}m`,
 								},

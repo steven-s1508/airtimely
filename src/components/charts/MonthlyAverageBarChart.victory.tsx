@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { CartesianChart, Bar } from "victory-native";
+import { View, StyleSheet } from "react-native";
+import { CartesianChart, Bar, useChartTransformState, getTransformComponents, setTranslate } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
 import { useFont } from "@shopify/react-native-skia";
 import { getMonthlyAverageWaitTimes } from "@/src/utils/api/getRideStatistics";
 import { DateTime } from "luxon";
+import { useDerivedValue, useSharedValue } from "react-native-reanimated";
 
 interface MonthlyAverageBarChartVictoryProps {
 	rideId: string;
@@ -24,6 +25,43 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 	const [monthlyAverageData, setMonthlyAverageData] = useState<number[]>([]);
 	const [monthlyAverageSingleData, setMonthlyAverageSingleData] = useState<number[]>([]);
 	const [dataLoading, setDataLoading] = useState(true);
+
+	// Get transform state for chart interactions
+	const { state: transformState } = useChartTransformState();
+
+	// Track chart drawing width
+	const chartDrawingWidth = useSharedValue(0);
+
+	// Real-time boundary clamping
+	useDerivedValue(() => {
+		const { translateX, translateY, scaleX } = getTransformComponents(transformState.matrix.value);
+
+		let clampedTx = translateX;
+
+		// Left boundary: can't scroll past the start of data
+		// translateX > 0 means the viewport has shifted right of the data origin
+		if (clampedTx > 0) {
+			clampedTx = 0;
+		}
+
+		// Right boundary: can't scroll past the end of data
+		// The maximum leftward pan is the drawing width times (scaleX - 1)
+		if (chartDrawingWidth.value > 0 && scaleX > 1) {
+			const minTranslateX = -(chartDrawingWidth.value * (scaleX - 1));
+			if (clampedTx < minTranslateX) {
+			clampedTx = minTranslateX;
+			}
+		}
+
+		// Only update the matrix if we actually clamped something
+		if (clampedTx !== translateX) {
+			transformState.matrix.value = setTranslate(
+				transformState.matrix.value,
+				clampedTx,
+				translateY,
+			);
+		}
+	});
 
 	useEffect(() => {
 		const fetchMonthlyAverageData = async () => {
@@ -68,9 +106,9 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 
 	const barWidth = 8; // Increased bar width
 	const seriesCount = 2; // standby and single
-	const chartPadding = 20;
+	/* const chartPadding = 20; */
 	const daysInMonth = DateTime.now().daysInMonth;
-	const chartWidth = daysInMonth * barWidth * seriesCount + chartPadding * 2;
+	/* const chartWidth = daysInMonth * barWidth * seriesCount + chartPadding * 2; */
 
 	const tickValues = useMemo(() => {
 		const values: number[] = [];
@@ -133,31 +171,50 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 	return (
 		<View style={chartStyles.chartContainer}>
 			<Text style={chartStyles.chartText}>Average Wait Times in {DateTime.now().toFormat("LLLL yyyy")}</Text>
-			<ScrollView horizontal={true}>
-				<View style={{ width: chartWidth, height: 250 }}>
+			{/* <ScrollView horizontal={true}> */}
+				<View style={{ /* width: chartWidth, */ height: 250 }}>
 					<CartesianChart
 						data={processedData}
 						xKey="dayValue"
 						yKeys={["standby", "single"]}
+						transformState={transformState}
+						transformConfig={{
+							pan: {
+								enabled: true,
+								dimensions: "x",
+							},
+							pinch: {
+								enabled: false,
+							},
+						}}
+						viewport={{
+							x: [0, 20],
+						}}
+						onChartBoundsChange={(bounds) => {
+							// Capture the drawing width for right-boundary clamping
+							chartDrawingWidth.value = bounds.right - bounds.left;
+						}}
 						xAxis={{
 							labelColor: colors.primaryVeryLight,
 							font: font,
-							formatXLabel: (value) => DateTime.fromObject({ day: value }).toFormat("ccc, dd"),
+							formatXLabel: (value) =>
+								DateTime.fromObject({ day: value }).toFormat("ccc, dd"),
 							tickValues: tickValues,
 							tickCount: tickValues.length,
 							labelRotate: 75,
 							labelOffset: 2,
+							enableRescaling: true,
 						}}
 						yAxis={[
 							{
 								yKeys: ["standby", "single"],
 								labelColor: colors.primaryVeryLight,
-								lineColor: colors.primary,
+								lineColor: colors.primaryVeryLight,
 								font: font,
 								formatYLabel: (value) => `${value}m`,
 							},
 						]}
-						domainPadding={{ left: 20, right: 20, top: 20 }}
+						domainPadding={{ left: 0, right: 0, top: 20 }}
 						domain={{
 							x: [1, daysInMonth],
 							y: [0, maxWaitTime > 0 ? maxWaitTime * 1.1 : 60],
@@ -173,7 +230,7 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 						}}
 					</CartesianChart>
 				</View>
-			</ScrollView>
+			{/* </ScrollView> */}
 			<View style={styles.legendContainer}>
 				<View style={styles.legendItem}>
 					<View style={[styles.legendColor, { backgroundColor: colors.primaryVeryLight }]} />

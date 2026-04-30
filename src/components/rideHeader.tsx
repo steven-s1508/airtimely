@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 // Local Imports
 import { supabase } from "@/src/utils/supabase";
 import { Icon } from "@/src/components/Icon";
-import { colors, rideScreenStyles } from "@/src/styles";
+import { tokens, colors, rideScreenStyles } from "@/src/styles";
 import { HStack, VStack } from "./ui";
 /* import { RideStatusBadge } from "./rideStatusBadge"; */
 
@@ -26,6 +26,8 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 	const router = useRouter();
 	const [isLoadingStatus, setIsLoadingStatus] = useState(true);
 	const [parkName, setParkName] = useState<{ name: string } | null>(null);
+
+	console.log("RideHeader props:", { parkId, id, name, waitTime, singleRiderWaitTime, status });
 
 	useEffect(() => {
 		const loadParkName = async () => {
@@ -150,28 +152,48 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 		const styling = getStyling(status, waitStyles);
 
 		if (normalizedStatus === "operating" || normalizedStatus === "open") {
-			return (
-				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitType === "singleRider" ? waitStyles.statusBackgroundColor : styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: waitType === "singleRider" ? waitStyles.statusBorderColor : styling.statusBorderColor }}>
-					<Text style={{ color: waitType === "singleRider" ? waitStyles.waitTimeTextColor : styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
-				</View>
-			);
+			if (waitType === "singleRider") {
+				return (
+					<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.open.bg, borderWidth: 1, borderColor: colors.card.attraction.status.open.border }}>
+						<Icon name="singleRider" fill={colors.card.attraction.status.open.onBg} height={16} width={16} />
+						<Text style={{ flex: 1, color: colors.card.attraction.status.open.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Single Rider</Text>
+						<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitStyles.statusBackgroundColor, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32, borderColor: waitStyles.statusBorderColor }}>
+							<Text style={{ color: waitStyles.waitTimeTextColor, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
+						</View>
+					</HStack>
+				);
+			} else if (waitType === "standby") {
+
+				return (
+					<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.open.bg, borderWidth: 1, borderColor: colors.card.attraction.status.open.border }}>
+						<Icon name="waitTime" fill={colors.card.attraction.status.open.onBg} height={16} width={16} />
+						<Text style={{ flex: 1, color: colors.card.attraction.status.open.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+						<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitStyles.statusBackgroundColor, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32, borderColor: waitStyles.statusBorderColor }}>
+							<Text style={{ color: waitStyles.waitTimeTextColor, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
+						</View>
+					</HStack>
+				);
+			};
 		} else if (normalizedStatus === "down") {
 			return (
-				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
-					<Icon name="down" fill={styling.statusIconColor} height={24} width={24} />
-				</View>
+				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+					<Icon name="down" fill={styling.leftIconColor} height={24} width={24} />
+					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				</HStack>
 			);
 		} else if (normalizedStatus === "closed") {
 			return (
-				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
-					<Icon name="closed" fill={styling.statusIconColor} height={24} width={24} />
-				</View>
+				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+					<Icon name="closed" fill={styling.leftIconColor} height={24} width={24} />
+					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				</HStack>
 			);
 		} else if (normalizedStatus === "refurbishment") {
 			return (
-				<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
-					<Icon name="refurbishment" fill={styling.statusIconColor} height={24} width={24} />
-				</View>
+				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
+					<Icon name="refurbishment" fill={styling.leftIconColor} height={24} width={24} />
+					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				</HStack>
 			);
 		}
 
@@ -244,17 +266,9 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 			<HStack style={rideScreenStyles.rideScreenHeaderMetadata}>
 				<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
 				<HStack style={{ flexDirection: "row", justifyContent: "space-between", gap: 8, width: "100%" }}>
-					<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-						<Icon name="waitTime" fill={styling.leftIconColor} height={24} width={24} />
-						<Text style={{ color: styling.statusTextColor, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>{styling.statusText}</Text>
-						{getStatusView("standby")}
-					</HStack>
+					{getStatusView("standby")}
 					{singleRiderWaitTime !== undefined && singleRiderWaitTime !== null && (
-						<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-							<Icon name="singleRider" fill={colors.primaryLight} height={24} width={24} />
-							<Text style={{ color: colors.primaryLight, fontSize: 14, fontWeight: "800", fontFamily: "Bebas Neue Pro" }}>Single Rider</Text>
-							{getStatusView("singleRider")}
-						</HStack>
+						getStatusView("singleRider")
 					)}
 				</HStack>
 			</HStack>

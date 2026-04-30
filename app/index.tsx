@@ -9,7 +9,7 @@ import { Image } from "expo-image";
 import { Input, InputField, InputSlot, Text, Pressable } from "@/src/components/ui";
 // Local Imports
 import { FooterCredits } from "@/src/components/footerCredits";
-import { colors, styles } from "@/src/styles/styles";
+import { base, colors, styles } from "@/src/styles/styles";
 import { DestinationList } from "@/src/components/destinationList";
 import { Icon } from "@/src/components/Icon";
 
@@ -40,7 +40,7 @@ export default function HomeScreen() {
 	};
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: colors.primaryBlack }}>
+		<SafeAreaView style={{ flex: 1, backgroundColor: colors.bg.app }}>
 			{/* Header with Logo and Search */}
 			<View style={styles.homeHeader}>
 				{/* Logo */}
@@ -49,17 +49,17 @@ export default function HomeScreen() {
 				<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 					{/* Search Input */}
 					<Input style={[styles.parkFilterInput, { flex: 1 }]}>
-						<InputField placeholder="Search for park..." placeholderTextColor={colors.primaryLight} value={parkFilterInput} onChangeText={setParkFilterInput} style={styles.parkFilterInputField} />
+						<InputField placeholder="Search for park..." placeholderTextColor={base.primary[700]} value={parkFilterInput} onChangeText={setParkFilterInput} style={styles.parkFilterInputField} />
 						{parkFilterInput.length > 0 && (
 							<InputSlot onPress={() => setParkFilterInput("")} style={styles.clearButton} hitSlop={10}>
-								<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />
+								<Icon name="close" fill={base.primary[700]} height={24} width={24} />
 							</InputSlot>
 						)}
 					</Input>
 
 					{/* Refresh Button */}
-					<Pressable android_ripple={{ color: colors.primaryTransparent, foreground: true }} style={{ backgroundColor: colors.primaryVeryDark, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 8, padding: 8, overflow: "hidden" }} onPress={handleRefresh} disabled={isRefreshing}>
-						<Icon name="refresh" fill={colors.primaryLight} height={24} width={24} />
+					<Pressable android_ripple={{ color: base.primary[200], foreground: true }} style={{ backgroundColor: base.primary[100], borderWidth: 1, borderColor: base.primary[500], borderRadius: 8, padding: 8, overflow: "hidden" }} onPress={handleRefresh} disabled={isRefreshing}>
+						<Icon name="refresh" fill={base.primary[700]} height={24} width={24} />
 					</Pressable>
 				</View>
 			</View>
