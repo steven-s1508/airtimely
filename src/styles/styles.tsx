@@ -108,16 +108,90 @@ export const colors = {
 			closed: base.secondary[100],
 			pressedClosed: base.secondary[200],
 		},
+		destination: {
+			open: {
+				bg: base.primary[100],
+				border: base.primary[600],
+				title: base.primary[700],
+			},
+			closed: {
+				bg: base.secondary[200],
+				border: base.secondary[300],
+				title: base.secondary[700],
+			},
+			pressable: {
+				open: {
+					bg: base.primary[50],
+					bgPressed: base.primary[200],
+					border: base.primary[400],
+					onBg: base.primary[900],
+				},
+				closed: {
+					bg: base.secondary[50],
+					bgPressed: base.secondary[100],
+					border: base.secondary[400],
+					onBg: base.secondary[800],
+				},
+			}
+		},
+		attraction: {
+			open: {
+				bg: base.primary[50],
+				bgPressed: base.primary[200],
+				border: base.primary[600],
+				title: base.primary[900],
+			},
+			closed: {
+				bg: base.secondary[50],
+				bgPressed: base.secondary[100],
+				border: base.secondary[400],
+				title: base.secondary[800],
+			},
+			refurbishment: {
+				bg: base.accent[50],
+				bgPressed: base.accent[100],
+				border: base.accent[400],
+				title: base.accent[900],
+			},
+			down: {
+				bg: base.error[50],
+				bgPressed: base.error[100],
+				border: base.error[400],
+				title: base.error[900],
+			},
+			status: {
+				open: {
+					bg: base.primary[100],
+					border: base.primary[400],
+					onBg: base.primary[800],
+				},
+				closed: {
+					bg: base.secondary[200],
+					border: base.secondary[400],
+					onBg: base.secondary[800],
+				},
+				refurbishment: {
+					bg: base.accent[100],
+					border: base.accent[300],
+					onBg: base.accent[800],
+				},
+				down: {
+					bg: base.error[100],
+					border: base.error[200],
+					onBg: base.error[800],
+				},
+			}
+		}
 	},
 	favorite: {
 		bg: {
-			default: base.primary[200],
-			pressed: base.primary[300],
+			default: base.primary[300],
+			pressed: base.primary[200],
 			pinned: base.primary[300],
-			pinnedPressed: base.primary[400],
+			pinnedPressed: base.primary[200],
 		},
 		icon: {
-			default: base.primary[800],
+			default: base.primary[900],
 			pinned: base.accent[600],
 		},
 	},
@@ -132,6 +206,38 @@ export const colors = {
 		},
 	},
 	rideStatus: {
+		lowWait: {
+			bg: base.primary[100],
+			border: base.primary[600],
+			onBg: base.primary[900],
+		},
+		mediumWait: {
+			bg: base.accent[100],
+			border: base.accent[500],
+			onBg: base.accent[700],
+		},
+		highWait: {
+			bg: base.highWaitTime[100],
+			border: base.highWaitTime[500],
+			onBg: base.highWaitTime[900],
+		},
+		closed: {
+			bg: base.secondary[300],
+			border: base.secondary[500],
+			onBg: base.secondary[900],
+		},
+		down: {
+			bg: base.error[50],
+			border: base.error[400],
+			onBg: base.error[700],
+		},
+		refurbishment: {
+			bg: base.accent[200],
+			border: base.accent[700],
+			onBg: base.accent[900],
+		},
+	},
+	destinationStatus: {
 		bg: {
 			highWait: base.highWaitTime[100],
 			mediumWait: base.accent[100],
@@ -154,6 +260,16 @@ export const colors = {
 			maintenance: base.accent[900],
 		},
 	},
+	charts: {
+		bars: {
+			standby: base.primary[900],
+			singleRider: base.accent[600],
+		},
+		labels: {
+			primary: base.primary[900],
+			secondary: base.primary[700],
+		},
+	},
 	ui: {
 		border: base.primary[500],
 	},
@@ -167,7 +283,7 @@ export const colors = {
 	primaryWhite: "#EDF8F8",
 	primaryVeryLight: "#C9F3F3",
 	primaryLight: "#88DDDD",
-	/* primary: "#0E9898", */
+	primary: "#0E9898",
 	primaryDark: "#0D5454",
 	primaryVeryDark: "#062323",
 	primaryBlack: "#010909",
@@ -204,6 +320,18 @@ export const tokens = {
 	font: {
 		primary: "Bebas Neue Pro",
 		secondary: "Noto Sans",
+	},
+	text: {
+		size: {
+			600: 24,
+			500: 21,
+			400: 19,
+			300: 17,
+			200: 16,
+			100: 14,
+			90: 12,
+			80: 11,
+		},
 	},
 	gap: {
 		card: 8,
@@ -249,11 +377,11 @@ export const styles = StyleSheet.create({
 		paddingVertical: 8, 
 		paddingLeft: 12, 
 		borderRadius: 6, 
-		borderColor: base.primary[300], 
+		borderColor: base.primary[500], 
 		fontSize: 16, lineHeight: 19, 
 		paddingRight: 36, 
-		backgroundColor: colors.primaryVeryDark, 
-		color: colors.primaryVeryLight, 
+		backgroundColor: base.primary[100], 
+		color: base.primary[900], 
 		elevation: 1
 	},
 	attractionFilterInput: {
@@ -269,11 +397,11 @@ export const styles = StyleSheet.create({
 		paddingVertical: 8,
 		paddingLeft: 12,
 		borderRadius: 6,
-		borderColor: base.primary[300],
+		borderColor: base.primary[500],
 		fontSize: 16, lineHeight: 19,
 		paddingRight: 36,
-		backgroundColor: colors.primaryVeryDark,
-		color: colors.primaryVeryLight,
+		backgroundColor: base.primary[100],
+		color: base.primary[900],
 		elevation: 1
 	},
 	clearButton: {
@@ -421,6 +549,17 @@ export const cardStyles = StyleSheet.create({
 	pressableParkTextClosed: {
 		color: colors.text.closed,
 	}
+});
+
+export const parkButtonStyles = StyleSheet.create({
+	container: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingHorizontal: 8,
+		paddingVertical: 6,
+		borderTopWidth: 1,
+	},
 });
 
 export const favoriteButtonStyles = StyleSheet.create({
@@ -653,9 +792,9 @@ export const destinationCountryBadgeStyles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: 4,
-		paddingVertical: 2,
-		paddingHorizontal: 10,
+		gap: 2,
+		paddingVertical: 4,
+		paddingHorizontal: 8,
 		borderRadius: 100,
 	},
 	containerOpen: {
@@ -666,8 +805,8 @@ export const destinationCountryBadgeStyles = StyleSheet.create({
 	},
 	text: {
 		fontFamily: "Noto Sans",
-		fontSize: 14,
-		lineHeight: 19,
+		fontSize: tokens.text.size[80],
+		lineHeight: tokens.text.size[80],
 		fontWeight: "500",
 	},
 	textOpen: {
@@ -683,32 +822,25 @@ export const skeletonDestinationItemStyles = StyleSheet.create({
 		width: "100%",
 		marginBottom: 16,
 		borderWidth: 1,
-		borderColor: base.primary[200],
-		borderRadius: tokens.radius.sm,
-		backgroundColor: colors.card.bg.open,
-	},
-	containerInner: {
-		flexDirection: "column",
-		gap: 16,
+		borderColor: colors.card.destination.open.border,
+		borderRadius: 6,
+		backgroundColor: colors.card.destination.open.bg,
+		overflow: "hidden",
 	},
 	header: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
-		gap: 8,
-	},
-	statusBadge: {
-		width: 32,
-		height: 32,
-		borderBottomRightRadius: tokens.radius.md,
-		overflow: "hidden",
-		backgroundColor: colors.parkStatus.bg.open,
+		gap: 4,
+		paddingBottom: 2,
 	},
 	countryBadge: {
-		width: 60,
+		width: 52,
 		height: 20,
 		borderRadius: 100,
 		backgroundColor: colors.parkStatus.bg.open,
+		marginLeft: 6,
+		marginTop: 4,
 	},
 	favoriteButton: {
 		width: 32,
@@ -716,22 +848,47 @@ export const skeletonDestinationItemStyles = StyleSheet.create({
 		borderBottomLeftRadius: tokens.radius.md,
 		backgroundColor: colors.favorite.bg.default,
 	},
-	body: {
-		flexDirection: "column",
-		gap: 8,
-	},
 	titleContainer: {
-		width: "60%",
-		height: 24,
-		borderRadius: 4,
+		paddingHorizontal: 8,
+		paddingBottom: 6,
 	},
 	titleBar: {
-		width: "100%",
-		height: 16,
+		width: "60%",
+		height: 12,
 		borderRadius: 4,
-		backgroundColor: base.primary[200],
+		backgroundColor: colors.card.destination.open.title,
+		opacity: 0.4,
 	},
-	
+	parkButton: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingHorizontal: 8,
+		paddingVertical: 6,
+		borderTopWidth: 1,
+		borderTopColor: colors.card.destination.pressable.open.border,
+		backgroundColor: colors.card.destination.pressable.open.bg,
+	},
+	parkButtonDot: {
+		width: 18,
+		height: 18,
+		borderRadius: 100,
+		backgroundColor: colors.parkStatus.bg.open,
+	},
+	parkButtonText: {
+		width: "50%",
+		height: 14,
+		borderRadius: 4,
+		backgroundColor: colors.card.destination.pressable.open.onBg,
+		opacity: 0.3,
+	},
+	parkButtonChevron: {
+		width: 24,
+		height: 24,
+		borderRadius: 4,
+		backgroundColor: colors.card.destination.pressable.open.onBg,
+		opacity: 0.15,
+	},
 });
 
 export const parkScreenStyles = StyleSheet.create({
@@ -748,8 +905,10 @@ export const parkScreenStyles = StyleSheet.create({
 	},
 	parkScreenHeaderTitle: {
 		flex: 1,
-		fontSize: 24,
-		fontWeight: "bold",
+		fontFamily: "Noto Sans Condensed",
+		fontSize: tokens.text.size[600],
+		fontWeight: 700,
+		lineHeight: tokens.text.size[600] * 1.2,
 		color: colors.primaryVeryLight,
 		marginHorizontal: 12,
 	},
@@ -832,14 +991,14 @@ export const rideScreenStyles = StyleSheet.create({
 	},
 	rideScreenHeaderContainer: {
 		flexDirection: "row",
-		alignItems: "center",
+		alignItems: "flex-start",
 		justifyContent: "space-between",
 		padding: 16,
 		paddingBottom: 8,
 	},
 	rideScreenHeaderTitle: {
 		flex: 1,
-		fontSize: 24,
+		fontSize: tokens.text.size[400],
 		fontWeight: "bold",
 		color: colors.primaryVeryLight,
 		marginHorizontal: 12,
@@ -849,78 +1008,5 @@ export const rideScreenStyles = StyleSheet.create({
 		gap: 8,
 		paddingHorizontal: 16,
 		marginBottom: 8,
-	},
-	rideScreenCountryBadge: {
-		backgroundColor: colors.primaryVeryDark,
-	},
-	rideScreenCountryBadgeClosed: {
-		backgroundColor: colors.secondaryVeryDark,
-	},
-	rideScreenCountryBadgeText: {
-		color: colors.primaryLight,
-	},
-	rideScreenCountryBadgeTextClosed: {
-		color: colors.secondaryLight,
-	},
-	rideScreenCountryBadgeIcon: {
-		color: colors.primaryLight,
-	},
-	rideScreenCountryBadgeIconClosed: {
-		color: colors.secondaryLight,
-	},
-});
-
-export const rideStatusBadgeStyles = StyleSheet.create({
-	container: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 4,
-		paddingVertical: 2,
-		paddingHorizontal: 8,
-		borderRadius: 100,
-		borderWidth: 1,
-	},
-	containerOpen: {
-		borderColor: colors.primary,
-	},
-	containerClosed: {
-		borderColor: colors.secondaryVeryLight,
-	},
-	containerDown: {
-		borderColor: "#A3000E",
-	},
-	containerRefurbishment: {
-		borderColor: colors.secondaryVeryLight,
-	},
-	iconOpen: {
-		color: colors.primaryVeryLight,
-	},
-	iconClosed: {
-		color: colors.secondaryVeryLight,
-	},
-	iconDown: {
-		color: "#A3000E",
-	},
-	iconRefurbishment: {
-		color: colors.secondaryVeryLight,
-	},
-	text: {
-		fontFamily: "Noto Sans",
-		fontSize: 14,
-		lineHeight: 19,
-		fontWeight: "500",
-		textTransform: "capitalize",
-	},
-	textOpen: {
-		color: colors.primaryVeryLight,
-	},
-	textClosed: {
-		color: colors.secondaryVeryLight,
-	},
-	textDown: {
-		color: colors.secondaryVeryLight,
-	},
-	textRefurbishment: {
-		color: colors.secondaryVeryLight,
-	},
+	}
 });

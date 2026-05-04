@@ -75,6 +75,26 @@
 									"style": "italic"
 								}
 							]
+						},
+						{
+							"fontFamily": "Noto Sans Condensed",
+							"fontDefinitions": [
+								{
+									"path": "./src/assets/fonts/noto_sans_condensed_bold.ttf",
+									"weight": "700",
+									"style": "normal"
+								}
+							]
+						},
+						{
+							"fontFamily": "IBM Plex Sans Condensed",
+							"fontDefinitions": [
+								{
+									"path": "./src/assets/fonts/ibm_plex_sans_condensed_bold.ttf",
+									"weight": "700",
+									"style": "normal"
+								}
+							]
 						}
 					]
 				}

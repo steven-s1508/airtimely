@@ -153,4 +153,53 @@
 	--bg-ride-status-maintenance: var(--color--accent-200);
 	--border-ride-status-maintenance: var(--color--accent-700);
 	--on-bg-ride-status-maintenance: var(--color--accent-900);
+
+
+	/* --- CARDS --- */
+	/* destination card - card */
+	--card-destination-bg-open: var(--color--primary-100);
+	--card-destination-border-open: var(--color--primary-600);
+	--card-destination-title-open: var(--color--primary-700);
+	--card-destination-bg-closed: var(--color--secondary-200);
+	--card-destination-border-closed: var(--color--secondary-300);
+	--card-destination-title-closed: var(--color--secondary-700);
+	/* destination card - pressable */
+	--card-destination-pressable-bg-open: var(--color--primary-50);
+	--card-destination-pressable-bg-open-pressed: var(--color--primary-200);
+	--card-destination-pressable-border-open: var(--color--primary-400);
+	--card-destination-pressable-border-on-bg-open: var(--color--primary-900);
+	--card-destination-pressable-bg-closed: var(--color--secondary-50);
+	--card-destination-pressable-bg-closed-pressed: var(--color--secondary-100);
+	--card-destination-pressable-border-closed: var(--color--secondary-400);
+	--card-destination-pressable-border-on-bg-closed: var(--color--secondary-800);
+	/* attraction card - card */
+	--card-attraction-bg-open: var(--color--primary-100);
+	--card-attraction-bg-open-pressed: var(--color--primary-200);
+	--card-attraction-border-open: var(--color--primary-600);
+	--card-attraction-title-open: var(--color--primary-700);
+	--card-attraction-bg-closed: var(--color--secondary-200);
+	--card-attraction-bg-closed-pressed: var(--color--secondary-300);
+	--card-attraction-border-closed: var(--color--secondary-300);
+	--card-attraction-title-closed: var(--color--secondary-800);
+	--card-attraction-bg-refurbishment: var(--color--accent-100);
+	--card-attraction-bg-refurbishment-pressed: var(--color--accent-200);
+	--card-attraction-border-refurbishment: var(--color--accent-300);
+	--card-attraction-title-refurbishment: var(--color--accent-700);
+	--card-attraction-bg-down: var(--color--error-100);
+	--card-attraction-bg-down-pressed: var(--color--error-200);
+	--card-attraction-border-down: var(--color--error-300);
+	--card-attraction-title-down: var(--color--error-700);
+	/* attraction card - status */
+	--card-attraction-status-bg-open: var(--color--primary-100);
+	--card-attraction-status-border-open: var(--color--primary-400);
+	--card-attraction-status-on-bg-open: var(--color--primary-900);
+	--card-attraction-status-bg-closed: var(--color--secondary-200);
+	--card-attraction-status-border-closed: var(--color--secondary-400);
+	--card-attraction-status-on-bg-closed: var(--color--secondary-900);
+	--card-attraction-status-bg-refurbishment: var(--color--accent-100);
+	--card-attraction-status-border-refurbishment: var(--color--accent-300);
+	--card-attraction-status-on-bg-refurbishment: var(--color--accent-900);
+	--card-attraction-status-bg-down: var(--color--error-100);
+	--card-attraction-status-border-down: var(--color--error-200);
+	--card-attraction-status-on-bg-down: var(--color--error-900);
 }

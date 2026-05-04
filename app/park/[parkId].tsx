@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
-import { colors, styles, parkScreenStyles, base } from "@/src/styles/styles";
+import { colors, styles, parkScreenStyles, base, tokens } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
 import { SkeletonAttractionItem } from "@/src/components/skeletons/skeletonAttractionItem";
 import { ParkChild } from "@/src/utils/api/getParkChildren";
@@ -242,12 +242,12 @@ export default function ParkScreen() {
 				return (
 					<Text
 						style={{
-							fontFamily: "Bebas Neue Pro",
-							fontWeight: 800,
-							fontSize: 14,
-							paddingVertical: 8,
-							paddingHorizontal: 10,
-							paddingTop: 0,
+							fontFamily: "Noto Sans",
+							fontWeight: 700,
+							fontSize: tokens.text.size[100],
+							lineHeight: tokens.text.size[100] * 1.2,
+							paddingBottom: 8,
+							marginBottom: -8,
 							color: colors.primaryLight,
 						}}
 					>
@@ -260,12 +260,13 @@ export default function ParkScreen() {
 				<Text
 					style={{
 						color: section.title.toLowerCase() === "open" ? base.primary[900] : section.title.toLowerCase() === "down" ? base.error[900] : section.title.toLowerCase() === "closed" ? base.secondary[900] : section.title.toLowerCase() === "refurbishment" ? base.accent[900] : base.primary[900],
-						fontSize: 14,
-						fontWeight: "bold",
-						backgroundColor: section.title.toLowerCase() === "open" ? base.primary[300] : section.title.toLowerCase() === "down" ? base.error[200] : section.title.toLowerCase() === "closed" ? base.secondary[300] : section.title.toLowerCase() === "refurbishment" ? base.accent[300] : base.primary[300],
-						paddingVertical: 8,
-						paddingHorizontal: 10,
-						marginTop: 8,
+						fontFamily: "Noto Sans",
+						fontWeight: 700,
+						fontSize: tokens.text.size[90],
+						lineHeight: tokens.text.size[90] * 1.2,
+						backgroundColor: section.title.toLowerCase() === "open" ? base.primary[300] : section.title.toLowerCase() === "down" ? base.error[300] : section.title.toLowerCase() === "closed" ? base.secondary[300] : section.title.toLowerCase() === "refurbishment" ? base.accent[300] : base.primary[300],
+						padding: 8,
+						marginBottom: -8,
 						borderRadius: 6,
 					}}
 				>
@@ -274,7 +275,26 @@ export default function ParkScreen() {
 			);
 		};
 
-		return <SectionList sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`} stickySectionHeadersEnabled={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }} refreshControl={<RefreshControl refreshing={isManualRefreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />} />;
+		return (
+			<SectionList
+				sections={sections} 
+				renderItem={renderItem} 
+				renderSectionHeader={renderSectionHeader} 
+				keyExtractor={(item) => `${item.id}-${refreshing ? "refreshed" : "initial"}`}
+				stickySectionHeadersEnabled={false}
+				contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
+				refreshControl={
+					<RefreshControl
+						refreshing={refreshing}
+						onRefresh={handleRefresh}
+						colors={[colors.primaryLight, colors.primaryVeryLight]}
+						progressBackgroundColor={colors.primaryDark}
+						tintColor={colors.primaryVeryLight}
+						title="Updating wait times..."
+						titleColor={colors.primaryLight} />
+				}
+			/>
+		)
 	};
 
 	return (
