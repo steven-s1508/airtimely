@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 // Local Imports
 import { Text, VStack, HStack, Pressable } from "@/src/components/ui";
 import { Icon } from "@/src/components/Icon";
+import { WaitTimePill } from "@/src/components/waitTimePill";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 import { colors, favoriteButtonStyles, tokens } from "@/src/styles/styles";
 
@@ -62,26 +63,16 @@ export const AttractionItem = React.memo(function AttractionItem({
 
 	const displayWaitTime = waitTime ?? 0;
 
-	const getWaitTimeGrade = useCallback((value: number) => {
-		if (value < 45) return colors.rideStatus.lowWait;
-		if (value < 60) return colors.rideStatus.mediumWait;
-		return colors.rideStatus.highWait;
-	}, []);
-
 	const statusView = useMemo(() => {
 		if (statusKey === "open") {
-			const grade = getWaitTimeGrade(displayWaitTime);
 			return (
 				<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6 }}>
 					<Icon name="waitTime" fill={colors.card.attraction.status[statusKey].onBg} height={16} width={16} />
 					<Text style={{ flex: 1, color: colors.card.attraction.status[statusKey].onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{statusLabel}</Text>
-					<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: grade.bg, borderColor: grade.border, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32 }}>
-						<Text style={{ color: grade.onBg, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{displayWaitTime}</Text>
-					</View>
+					<WaitTimePill waitTime={displayWaitTime} />
 				</HStack>
 			);
 		}
-		const rideStatusColors = colors.rideStatus[statusKey];
 		const iconName = statusKey === "down" ? "down" : statusKey === "refurbishment" ? "refurbishment" : "closed";
 		return (
 			<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6 }}>
@@ -89,24 +80,21 @@ export const AttractionItem = React.memo(function AttractionItem({
 				<Text style={{ flex: 1, color: colors.card.attraction.status[statusKey].onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{statusLabel}</Text>
 			</HStack>
 		);
-	}, [statusKey, displayWaitTime, getWaitTimeGrade]);
+	}, [statusKey, displayWaitTime]);
 
 	const singleRiderView = useMemo(() => {
 		if (singleRiderWaitTime === undefined) return null;
 		if (statusKey === "open") {
-			const grade = getWaitTimeGrade(singleRiderWaitTime);
 			return (
 				<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6, borderLeftWidth: 1, borderLeftColor: colors.card.attraction.status[statusKey].border }}>
 						<Icon name="singleRider" fill={colors.card.attraction.status[statusKey].onBg} height={16} width={16} />
 						<Text style={{ flex: 1, color: colors.card.attraction.status[statusKey].onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Single Rider</Text>
-						<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: grade.bg, borderColor: grade.border, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32 }}>
-							<Text style={{ color: grade.onBg, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{singleRiderWaitTime}</Text>
-						</View>
+						<WaitTimePill waitTime={singleRiderWaitTime} />
 					</HStack>
 			);
 		}
 		return statusView;
-	}, [statusKey, singleRiderWaitTime, getWaitTimeGrade, statusView]);
+	}, [statusKey, singleRiderWaitTime, statusView]);
 
 	const statusRowColors = statusKey === "open" ? colors.rideStatus.lowWait : colors.rideStatus[statusKey];
 

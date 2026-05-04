@@ -11,7 +11,7 @@ import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatu
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 // Style imports
-import { colors, tokens, cardStyles, favoriteButtonStyles, destinationItemStyles, parkButtonStyles, skeletonDestinationItemStyles } from "@/src/styles";
+import { colors, tokens, cardStyles, favoriteButtonStyles, destinationItemStyles, parkButtonStyles, skeletonDestinationItemStyles, base } from "@/src/styles";
 
 export const DestinationItem = React.memo(
 	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
@@ -146,10 +146,10 @@ export const DestinationItem = React.memo(
 				</VStack>
 				<VStack>
 					{/* Park Buttons */}
-					{isLoadingParks && <Text style={{ color: colors.primaryLight, paddingVertical: 8, paddingHorizontal: 8 }}>Loading parks...</Text>}
-					{errorLoadingParks && <Text style={{ color: colors.highWaitingtime, paddingVertical: 8, paddingHorizontal: 8 }}>{errorLoadingParks}</Text>}
+					{isLoadingParks && <Text style={{ color: base.primary[800], paddingVertical: 8, paddingHorizontal: 8 }}>Loading parks...</Text>}
+					{errorLoadingParks && <Text style={{ color: base.error[800], paddingVertical: 8, paddingHorizontal: 8 }}>{errorLoadingParks}</Text>}
 					{!isLoadingParks && !errorLoadingParks && parksToRender.length === 0 && !isParkTypeDisplay && (
-						<Text style={{ color: colors.secondaryLight, paddingVertical: 8, paddingHorizontal: 8 }}>No individual parks listed under this group.</Text>
+						<Text style={{ color: base.secondary[800], paddingVertical: 8, paddingHorizontal: 8 }}>No individual parks listed under this group.</Text>
 					)}
 					{!isLoadingParks && !errorLoadingParks && parksToRender.map((park) => {
 						const parkStatusKey = (park.status.toLowerCase() === "open" || park.status.toLowerCase() === "closed") ? park.status.toLowerCase() as "open" | "closed" : "closed";

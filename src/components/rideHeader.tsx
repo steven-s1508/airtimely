@@ -7,9 +7,9 @@ import { useRouter } from "expo-router";
 // Local Imports
 import { supabase } from "@/src/utils/supabase";
 import { Icon } from "@/src/components/Icon";
+import { WaitTimePill } from "@/src/components/waitTimePill";
 import { tokens, colors, rideScreenStyles } from "@/src/styles";
 import { HStack, VStack } from "./ui";
-/* import { RideStatusBadge } from "./rideStatusBadge"; */
 
 async function fetchParkName(parkId: string) {
 	const { data: parkName, error } = await supabase.from("parks").select("name").eq("id", parkId).single();
@@ -46,96 +46,6 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 		loadStatus();
 	}, [id]);
 
-	const getWaitTimeStyles = (displayWaitTime: number) => {
-		if (displayWaitTime < 45) {
-			return {
-				statusBackgroundColor: colors.primaryVeryDark,
-				statusBorderColor: colors.primaryLight,
-				waitTimeTextColor: colors.primaryLight,
-			};
-		} else if (displayWaitTime < 60) {
-			return {
-				statusBackgroundColor: colors.accentVeryDark,
-				statusBorderColor: colors.accentLight,
-				waitTimeTextColor: colors.accentLight,
-			};
-		} else {
-			return {
-				statusBackgroundColor: colors.highWaitingtimeVeryDark,
-				statusBorderColor: colors.highWaitingtimeVeryLight,
-				waitTimeTextColor: colors.highWaitingtimeVeryLight,
-			};
-		}
-	};
-
-	const getStyling = (statusValue: string | null | undefined, waitStyles: any) => {
-		const normalizedStatus = statusValue?.toLowerCase();
-
-		switch (normalizedStatus) {
-			case "operating":
-				return {
-					containerColor: colors.primaryVeryDark,
-					containerBorderColor: colors.primary,
-					rideNameColor: colors.primaryWhite,
-					statusContainerColor: colors.primaryDark,
-					leftIconColor: colors.primaryLight,
-					statusTextColor: colors.primaryVeryLight,
-					statusBackgroundColor: waitStyles.statusBackgroundColor,
-					statusBorderColor: waitStyles.statusBorderColor,
-					waitTimeTextColor: waitStyles.waitTimeTextColor,
-					vqIconColor: colors.primaryLight,
-					vqTextColor: colors.primaryVeryLight,
-					statusText: "Standby Wait",
-				};
-			case "down":
-				return {
-					containerColor: "#211213",
-					containerBorderColor: "#A3000E",
-					rideNameColor: "#FFCCD9",
-					statusContainerColor: "#3D1215",
-					leftIconColor: "#FFCCD9",
-					statusTextColor: "#FFCCD9",
-					statusBorderColor: "#A3000E",
-					statusBackgroundColor: "#FFCCD9",
-					statusIconColor: "#A3000E",
-					statusText: "Down",
-				};
-			case "closed":
-				return {
-					containerColor: colors.secondaryVeryDark,
-					containerBorderColor: colors.secondary,
-					rideNameColor: colors.secondaryVeryLight,
-					statusContainerColor: colors.secondaryDark,
-					leftIconColor: colors.secondaryVeryLight,
-					statusTextColor: colors.secondaryVeryLight,
-					statusBorderColor: colors.secondaryLight,
-					statusBackgroundColor: colors.secondaryLight,
-					statusIconColor: colors.secondaryBlack,
-					statusText: "Closed",
-				};
-			case "refurbishment":
-				return {
-					containerColor: colors.accentBlack,
-					containerBorderColor: colors.accent,
-					rideNameColor: colors.accentVeryLight,
-					statusContainerColor: colors.accentVeryDark,
-					leftIconColor: colors.accentLight,
-					statusTextColor: colors.accentLight,
-					statusBorderColor: colors.accent,
-					statusBackgroundColor: colors.accent,
-					statusIconColor: colors.accentBlack,
-					statusText: "Refurbishment",
-				};
-			default:
-				return {
-					containerColor: colors.primaryVeryDark,
-					containerBorderColor: colors.primary,
-					textColor: colors.primaryLight,
-					headerColor: colors.primaryDark,
-				};
-		}
-	};
-
 	const getStatusView = (waitType: string = "standby") => {
 		// Normalize the status to lowercase
 		const normalizedStatus = status?.toLowerCase();
@@ -148,18 +58,13 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 			waitTimeToDisplay = singleRiderWaitTime !== undefined && singleRiderWaitTime !== null ? singleRiderWaitTime : 0;
 		}
 
-		const waitStyles = getWaitTimeStyles(waitTimeToDisplay || 0);
-		const styling = getStyling(status, waitStyles);
-
 		if (normalizedStatus === "operating" || normalizedStatus === "open") {
 			if (waitType === "singleRider") {
 				return (
 					<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.open.bg, borderWidth: 1, borderColor: colors.card.attraction.status.open.border }}>
 						<Icon name="singleRider" fill={colors.card.attraction.status.open.onBg} height={16} width={16} />
 						<Text style={{ flex: 1, color: colors.card.attraction.status.open.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Single Rider</Text>
-						<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitStyles.statusBackgroundColor, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32, borderColor: waitStyles.statusBorderColor }}>
-							<Text style={{ color: waitStyles.waitTimeTextColor, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
-						</View>
+						<WaitTimePill waitTime={waitTimeToDisplay || 0} />
 					</HStack>
 				);
 			} else if (waitType === "standby") {
@@ -167,46 +72,36 @@ export const RideHeader = React.memo(function RideHeader({ parkId, item: { id, n
 				return (
 					<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, paddingLeft: 8, paddingRight: 6, paddingTop: 4, paddingBottom: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.open.bg, borderWidth: 1, borderColor: colors.card.attraction.status.open.border }}>
 						<Icon name="waitTime" fill={colors.card.attraction.status.open.onBg} height={16} width={16} />
-						<Text style={{ flex: 1, color: colors.card.attraction.status.open.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
-						<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: waitStyles.statusBackgroundColor, borderWidth: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 8, minWidth: 32, borderColor: waitStyles.statusBorderColor }}>
-							<Text style={{ color: waitStyles.waitTimeTextColor, textAlign: "center", fontFamily: "IBM Plex Sans Condensed", fontSize: tokens.text.size[100], lineHeight: tokens.text.size[100] * 1.4, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
-						</View>
+						<Text style={{ flex: 1, color: colors.card.attraction.status.open.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Standby Wait</Text>
+						<WaitTimePill waitTime={waitTimeToDisplay || 0} />
 					</HStack>
 				);
 			};
 		} else if (normalizedStatus === "down") {
 			return (
-				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-					<Icon name="down" fill={styling.leftIconColor} height={24} width={24} />
-					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.down.bg, borderWidth: 1, borderColor: colors.card.attraction.status.down.border }}>
+					<Icon name="down" fill={colors.card.attraction.status.down.onBg} height={24} width={24} />
+					<Text style={{ color: colors.card.attraction.status.down.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Down</Text>
 				</HStack>
 			);
 		} else if (normalizedStatus === "closed") {
 			return (
-				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-					<Icon name="closed" fill={styling.leftIconColor} height={24} width={24} />
-					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.closed.bg, borderWidth: 1, borderColor: colors.card.attraction.status.closed.border }}>
+					<Icon name="closed" fill={colors.card.attraction.status.closed.onBg} height={24} width={24} />
+					<Text style={{ color: colors.card.attraction.status.closed.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Closed</Text>
 				</HStack>
 			);
 		} else if (normalizedStatus === "refurbishment") {
 			return (
-				<HStack style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: styling.statusContainerColor }}>
-					<Icon name="refurbishment" fill={styling.leftIconColor} height={24} width={24} />
-					<Text style={{ color: styling.statusTextColor, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>{styling.statusText}</Text>
+				<HStack style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8, padding: 6, borderRadius: 6, backgroundColor: colors.card.attraction.status.refurbishment.bg, borderWidth: 1, borderColor: colors.card.attraction.status.refurbishment.border }}>
+					<Icon name="refurbishment" fill={colors.card.attraction.status.refurbishment.onBg} height={24} width={24} />
+					<Text style={{ color: colors.card.attraction.status.refurbishment.onBg, fontFamily: "Noto Sans", fontSize: tokens.text.size[90], lineHeight: tokens.text.size[90] * 1.2, fontWeight: "600" }}>Refurbishment</Text>
 				</HStack>
 			);
 		}
 
-		// Default case - show wait time
-		return (
-			<View style={{ alignItems: "center", justifyContent: "center", backgroundColor: styling.statusBackgroundColor, padding: 4, minWidth: 36, minHeight: 32, borderWidth: 1, borderRadius: 4, borderColor: styling.statusBorderColor }}>
-				<Text style={{ color: styling.waitTimeTextColor, textAlign: "center", fontSize: 14, lineHeight: 16, fontWeight: "bold" }}>{waitTimeToDisplay}</Text>
-			</View>
-		);
+		return null;
 	};
-
-	const waitStyles = getWaitTimeStyles(waitTime || 0);
-	const styling = getStyling(status, waitStyles);
 
 	const handleBackPress = () => {
 		if (router && router.canGoBack()) {
