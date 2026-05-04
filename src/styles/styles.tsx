@@ -271,7 +271,7 @@ export const colors = {
 		},
 	},
 	ui: {
-		border: base.primary[200],
+		border: base.primary[500],
 	},
 	light: {
 
@@ -364,7 +364,7 @@ export const styles = StyleSheet.create({
 	logo: { 
 		alignSelf: "center", 
 		width: 61, 
-		height: 40 
+		height: 32 
 	},
 	parkFilterInput: { 
 		position: "relative", 

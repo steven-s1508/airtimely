@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
+import React, { useState, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
 
 import { supabase } from "@src/utils/supabase";
 
@@ -11,15 +11,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { base, colors, tokens } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
+import { usePreferencesStore, type DestinationSortOption } from "@src/stores/preferencesStore";
+import { getCountryAliases, getCountryName } from "@src/utils/helpers/countryMapping";
+import { useDestinations } from "@src/hooks/api/useDestinations";
+import { useLiveStatuses } from "@src/hooks/api/useLiveStatuses";
+import { useChildParks } from "@src/hooks/api/useChildParks";
+import { type ParkStatus } from "@src/utils/api/getParkStatus";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define the type for items from the 'displayable_entities' view
 // Ideally, you would regenerate your Supabase types to include this view.
 // If not, you can define it manually like this:
 export type DisplayableEntity = Tables<"displayable_destinations">;
 
-// Augmented type to include pinned status
+// Augmented type to include pinned status and current status
 export type DisplayableEntityWithPinnedStatus = DisplayableEntity & {
 	isPinned?: boolean;
+	currentStatus?: ParkStatus;
 };
 
 /**
@@ -59,51 +67,75 @@ export interface DestinationListRef {
 
 export const DestinationList = React.memo(
 	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
-		const [fetchedEntities, setFetchedEntities] = useState<DisplayableEntity[]>([]);
-		const [isLoading, setIsLoading] = useState(true);
+		const queryClient = useQueryClient();
+		const { data: fetched = [], isLoading: isLoadingDestinations, isError: isErrorDestinations } = useDestinations();
+
+		// 1. Identify destination groups to fetch their child parks
+		const groupIds = useMemo(() => {
+			return fetched
+				.filter((e) => e.entity_type === "destination_group")
+				.map((e) => e.original_destination_id!)
+				.filter(Boolean);
+		}, [fetched]);
+
+		const { data: allChildParks = [], isLoading: isLoadingChildParks } = useChildParks(groupIds);
+
+		// 2. Collect all park IDs that need status
+		const allParkIds = useMemo(() => {
+			const ids = new Set<string>();
+			fetched.filter((e) => e.entity_type === "park").forEach((e) => ids.add(e.entity_id!));
+			allChildParks.forEach((p) => ids.add(p.id));
+			return Array.from(ids);
+		}, [fetched, allChildParks]);
+
+		const { data: statusesMap = {}, isLoading: isLoadingStatuses } = useLiveStatuses(allParkIds);
+
 		const [refreshing, setRefreshing] = useState(false);
-		const [error, setError] = useState<string | null>(null);
 		const [refreshKey, setRefreshKey] = useState(0);
-		const { pinnedDestinations, addPinnedDestination, removePinnedDestination } = usePinnedItemsStore();
+		const { pinnedDestinations } = usePinnedItemsStore();
+		const { destinationSortBy } = usePreferencesStore();
+
+		const handleRefresh = useCallback(async () => {
+			setRefreshKey((prev) => prev + 1);
+			setRefreshing(true);
+			// Invalidate all relevant queries to trigger background revalidation
+			await queryClient.invalidateQueries({ queryKey: ["destinations"] });
+			await queryClient.invalidateQueries({ queryKey: ["childParks"] });
+			await queryClient.invalidateQueries({ queryKey: ["liveStatuses"] });
+			setRefreshing(false);
+		}, [queryClient]);
 
 		useImperativeHandle(ref, () => ({
-			refresh: async () => {
-				await loadInitialData(true);
-			},
+			refresh: handleRefresh,
 		}));
 
-		const loadInitialData = useCallback(async (isRefresh: boolean = false) => {
-			try {
-				if (isRefresh) {
-					setRefreshing(true);
-				} else {
-					setIsLoading(true);
+		// Map statuses back to entities
+		const fetchedEntities = useMemo(() => {
+			return fetched.map((entity) => {
+				let status: ParkStatus = "Unknown";
+				if (entity.entity_type === "park") {
+					status = statusesMap[entity.entity_id!] || "Unknown";
+				} else if (entity.entity_type === "destination_group") {
+					const childParksForGroup = allChildParks.filter((p) => p.destination_id === entity.original_destination_id);
+					if (childParksForGroup.length === 0) {
+						status = "Unknown";
+					} else {
+						const childStatuses = childParksForGroup.map((p) => statusesMap[p.id] || "Unknown");
+						if (childStatuses.includes("Open")) {
+							status = "Open";
+						} else if (childStatuses.every((s) => s === "Closed")) {
+							status = "Closed";
+						} else {
+							status = "Unknown";
+						}
+					}
 				}
+				return { ...entity, currentStatus: status };
+			});
+		}, [fetched, statusesMap, allChildParks]);
 
-				const fetched = await fetchDisplayableEntities();
-				setFetchedEntities(fetched);
-				setError(null);
-			} catch (e) {
-				console.error("Failed to load initial data:", e);
-				setError("Failed to load destinations.");
-				setFetchedEntities([]);
-			} finally {
-				if (isRefresh) {
-					setRefreshing(false);
-				} else {
-					setIsLoading(false);
-				}
-			}
-		}, []);
-
-		const handleRefresh = async () => {
-			setRefreshKey((prev) => prev + 1);
-			await loadInitialData(true);
-		};
-
-		useEffect(() => {
-			loadInitialData();
-		}, [loadInitialData]);
+		const isLoading = isLoadingDestinations || (groupIds.length > 0 && isLoadingChildParks) || (allParkIds.length > 0 && isLoadingStatuses);
+		const error = isErrorDestinations ? "Failed to load destinations." : null;
 
 		// Memoize processed entities to prevent unnecessary recalculations
 		const processedEntities = useMemo(() => {
@@ -111,21 +143,61 @@ export const DestinationList = React.memo(
 
 			let entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
 				...entity,
-				isPinned: pinnedDestinations.includes(entity.entity_id),
+				isPinned: pinnedDestinations.includes(entity.entity_id!),
 			}));
 
 			if (searchFilter.trim() !== "") {
-				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => entity.name && entity.name.toLowerCase().includes(searchFilter.toLowerCase()));
+				const lowerFilter = searchFilter.toLowerCase();
+				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => {
+					const nameMatch = entity.name && entity.name.toLowerCase().includes(lowerFilter);
+					const countryCodeMatch = entity.country_code && entity.country_code.toLowerCase().includes(lowerFilter);
+					const aliases = getCountryAliases(entity.country_code);
+					const countryAliasMatch = aliases.some((alias) => alias.toLowerCase().includes(lowerFilter));
+					const statusMatch = entity.currentStatus && entity.currentStatus.toLowerCase().includes(lowerFilter);
+
+					return nameMatch || countryCodeMatch || countryAliasMatch || statusMatch;
+				});
 			}
 
-			entitiesWithPinnedStatus.sort((a, b) => {
-				if (a.isPinned && !b.isPinned) return -1;
-				if (!a.isPinned && b.isPinned) return 1;
-				return (a.name || "").localeCompare(b.name || "");
-			});
+			// Separate pinned and unpinned items
+			const pinned = entitiesWithPinnedStatus.filter((e) => e.isPinned);
+			const unpinned = entitiesWithPinnedStatus.filter((e) => !e.isPinned);
 
-			return entitiesWithPinnedStatus;
-		}, [fetchedEntities, pinnedDestinations, searchFilter]);
+			// Status priority for sorting (Open first, then Closed, then Unknown)
+			const STATUS_PRIORITY: Record<string, number> = {
+				Open: 0,
+				Closed: 1,
+				Unknown: 2,
+			};
+
+			// Sort function based on selected sort option
+			const sortFn = (a: DisplayableEntityWithPinnedStatus, b: DisplayableEntityWithPinnedStatus) => {
+				switch (destinationSortBy) {
+					case "country": {
+						const countryA = getCountryName(a.country_code);
+						const countryB = getCountryName(b.country_code);
+						const countryCompare = countryA.localeCompare(countryB);
+						return countryCompare !== 0 ? countryCompare : (a.name || "").localeCompare(b.name || "");
+					}
+					case "status": {
+						const statusA = STATUS_PRIORITY[a.currentStatus || "Unknown"];
+						const statusB = STATUS_PRIORITY[b.currentStatus || "Unknown"];
+						const statusCompare = statusA - statusB;
+						return statusCompare !== 0 ? statusCompare : (a.name || "").localeCompare(b.name || "");
+					}
+					case "name":
+					default:
+						return (a.name || "").localeCompare(b.name || "");
+				}
+			};
+
+			// Sort each group independently
+			pinned.sort(sortFn);
+			unpinned.sort(sortFn);
+
+			// Return pinned first, then unpinned
+			return [...pinned, ...unpinned];
+		}, [fetchedEntities, pinnedDestinations, searchFilter, destinationSortBy]);
 
 		// Memoize section list data
 		const sectionListData = useMemo(() => {
@@ -159,8 +231,6 @@ export const DestinationList = React.memo(
 				} else {
 					usePinnedItemsStore.getState().addPinnedDestination(entityId);
 				}
-				// Update local state to trigger re-render
-				// No need to setPinnedIds as we're using Zustand store directly
 			},
 			[pinnedDestinations]
 		);
@@ -216,11 +286,11 @@ export const DestinationList = React.memo(
 		}
 
 		if (!processedEntities || processedEntities.length === 0) {
-			return <Text>No destinations found.</Text>;
+			return <Text style={{ color: colors.text.primary, textAlign: "center", marginTop: 20 }}>No destinations found.</Text>;
 		}
 
 		return (
-			<View style={{ flex: 1 }}>
+			<View style={{ flex: 1, paddingHorizontal: 16 }}>
 				<SectionList
 					sections={sectionListData}
 					keyExtractor={keyExtractor}

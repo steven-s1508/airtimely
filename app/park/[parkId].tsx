@@ -1,31 +1,42 @@
 // React / React Native Imports
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View, ActivityIndicator, SectionList, SectionListData, RefreshControl } from "react-native";
 // Expo Imports
 import { useLocalSearchParams } from "expo-router";
 // 3rd Party Imports
-import { Input, InputField, InputSlot, Text } from "@/src/components/ui";
+import { Input, InputField, InputSlot, Text, HStack } from "@/src/components/ui";
+import { DateTime } from "luxon";
 // Local Imports
 import { ParkHeader } from "@/src/components/parkHeader";
 import { Icon } from "@/src/components/Icon";
 import { colors, styles, parkScreenStyles, base, tokens } from "@/src/styles/styles";
 import { AttractionItem } from "@/src/components/attractionItem";
-import { getParkChildren, ParkChild, ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
+import { SkeletonAttractionItem } from "@/src/components/skeletons/skeletonAttractionItem";
+import { ParkChild } from "@/src/utils/api/getParkChildren";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
+import { useParkChildren } from "@/src/hooks/api/useParkChildren";
 import { isValidUUID } from "@/src/utils/helpers/validation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
 }
 
 export default function ParkScreen() {
+	const queryClient = useQueryClient();
 	const [attractionFilterInput, setAttractionFilterInput] = useState(""); // Actual input value
 	const [debouncedAttractionFilter, setDebouncedAttractionFilter] = useState(""); // Debounced value for filtering - not used in snippet
+	const [isManualRefreshing, setIsManualRefreshing] = useState(false); // Track manual pull-to-refresh
 	const params = useLocalSearchParams<{ id: string; name: string; country_code: string; status: string }>();
 	const { id, name, country_code, status } = params;
-	const [parkChildren, setParkChildren] = useState<ParkChildrenResponse | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [refreshing, setRefreshing] = useState(false);
+	
+	const { data: parkChildren, isLoading: loading, isRefetching: refreshing, refetch: loadParkChildren, dataUpdatedAt } = useParkChildren(id!);
+	
+	// Format the last updated time
+	const lastUpdatedText = useMemo(() => {
+		if (!dataUpdatedAt) return null;
+		return DateTime.fromMillis(dataUpdatedAt).toFormat("h:mm a");
+	}, [dataUpdatedAt]);
 
 	// Validate park ID is a valid UUID
 	if (!id || !isValidUUID(id)) {
@@ -35,34 +46,6 @@ export default function ParkScreen() {
 
 	// Use Zustand store for pinned items
 	const { pinnedAttractions } = usePinnedItemsStore();
-
-	// Load park children when the component mounts or ID changes
-	useEffect(() => {
-		if (id) {
-			loadParkChildren();
-		}
-	}, [id]);
-
-	const loadParkChildren = async (isRefresh: boolean = false) => {
-		if (isRefresh) {
-			setRefreshing(true);
-		} else {
-			setLoading(true);
-		}
-
-		try {
-			const children = await getParkChildren(id);
-			setParkChildren(children);
-		} catch (error) {
-			console.error("Error loading park children:", error);
-		} finally {
-			if (isRefresh) {
-				setRefreshing(false);
-			} else {
-				setLoading(false);
-			}
-		}
-	};
 
 	// Debounce the search input
 	useEffect(() => {
@@ -74,20 +57,25 @@ export default function ParkScreen() {
 	}, [attractionFilterInput]);
 
 	const handleRefresh = async () => {
-		await loadParkChildren(true);
+		setIsManualRefreshing(true);
+		await queryClient.invalidateQueries({ queryKey: ["parkChildren", id] });
+		setIsManualRefreshing(false);
 	};
 
 	if (!id || !name) {
 		return <ActivityIndicator />;
 	}
 
-	if (loading) {
+	if (loading && !parkChildren) {
 		return (
 			<View style={parkScreenStyles.parkScreenContainer}>
 				<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<ActivityIndicator size="large" color={colors.primaryLight} />
-					<Text style={{ color: colors.primaryLight, marginTop: 16 }}>Loading park data...</Text>
+				<View style={{ flex: 1, paddingHorizontal: 16, gap: 8 }}>
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
+					<SkeletonAttractionItem />
 				</View>
 			</View>
 		);
@@ -115,7 +103,15 @@ export default function ParkScreen() {
 
 		// Apply search filter
 		if (debouncedAttractionFilter.trim() !== "") {
-			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => item.name.toLowerCase().includes(debouncedAttractionFilter.toLowerCase()));
+			const lowerFilter = debouncedAttractionFilter.toLowerCase();
+			itemsWithPinnedStatus = itemsWithPinnedStatus.filter((item) => {
+				const nameMatch = item.name.toLowerCase().includes(lowerFilter);
+				const statusMatch = item.status && item.status.toLowerCase().includes(lowerFilter);
+				// Also handle "operating" as "open" for search consistency
+				const operatingMatch = lowerFilter === "open" && item.status?.toLowerCase() === "operating";
+
+				return nameMatch || statusMatch || operatingMatch;
+			});
 		}
 
 		// If no results after filtering, show message
@@ -303,12 +299,12 @@ export default function ParkScreen() {
 
 	return (
 		<View style={parkScreenStyles.parkScreenContainer}>
-			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} />
-			{/* Search and Refresh Container */}
+			<ParkHeader item={{ id, name, country_code }} onRefresh={handleRefresh} isRefreshing={refreshing} lastUpdatedText={lastUpdatedText} />
+			{/* Search Container */}
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				{/* Search Input */}
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
-					<InputField placeholder="Search for attraction..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
+					<InputField placeholder="Search by attraction or status..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
 					{attractionFilterInput.length > 0 && (
 						<InputSlot onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
 							<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />

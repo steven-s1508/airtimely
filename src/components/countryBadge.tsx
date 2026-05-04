@@ -22,6 +22,7 @@ const countryNames: Record<string, string> = {
 	ES: "Spain",
 	MX: "Mexico",
 	JP: "Japan",
+	AU: "Australia",
 };
 
 export const CountryBadge = React.memo(function CountryBadge({ country, status, style, isPark }: { country: string; status: string; style?: ViewStyle; isPark?: boolean }) {

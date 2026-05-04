@@ -27,6 +27,7 @@ import RestaurantIconComponent from "@/src/assets/icons/components/Restaurant";
 import SearchIconComponent from "@/src/assets/icons/components/Search";
 import ShowIconComponent from "@/src/assets/icons/components/Show";
 import SingleRiderIconComponent from "@/src/assets/icons/components/SingleRider";
+import SortIconComponent from "@/src/assets/icons/components/Sort";
 import StatsIconComponent from "@/src/assets/icons/components/Stats";
 import VirtualQueueIconComponent from "@/src/assets/icons/components/VirtualQueue";
 import WaitTimeIconComponent from "@/src/assets/icons/components/WaitTime";
@@ -65,6 +66,7 @@ const iconComponentMap: Record<IconName, React.FC<SvgProps>> = {
 	search: SearchIconComponent,
 	show: ShowIconComponent,
 	singleRider: SingleRiderIconComponent,
+	sort: SortIconComponent,
 	stats: StatsIconComponent,
 	virtualQueue: VirtualQueueIconComponent,
 	waitTime: WaitTimeIconComponent,
