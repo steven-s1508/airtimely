@@ -154,7 +154,7 @@ export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> =
 									tickValues: yAxisTickValues,
 									formatYLabel: (value: number) => `${value}m`,
 									labelColor: colors.primaryVeryLight,
-									lineColor: colors.primary,
+									lineColor: colors.primaryVeryLight,
 									font: font,
 								},
 							]}

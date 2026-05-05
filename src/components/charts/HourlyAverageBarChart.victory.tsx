@@ -114,7 +114,7 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 						{
 							yKeys: ["standby", "single"],
 							labelColor: colors.primaryVeryLight,
-							lineColor: colors.primary,
+							lineColor: colors.primaryVeryLight,
 							font: font,
 							formatYLabel: (value) => `${value}m`,
 						},

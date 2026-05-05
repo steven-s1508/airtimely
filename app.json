@@ -3,12 +3,11 @@
 		"name": "Airtimely",
 		"slug": "airtimely",
 		"scheme": "airtimely",
-		"version": "1.1.0",
+		"version": "1.2.0",
 		"orientation": "portrait",
 		"platforms": ["android"],
 		"icon": "./src/assets/icon.png",
 		"userInterfaceStyle": "light",
-		"newArchEnabled": true,
 		"splash": {
 			"image": "./src/assets/splash-icon.png",
 			"resizeMode": "contain",
@@ -22,11 +21,9 @@
 				"foregroundImage": "./src/assets/adaptive-icon.png",
 				"backgroundColor": "#0E9898"
 			},
-			"edgeToEdgeEnabled": true,
 			"package": "com.anonymous.airtimely"
 		},
 		"plugins": [
-			["expo-router"],
 			[
 				"expo-font",
 				{
@@ -75,13 +72,32 @@
 									"style": "italic"
 								}
 							]
+						},
+						{
+							"fontFamily": "Noto Sans Condensed",
+							"fontDefinitions": [
+								{
+									"path": "./src/assets/fonts/noto_sans_condensed_bold.ttf",
+									"weight": "700",
+									"style": "normal"
+								}
+							]
+						},
+						{
+							"fontFamily": "IBM Plex Sans Condensed",
+							"fontDefinitions": [
+								{
+									"path": "./src/assets/fonts/ibm_plex_sans_condensed_bold.ttf",
+									"weight": "700",
+									"style": "normal"
+								}
+							]
 						}
 					]
 				}
 			],
-			"expo-router",
 			[
-				"@sentry/react-native/expo",
+				"@sentry/react-native",
 				{
 					"url": "https://sentry.io/",
 					"project": "airtimely",

@@ -95,7 +95,7 @@ export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) 
 	const parkInfoContent = (
 		<View
 			style={{
-				padding: 16,
+				padding: 8,
 				backgroundColor: colors.primaryVeryDark,
 				borderRadius: 6,
 				borderWidth: 1,

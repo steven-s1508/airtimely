@@ -8,7 +8,7 @@ import { View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
 import { Text } from "./ui";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "@src/styles/styles";
+import { base, colors, tokens } from "@src/styles/styles";
 
 import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
 import { usePreferencesStore, type DestinationSortOption } from "@src/stores/preferencesStore";
@@ -245,19 +245,18 @@ export const DestinationList = React.memo(
 					return (
 						<Text
 							style={{
-								fontFamily: "Bebas Neue Pro",
-								fontWeight: 800,
-								fontSize: 18,
-								padding: 8,
-								paddingTop: 0,
-								color: colors.text.primary,
+								fontFamily: "Noto Sans",
+								fontWeight: 700,
+								fontSize: tokens.text.size[100],
+								lineHeight: tokens.text.size[100] * 1.2,
+								color: colors.text.muted,
 							}}
 						>
 							{title}
 						</Text>
 					);
 				} else if (title === "All Destinations" && sectionListData.length > 1) {
-					return <View style={{ padding: 2, backgroundColor: colors.ui.border, marginBottom: 16 }}></View>;
+					return <View style={{ padding: 2, backgroundColor: base.primary[500], marginBottom: 16 }}></View>;
 				}
 				return null; // No header for other sections
 			},
@@ -267,7 +266,7 @@ export const DestinationList = React.memo(
 		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id ?? "unknown", []);
 
 		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
-		const SectionSeparator = useCallback(() => <View style={{ height: 8 }} />, []);
+		const SectionSeparator = useCallback(() => <View style={{ height: 16 }} />, []);
 
 		if (isLoading) {
 			return (
