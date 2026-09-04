@@ -49,3 +49,10 @@ planning.md
 
 # local docs
 .docs/
+
+# Android credentials
+.credentials/
+*.keystore
+*.jks
+*.properties
+credentials.json
