@@ -1,9 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
 
-import { supabase } from "@src/utils/supabase";
-
-import type { Tables } from "@src/types/supabase";
-
 import { View, SectionList, RefreshControl } from "react-native";
 import { DestinationItem, SkeletonDestinationItem } from "./destinationItem";
 import { Text } from "./ui";
@@ -16,50 +12,18 @@ import { getCountryAliases, getCountryName } from "@src/utils/helpers/countryMap
 import { useDestinations } from "@src/hooks/api/useDestinations";
 import { useLiveStatuses } from "@src/hooks/api/useLiveStatuses";
 import { useChildParks } from "@src/hooks/api/useChildParks";
-import { type ParkStatus } from "@src/utils/api/getParkStatus";
+import { type ParkStatus, type ParkWithStatus } from "@src/utils/api/getParkStatus";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@src/utils/queryKeys";
+import type { DisplayableEntity } from "@src/utils/api/getDisplayableEntities";
 
-// Define the type for items from the 'displayable_entities' view
-// Ideally, you would regenerate your Supabase types to include this view.
-// If not, you can define it manually like this:
-export type DisplayableEntity = Tables<"displayable_destinations">;
+export type { DisplayableEntity };
 
 // Augmented type to include pinned status and current status
 export type DisplayableEntityWithPinnedStatus = DisplayableEntity & {
 	isPinned?: boolean;
 	currentStatus?: ParkStatus;
 };
-
-/**
- * Fetch a list of displayable entities (parks that are destinations or destination groups).
- * This function is used to fetch the list of items
- * to be displayed in the DestinationList component.
- * @returns {Promise<DisplayableEntity[]>} A promise that resolves to an array of displayable entities.
- */
-export async function fetchDisplayableEntities(): Promise<DisplayableEntity[]> {
-	const { data, error } = await supabase.from("displayable_destinations") // Query the new view
-		.select(`
-            entity_id,
-            name,
-            entity_type,
-            country_code,
-            original_destination_id
-        `);
-
-	if (error) {
-		console.error("Error fetching displayable entities:", error);
-		return [];
-	}
-
-	// Sort the data by name in ascending order
-	data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-	// Ensure the data is in the expected format
-	if (!Array.isArray(data)) {
-		console.error("Fetched data is not an array:", data);
-		return [];
-	}
-	return data as DisplayableEntity[]; // Cast to your defined type
-}
 
 export interface DestinationListRef {
 	refresh: () => Promise<void>;
@@ -90,6 +54,20 @@ export const DestinationList = React.memo(
 
 		const { data: statusesMap = {}, isLoading: isLoadingStatuses } = useLiveStatuses(allParkIds);
 
+		const childParksByDestinationId = useMemo(() => {
+			return allChildParks.reduce((acc, park) => {
+				if (!park.destination_id) return acc;
+
+				acc[park.destination_id] = acc[park.destination_id] || [];
+				acc[park.destination_id].push({
+					...park,
+					status: statusesMap[park.id] || "Unknown",
+				});
+
+				return acc;
+			}, {} as Record<string, ParkWithStatus[]>);
+		}, [allChildParks, statusesMap]);
+
 		const [refreshing, setRefreshing] = useState(false);
 		const [refreshKey, setRefreshKey] = useState(0);
 		const { pinnedDestinations } = usePinnedItemsStore();
@@ -99,9 +77,9 @@ export const DestinationList = React.memo(
 			setRefreshKey((prev) => prev + 1);
 			setRefreshing(true);
 			// Invalidate all relevant queries to trigger background revalidation
-			await queryClient.invalidateQueries({ queryKey: ["destinations"] });
-			await queryClient.invalidateQueries({ queryKey: ["childParks"] });
-			await queryClient.invalidateQueries({ queryKey: ["liveStatuses"] });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.destinations() });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.childParks() });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.liveStatuses() });
 			setRefreshing(false);
 		}, [queryClient]);
 
@@ -236,7 +214,18 @@ export const DestinationList = React.memo(
 		);
 
 		// Memoize render functions
-		const renderItem = useCallback(({ item }: { item: DisplayableEntityWithPinnedStatus }) => <DestinationItem item={item} isPinned={item.isPinned || false} onTogglePin={handleTogglePin} refreshKey={refreshKey} />, [handleTogglePin, refreshKey]);
+		const renderItem = useCallback(
+			({ item }: { item: DisplayableEntityWithPinnedStatus }) => (
+				<DestinationItem
+					item={item}
+					isPinned={item.isPinned || false}
+					onTogglePin={handleTogglePin}
+					currentStatus={item.currentStatus}
+					childParks={item.original_destination_id ? childParksByDestinationId[item.original_destination_id] || [] : []}
+				/>
+			),
+			[childParksByDestinationId, handleTogglePin]
+		);
 
 		const renderSectionHeader = useCallback(
 			({ section: { title } }: { section: { title: string } }) => {

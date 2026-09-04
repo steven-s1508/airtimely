@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getParkStatus, type ParkStatus } from "@/src/utils/api/getParkStatus";
+import { queryKeys } from "@/src/utils/queryKeys";
 
 export function useParkStatus(parkId: string) {
 	return useQuery<ParkStatus>({
-		queryKey: ["parkStatus", parkId],
+		queryKey: queryKeys.parkStatus(parkId),
 		queryFn: () => getParkStatus(parkId),
 		enabled: !!parkId,
 		staleTime: 1000 * 60 * 5, // 5 minutes

@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/src/utils/supabase";
 import type { Tables } from "@/src/types/supabase";
+import { queryKeys } from "@/src/utils/queryKeys";
 
 export function useChildParks(destinationIds: string[]) {
 	return useQuery<Tables<"parks">[]>({
-		queryKey: ["childParks", destinationIds.sort()],
+		queryKey: queryKeys.childParks(destinationIds),
 		queryFn: async () => {
 			if (destinationIds.length === 0) return [];
 			const { data, error } = await supabase

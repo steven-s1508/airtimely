@@ -17,6 +17,7 @@ import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 import { useParkChildren } from "@/src/hooks/api/useParkChildren";
 import { isValidUUID } from "@/src/utils/helpers/validation";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/src/utils/queryKeys";
 
 interface ParkChildWithPinnedStatus extends ParkChild {
 	isPinned: boolean;
@@ -58,7 +59,7 @@ export default function ParkScreen() {
 
 	const handleRefresh = async () => {
 		setIsManualRefreshing(true);
-		await queryClient.invalidateQueries({ queryKey: ["parkChildren", id] });
+		await queryClient.invalidateQueries({ queryKey: queryKeys.parkChildren(id) });
 		setIsManualRefreshing(false);
 	};
 
@@ -306,7 +307,7 @@ export default function ParkScreen() {
 				<Input style={[styles.attractionFilterInput, { flex: 1 }]}>
 					<InputField placeholder="Search by attraction or status..." placeholderTextColor={colors.primaryLight} value={attractionFilterInput} onChangeText={setAttractionFilterInput} style={styles.attractionFilterInputField} />
 					{attractionFilterInput.length > 0 && (
-						<InputSlot onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
+						<InputSlot accessibilityRole="button" accessibilityLabel="Clear attraction search" onPress={() => setAttractionFilterInput("")} style={styles.clearButton} hitSlop={10}>
 							<Icon name="close" fill={colors.primaryVeryLight} height={24} width={24} />
 						</InputSlot>
 					)}

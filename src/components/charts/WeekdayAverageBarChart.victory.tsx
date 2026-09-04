@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { CartesianChart, Bar } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
 import { useFont } from "@shopify/react-native-skia";
-import { getWeekdayAverageWaitTimes } from "@/src/utils/api/getRideStatistics";
+import { useWeekdayAverageWaitTimes } from "@/src/hooks/api/useRideStatistics";
 
 interface WeekdayAverageBarChartVictoryProps {
 	rideId: string;
@@ -20,33 +20,9 @@ interface ChartDataPoint {
 
 export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVictoryProps> = ({ rideId, loading = false }) => {
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-	const [weekdayAverageData, setWeekdayAverageData] = useState<number[]>([]);
-	const [weekdayAverageSingleData, setWeekdayAverageSingleData] = useState<number[]>([]);
-	const [dataLoading, setDataLoading] = useState(true);
-
-	useEffect(() => {
-		const fetchWeekdayAverageData = async () => {
-			if (!rideId) return;
-
-			setDataLoading(true);
-			try {
-				const result = await getWeekdayAverageWaitTimes(rideId);
-				// @ts-ignore - TypeScript thinks the return type is different
-				const waitTimes = result.averageWaitTimes || result.weeklyAverageWaitTimes || [];
-				const singleWaitTimes = result.weeklyAverageSingleWaitTimes || [];
-				setWeekdayAverageData(waitTimes);
-				setWeekdayAverageSingleData(singleWaitTimes);
-			} catch (error) {
-				console.error("Error fetching weekday average data:", error);
-				setWeekdayAverageData([]);
-				setWeekdayAverageSingleData([]);
-			} finally {
-				setDataLoading(false);
-			}
-		};
-
-		fetchWeekdayAverageData();
-	}, [rideId]);
+	const { data, isLoading: isLoadingData } = useWeekdayAverageWaitTimes(rideId);
+	const weekdayAverageData = data?.weeklyAverageWaitTimes || [];
+	const weekdayAverageSingleData = data?.weeklyAverageSingleWaitTimes || [];
 
 	const processedData = useMemo(() => {
 		const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -66,7 +42,7 @@ export const WeekdayAverageBarChartVictory: React.FC<WeekdayAverageBarChartVicto
 		return processedData.some((item) => item.single > 0);
 	}, [processedData]);
 
-	const isLoading = loading || dataLoading;
+	const isLoading = loading || isLoadingData;
 
 	const contentToRender = useMemo(() => {
 		if (isLoading) {

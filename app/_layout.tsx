@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GluestackUIProvider } from "@/src/components/ui/gluestack-ui-provider";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 import { getParkChildren } from "@/src/utils/api/getParkChildren";
+import { queryKeys } from "@/src/utils/queryKeys";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -48,7 +49,7 @@ export default function RootLayout() {
 			
 			for (const parkId of allPinnedIds) {
 				queryClient.prefetchQuery({
-					queryKey: ["parkChildren", parkId],
+					queryKey: queryKeys.parkChildren(parkId),
 					queryFn: () => getParkChildren(parkId),
 					staleTime: 1000 * 60 * 5, // 5 minutes - match useParkChildren hook
 				});

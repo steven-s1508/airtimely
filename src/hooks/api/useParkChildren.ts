@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getParkChildren, type ParkChildrenResponse } from "@/src/utils/api/getParkChildren";
+import { queryKeys } from "@/src/utils/queryKeys";
 
 export function useParkChildren(parkId: string) {
 	return useQuery<ParkChildrenResponse | null>({
-		queryKey: ["parkChildren", parkId],
+		queryKey: queryKeys.parkChildren(parkId),
 		queryFn: () => getParkChildren(parkId),
 		enabled: !!parkId,
 		staleTime: 1000 * 60 * 5, // 5 minutes - data considered fresh

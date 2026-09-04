@@ -1,31 +1,25 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import { DisplayableEntity } from "./destinationList";
 import { StatusBadge } from "@/src/components/statusBadge";
 import { CountryBadge } from "@/src/components/countryBadge";
 import { Icon } from "@/src/components/Icon";
 import { View } from "react-native";
 import { Pressable, Text, VStack, HStack } from "@/src/components/ui";
-import { fetchChildParks } from "@/src/utils/api/getParksByDestination";
 import { useRouter } from "expo-router";
-import { getParkStatus, getDestinationStatus, getParksWithStatus, type ParkStatus, type ParkWithStatus } from "@/src/utils/api/getParkStatus";
+import { type ParkStatus, type ParkWithStatus } from "@/src/utils/api/getParkStatus";
 import { usePinnedItemsStore } from "@/src/stores/pinnedItemsStore";
 
 // Style imports
 import { colors, tokens, cardStyles, favoriteButtonStyles, destinationItemStyles, parkButtonStyles, skeletonDestinationItemStyles, base } from "@/src/styles";
 
 export const DestinationItem = React.memo(
-	function DestinationItem({ item, isPinned, onTogglePin, refreshKey = 0 }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; refreshKey?: number }) {
+	function DestinationItem({ item, isPinned, onTogglePin, currentStatus = "Unknown", childParks = [] }: { item: DisplayableEntity; isPinned: boolean; onTogglePin: (entityId: string) => void; currentStatus?: ParkStatus; childParks?: ParkWithStatus[] }) {
 		const router = useRouter();
 		const { addPinnedDestination, removePinnedDestination, isDestinationPinned, addPinnedPark, removePinnedPark, isParkPinned } = usePinnedItemsStore();
 
-		const [status, setStatus] = useState<ParkStatus>("Unknown");
-		const [isLoadingStatus, setIsLoadingStatus] = useState(true);
-		const [childParks, setChildParks] = useState<ParkWithStatus[]>([]);
-		const [isLoadingParks, setIsLoadingParks] = useState(false);
-		const [errorLoadingParks, setErrorLoadingParks] = useState<string | null>(null);
-
 		const country = item.country_code || "N/A";
 		const isParkTypeDisplay = item.entity_type === "park";
+		const status = currentStatus;
 
 		// Memoize callbacks
 		const handleTogglePin = useCallback(() => {
@@ -45,60 +39,6 @@ export const DestinationItem = React.memo(
 			onTogglePin(item.entity_id!);
 		}, [onTogglePin, item.entity_id, item.entity_type, isDestinationPinned, addPinnedDestination, removePinnedDestination, isParkPinned, addPinnedPark, removePinnedPark]);
 
-		// Load park status for single parks
-		useEffect(() => {
-			if (isParkTypeDisplay && item.entity_id) {
-				const loadParkStatus = async () => {
-					setIsLoadingStatus(true);
-					try {
-						const parkStatus = await getParkStatus(item.entity_id!);
-						setStatus(parkStatus);
-					} catch (error) {
-						console.error("Failed to load park status:", error);
-						setStatus("Unknown");
-					} finally {
-						setIsLoadingStatus(false);
-					}
-				};
-				loadParkStatus();
-			} else {
-				setIsLoadingStatus(false); // Not a park, no status loading needed
-			}
-		}, [isParkTypeDisplay, item.entity_id, refreshKey]);
-
-		useEffect(() => {
-			if (item.entity_type === "destination_group" && item.original_destination_id) {
-				const loadChildParks = async () => {
-					setIsLoadingParks(true);
-					setIsLoadingStatus(true);
-					setErrorLoadingParks(null);
-
-					try {
-						// Use item.original_destination_id which refers to the 'destinations' table id
-						const parks = await fetchChildParks(item.original_destination_id!);
-
-						// Get destination status and individual park statuses
-						const [destinationStatus, parksWithStatus] = await Promise.all([getDestinationStatus(parks), getParksWithStatus(parks)]);
-
-						setStatus(destinationStatus);
-						setChildParks(parksWithStatus);
-					} catch (e) {
-						console.error("Failed to load child parks:", e);
-						setErrorLoadingParks("Failed to load parks for this group.");
-						setChildParks([]);
-						setStatus("Unknown");
-					} finally {
-						setIsLoadingParks(false);
-						setIsLoadingStatus(false);
-					}
-				};
-				loadChildParks();
-			} else if (item.entity_type === "destination_group") {
-				setChildParks([]); // Clear if not a destination group or no ID
-				setIsLoadingStatus(false);
-			}
-		}, [item.entity_type, item.original_destination_id, item.entity_id, item.name, refreshKey]);
-
 		const statusKey = (status.toLowerCase() === "open" || status.toLowerCase() === "closed") ? status.toLowerCase() as "open" | "closed" : "closed";
 
 		const parksToRender: ParkWithStatus[] = useMemo(() => {
@@ -107,10 +47,6 @@ export const DestinationItem = React.memo(
 			}
 			return childParks;
 		}, [isParkTypeDisplay, item.entity_id, item.name, item.country_code, status, childParks]);
-
-		if (isLoadingStatus) {
-			return <SkeletonDestinationItem />;
-		}
 
 		return (
 			<VStack style={{ borderColor: colors.card.destination[statusKey].border, backgroundColor: colors.card.destination[statusKey].bg, borderWidth: 1, borderRadius: 6, marginBottom: 16, overflow: "hidden" }}>
@@ -121,7 +57,7 @@ export const DestinationItem = React.memo(
 							<CountryBadge country={country} status={status} />
 						</View>
 						{!isPinned ? (
-							<Pressable onPress={handleTogglePin}>
+							<Pressable accessibilityRole="button" accessibilityLabel={`Pin ${item.name || "destination"}`} onPress={handleTogglePin}>
 								{({ pressed }) => (
 									<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pressed] : favoriteButtonStyles.container}>
 										<Icon name="favorite" fill={colors.favorite.icon.default} height={20} width={20} />
@@ -129,7 +65,7 @@ export const DestinationItem = React.memo(
 								)}
 							</Pressable>
 						) : (
-							<Pressable onPress={handleTogglePin}>
+							<Pressable accessibilityRole="button" accessibilityLabel={`Unpin ${item.name || "destination"}`} onPress={handleTogglePin}>
 								{({ pressed }) => (
 									<View style={pressed ? [favoriteButtonStyles.container, favoriteButtonStyles.pinned, favoriteButtonStyles.pinnedPressed] : [favoriteButtonStyles.container, favoriteButtonStyles.pinned]}>
 										<Icon name="favoriteFilled" fill={colors.favorite.icon.pinned} height={20} width={20} />
@@ -146,15 +82,13 @@ export const DestinationItem = React.memo(
 				</VStack>
 				<VStack>
 					{/* Park Buttons */}
-					{isLoadingParks && <Text style={{ color: base.primary[800], paddingVertical: 8, paddingHorizontal: 8 }}>Loading parks...</Text>}
-					{errorLoadingParks && <Text style={{ color: base.error[800], paddingVertical: 8, paddingHorizontal: 8 }}>{errorLoadingParks}</Text>}
-					{!isLoadingParks && !errorLoadingParks && parksToRender.length === 0 && !isParkTypeDisplay && (
+					{parksToRender.length === 0 && !isParkTypeDisplay && (
 						<Text style={{ color: base.secondary[800], paddingVertical: 8, paddingHorizontal: 8 }}>No individual parks listed under this group.</Text>
 					)}
-					{!isLoadingParks && !errorLoadingParks && parksToRender.map((park) => {
+					{parksToRender.map((park) => {
 						const parkStatusKey = (park.status.toLowerCase() === "open" || park.status.toLowerCase() === "closed") ? park.status.toLowerCase() as "open" | "closed" : "closed";
 						return (
-							<Pressable key={park.id} onPress={() => router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } })}>
+							<Pressable key={park.id} accessibilityRole="button" accessibilityLabel={`Open ${park.name_override || park.name}`} onPress={() => router.push({ pathname: "/park/[parkId]", params: { id: park.id, name: park.name, country_code: park.country_code, status: park.status } })}>
 								{({ pressed }) => (
 									<View style={[parkButtonStyles.container, pressed ? { backgroundColor: colors.card.destination.pressable[parkStatusKey].bgPressed } : { backgroundColor: colors.card.destination.pressable[parkStatusKey].bg }, { borderTopColor: colors.card.destination.pressable[parkStatusKey].border }]}>
 										<HStack style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -173,7 +107,7 @@ export const DestinationItem = React.memo(
 	},
 	(prevProps, nextProps) => {
 		// Custom comparison function for better memoization
-		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type && prevProps.refreshKey === nextProps.refreshKey;
+		return prevProps.item.entity_id === nextProps.item.entity_id && prevProps.isPinned === nextProps.isPinned && prevProps.item.name === nextProps.item.name && prevProps.item.entity_type === nextProps.item.entity_type && prevProps.currentStatus === nextProps.currentStatus && prevProps.childParks === nextProps.childParks;
 	}
 );
 

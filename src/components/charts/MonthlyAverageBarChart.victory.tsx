@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { CartesianChart, Bar, useChartTransformState, getTransformComponents, setTranslate } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
 import { useFont } from "@shopify/react-native-skia";
-import { getMonthlyAverageWaitTimes } from "@/src/utils/api/getRideStatistics";
 import { DateTime } from "luxon";
 import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useMonthlyAverageWaitTimes } from "@/src/hooks/api/useRideStatistics";
 
 interface MonthlyAverageBarChartVictoryProps {
 	rideId: string;
@@ -22,9 +22,9 @@ interface ChartDataPoint {
 
 export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVictoryProps> = ({ rideId, loading = false }) => {
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-	const [monthlyAverageData, setMonthlyAverageData] = useState<number[]>([]);
-	const [monthlyAverageSingleData, setMonthlyAverageSingleData] = useState<number[]>([]);
-	const [dataLoading, setDataLoading] = useState(true);
+	const { data, isLoading: isLoadingData } = useMonthlyAverageWaitTimes(rideId);
+	const monthlyAverageData = data?.monthlyAverageWaitTimes || [];
+	const monthlyAverageSingleData = data?.monthlyAverageSingleWaitTimes || [];
 
 	// Get transform state for chart interactions
 	const { state: transformState } = useChartTransformState();
@@ -63,27 +63,6 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 		}
 	});
 
-	useEffect(() => {
-		const fetchMonthlyAverageData = async () => {
-			if (!rideId) return;
-
-			setDataLoading(true);
-			try {
-				const result = await getMonthlyAverageWaitTimes(rideId);
-				setMonthlyAverageData(result.monthlyAverageWaitTimes);
-				setMonthlyAverageSingleData(result.monthlyAverageSingleWaitTimes);
-			} catch (error) {
-				console.error("Error fetching monthly average data:", error);
-				setMonthlyAverageData([]);
-				setMonthlyAverageSingleData([]);
-			} finally {
-				setDataLoading(false);
-			}
-		};
-
-		fetchMonthlyAverageData();
-	}, [rideId]);
-
 	const processedData = useMemo(() => {
 		const daysInMonth = DateTime.now().daysInMonth;
 		return Array.from({ length: daysInMonth }, (_, i) => ({
@@ -102,7 +81,7 @@ export const MonthlyAverageBarChartVictory: React.FC<MonthlyAverageBarChartVicto
 		return processedData.some((item) => item.single > 0);
 	}, [processedData]);
 
-	const isLoading = loading || dataLoading;
+	const isLoading = loading || isLoadingData;
 
 	const barWidth = 8; // Increased bar width
 	const seriesCount = 2; // standby and single

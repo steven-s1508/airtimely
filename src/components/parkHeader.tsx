@@ -1,6 +1,6 @@
 // React / React Native Imports
-import React, { useState, useEffect } from "react";
-import { Text, Pressable, View } from "react-native";
+import React from "react";
+import { Text } from "react-native";
 // Expo Imports
 import { useRouter } from "expo-router";
 // Local Imports
@@ -12,6 +12,7 @@ import { StatusBadge } from "./statusBadge";
 import { useParkStatus } from "@/src/hooks/api/useParkStatus";
 import { ParkInfo } from "./parkInfo";
 import { SkeletonParkHeader } from "@components/skeletons/skeletonParkHeader";
+import { HeaderActionButton } from "./headerActionButton";
 
 export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, country_code }, onRefresh, isRefreshing = false, lastUpdatedText }: { item: { id: string; name: string; country_code: string }; onRefresh?: () => void; isRefreshing?: boolean; lastUpdatedText?: string | null }) {
 	const router = useRouter();
@@ -43,24 +44,9 @@ export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, cou
 		<VStack>
 			<HStack style={parkScreenStyles.parkScreenHeaderContainer}>
 				{/* Back button */}
-				<Pressable onPress={handleBackPress} android_ripple={{ color: colors.primaryTransparent, foreground: true }} style={{ backgroundColor: colors.primaryVeryDark, borderWidth: 1, borderColor: colors.primaryDark, borderRadius: 8, padding: 8, overflow: "hidden" }}>
-					<Icon name="chevronLeft" fill={colors.primaryLight} height={24} width={24} />
-				</Pressable>
+				<HeaderActionButton icon="chevronLeft" label="Go back" onPress={handleBackPress} />
 				<Text style={[parkScreenStyles.parkScreenHeaderTitle]}>{name}</Text>
-				<Pressable
-					onPress={handleRefreshPress}
-					disabled={isRefreshing}
-					android_ripple={{ color: colors.primaryTransparent, foreground: true }}
-					style={{
-						backgroundColor: colors.primaryVeryDark,
-						borderWidth: 1,
-						borderColor: colors.primaryDark,
-						borderRadius: 8,
-						padding: 8,
-						overflow: "hidden",
-						opacity: isRefreshing ? 0.6 : 1,
-					}}
-				>
+				<HeaderActionButton icon="refresh" label={isRefreshing ? "Refreshing park data" : "Refresh park data"} onPress={handleRefreshPress} disabled={isRefreshing}>
 					<Icon
 						name="refresh"
 						fill={colors.primaryLight}
@@ -70,7 +56,7 @@ export const ParkHeader = React.memo(function ParkHeader({ item: { id, name, cou
 							transform: [{ rotate: isRefreshing ? "180deg" : "0deg" }],
 						}}
 					/>
-				</Pressable>
+				</HeaderActionButton>
 			</HStack>
 			<HStack style={{ justifyContent: "space-between", alignItems: "center", flexDirection: "row" }}>
 				<HStack style={parkScreenStyles.parkScreenHeaderMetadata}>

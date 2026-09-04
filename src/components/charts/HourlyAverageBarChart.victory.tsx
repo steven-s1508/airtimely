@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { CartesianChart, Bar } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
 import { useFont } from "@shopify/react-native-skia";
-import { getAllTimeAverageHourlyWaitTimes } from "@/src/utils/api/getRideStatistics";
 import { DateTime } from "luxon";
+import { useHourlyAverageWaitTimes } from "@/src/hooks/api/useRideStatistics";
 
 interface HourlyAverageBarChartVictoryProps {
 	rideId: string;
@@ -22,28 +22,9 @@ interface HourlyDataPoint {
 
 export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictoryProps> = ({ rideId, loading = false }) => {
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-	const [standbyData, setStandbyData] = useState<number[]>([]);
-	const [singleData, setSingleData] = useState<number[]>([]);
-	const [dataLoading, setDataLoading] = useState(true);
-
-	useEffect(() => {
-		const fetchHourlyAverageData = async () => {
-			if (!rideId) return;
-			setDataLoading(true);
-			try {
-				const result = await getAllTimeAverageHourlyWaitTimes(rideId);
-				setStandbyData(result.averageStandbyWaitTimes || []);
-				setSingleData(result.averageSingleRiderWaitTimes || []);
-			} catch (error) {
-				console.error("Error fetching hourly average data:", error);
-				setStandbyData([]);
-				setSingleData([]);
-			} finally {
-				setDataLoading(false);
-			}
-		};
-		fetchHourlyAverageData();
-	}, [rideId]);
+	const { data, isLoading: isLoadingData } = useHourlyAverageWaitTimes(rideId);
+	const standbyData = data?.averageStandbyWaitTimes || [];
+	const singleData = data?.averageSingleRiderWaitTimes || [];
 
 	const processedData = useMemo<HourlyDataPoint[]>(() => {
 		const mappedData = Array.from({ length: 24 }, (_, i) => ({
@@ -65,7 +46,7 @@ export const HourlyAverageBarChartVictory: React.FC<HourlyAverageBarChartVictory
 		return processedData.some((item) => item.single > 0);
 	}, [processedData]);
 
-	const isLoading = loading || dataLoading;
+	const isLoading = loading || isLoadingData;
 
 	if (isLoading) {
 		return (
