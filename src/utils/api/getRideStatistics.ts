@@ -99,6 +99,10 @@ export async function getLiveRideStatisticsWithTimezone(rideId: string, parkId?:
 	return { waitTimeData: dataWithParkTimezone, waitTimeError: null };
 }
 
+// One element of daily_ride_statistics.hourly_data (park-local hour). Wait values are only
+// present for hours in which the ride was OPERATING.
+type HourlyEntry = { h: number; avg: number | null; avg_s: number | null };
+
 // Get all-time average hourly wait times for hours where the park is open
 export async function getAllTimeAverageHourlyWaitTimes(rideId: string): Promise<{ averageStandbyWaitTimes: number[]; averageSingleRiderWaitTimes: number[] }> {
 	const { data, error } = await supabase.from("daily_ride_statistics").select("hourly_data").eq("ride_id", rideId);
@@ -114,7 +118,7 @@ export async function getAllTimeAverageHourlyWaitTimes(rideId: string): Promise<
 	const singleCounts: number[] = Array(24).fill(0);
 
 	data.forEach((record) => {
-		const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+		const hourlyArray = (record.hourly_data ?? []) as HourlyEntry[];
 		hourlyArray.forEach((entry) => {
 			const hour = entry.h;
 			if (entry.avg !== null && !isNaN(entry.avg)) {
@@ -176,12 +180,15 @@ export async function getWeekdayAverageWaitTimes(rideId: string): Promise<{ week
 	// Get weekday from date and calculate average wait times
 	data.forEach((record) => {
 		const dayOfWeek = DateTime.fromISO(record.date).weekday;
-		waitTimesAvg[dayOfWeek].count += 1;
-		waitTimesAvg[dayOfWeek].total += record.avg_wait_time_minutes || 0;
+		// Days without any operating data have no average; don't count them as 0
+		if (record.avg_wait_time_minutes !== null) {
+			waitTimesAvg[dayOfWeek].count += 1;
+			waitTimesAvg[dayOfWeek].total += record.avg_wait_time_minutes;
+		}
 
 		// Calculate single rider average from hourly data
 		if (record.hourly_data) {
-			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+			const hourlyArray = record.hourly_data as HourlyEntry[];
 			let singleTotal = 0;
 			let singleCount = 0;
 
@@ -234,12 +241,15 @@ export async function getMonthlyAverageWaitTimes(rideId: string): Promise<{ mont
 		dailyWaitTimes[dayOfMonth] = dailyWaitTimes[dayOfMonth] || { total: 0, count: 0 };
 		dailySingleWaitTimes[dayOfMonth] = dailySingleWaitTimes[dayOfMonth] || { total: 0, count: 0 };
 
-		dailyWaitTimes[dayOfMonth].total += record.avg_wait_time_minutes || 0;
-		dailyWaitTimes[dayOfMonth].count += 1;
+		// Days without any operating data have no average; don't count them as 0
+		if (record.avg_wait_time_minutes !== null) {
+			dailyWaitTimes[dayOfMonth].total += record.avg_wait_time_minutes;
+			dailyWaitTimes[dayOfMonth].count += 1;
+		}
 
 		// Calculate single rider average from hourly data
 		if (record.hourly_data) {
-			const hourlyArray = record.hourly_data as { h: number; avg: number | null; avg_s: number | null }[];
+			const hourlyArray = record.hourly_data as HourlyEntry[];
 			let singleTotal = 0;
 			let singleCount = 0;
 

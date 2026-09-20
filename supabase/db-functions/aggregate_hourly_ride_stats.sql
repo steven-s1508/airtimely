@@ -1,60 +1,58 @@
-DECLARE
-    hourly_stats RECORD;
-    start_timestamp TIMESTAMPTZ;
-    end_timestamp TIMESTAMPTZ;
-    data_count INTEGER;
-BEGIN
-    -- Calculate hour boundaries using local time
-    start_timestamp := (p_date + (p_hour || ' hours')::INTERVAL)::TIMESTAMPTZ;
-    end_timestamp := start_timestamp + INTERVAL '1 hour';
-    
-    -- Check if we have any data for this hour first
-    SELECT COUNT(*) INTO data_count
-    FROM ride_wait_times 
-    WHERE ride_id = p_ride_id 
-    AND recorded_at_local >= start_timestamp 
-    AND recorded_at_local < end_timestamp;
-    
-    -- Exit early if no data exists for this hour
-    IF data_count = 0 THEN
-        RAISE NOTICE 'No data found for ride % on date % hour %', p_ride_id, p_date, p_hour;
-        RETURN;
-    END IF;
-    
-    -- Calculate hourly statistics from raw wait time data
-    SELECT 
-        ROUND(AVG(wait_time_minutes)::NUMERIC, 2)::DECIMAL(5,2) as avg_wait,
-        MIN(wait_time_minutes)::INTEGER as min_wait,
-        MAX(wait_time_minutes)::INTEGER as max_wait,
-        ROUND(AVG(single_rider_wait_time_minutes)::NUMERIC, 2)::DECIMAL(5,2) as avg_single_rider,
-        COUNT(*)::INTEGER as data_points,
-        (COUNT(CASE WHEN status = 'OPERATING' THEN 1 END) * 5)::INTEGER as operational_mins
-    INTO hourly_stats
-    FROM ride_wait_times 
-    WHERE ride_id = p_ride_id 
-    AND recorded_at_local >= start_timestamp 
-    AND recorded_at_local < end_timestamp;
-    
-    -- Insert or update hourly statistics (only when we have real data)
-    INSERT INTO hourly_ride_statistics (
+/* JUST FOR REFERENCE - THIS FUNCTION IS IN THE DATABASE
+   Signature: aggregate_hourly_ride_stats(p_ride_id uuid, p_date date, p_hour integer)
+   Source of truth: supabase/patches/2026-09-19_05_operating_only_hourly_data.sql */
+
+declare
+    hourly_stats    record;
+    start_timestamp timestamptz;
+    end_timestamp   timestamptz;
+    data_count      integer;
+begin
+    -- recorded_at_local holds park-local wall time stored as if it were UTC
+    start_timestamp := (p_date + (p_hour || ' hours')::interval)::timestamptz;
+    end_timestamp   := start_timestamp + interval '1 hour';
+
+    select count(*) into data_count
+      from ride_wait_times
+     where ride_id = p_ride_id
+       and recorded_at_local >= start_timestamp
+       and recorded_at_local < end_timestamp;
+
+    if data_count = 0 then
+        raise notice 'No data found for ride % on date % hour %', p_ride_id, p_date, p_hour;
+        return;
+    end if;
+
+    -- Wait statistics only from samples where the ride was OPERATING: rides often keep
+    -- showing their last wait while DOWN or CLOSED.
+    select round(avg(wait_time_minutes) filter (where status = 'OPERATING')::numeric, 2)::decimal(5,2)             as avg_wait,
+           (min(wait_time_minutes) filter (where status = 'OPERATING'))::integer                                   as min_wait,
+           (max(wait_time_minutes) filter (where status = 'OPERATING'))::integer                                   as max_wait,
+           round(avg(single_rider_wait_time_minutes) filter (where status = 'OPERATING')::numeric, 2)::decimal(5,2) as avg_single_rider,
+           count(*)::integer                                                                                      as data_points,
+           (count(*) filter (where status = 'OPERATING') * 5)::integer                                            as operational_mins
+      into hourly_stats
+      from ride_wait_times
+     where ride_id = p_ride_id
+       and recorded_at_local >= start_timestamp
+       and recorded_at_local < end_timestamp;
+
+    insert into hourly_ride_statistics (
         ride_id, date, hour,
         avg_wait_time_minutes, min_wait_time_minutes, max_wait_time_minutes,
         avg_single_rider_wait_minutes, data_points_count, operational_minutes
     )
-    VALUES (
-        p_ride_id, p_date, p_hour, 
+    values (
+        p_ride_id, p_date, p_hour,
         hourly_stats.avg_wait, hourly_stats.min_wait, hourly_stats.max_wait,
         hourly_stats.avg_single_rider, hourly_stats.data_points, hourly_stats.operational_mins
     )
-    ON CONFLICT (ride_id, date, hour) 
-    DO UPDATE SET
-        avg_wait_time_minutes = EXCLUDED.avg_wait_time_minutes,
-        min_wait_time_minutes = EXCLUDED.min_wait_time_minutes,
-        max_wait_time_minutes = EXCLUDED.max_wait_time_minutes,
-        avg_single_rider_wait_minutes = EXCLUDED.avg_single_rider_wait_minutes,
-        data_points_count = EXCLUDED.data_points_count,
-        operational_minutes = EXCLUDED.operational_minutes,
-        updated_at = NOW();
-        
-    RAISE NOTICE 'Hourly aggregation completed for ride % on date % hour % (%s data points)', p_ride_id, p_date, p_hour, hourly_stats.data_points;
-END;
+    on conflict (ride_id, date, hour) do update set
+        avg_wait_time_minutes         = excluded.avg_wait_time_minutes,
+        min_wait_time_minutes         = excluded.min_wait_time_minutes,
+        max_wait_time_minutes         = excluded.max_wait_time_minutes,
+        avg_single_rider_wait_minutes = excluded.avg_single_rider_wait_minutes,
+        data_points_count             = excluded.data_points_count,
+        operational_minutes           = excluded.operational_minutes,
+        updated_at                    = now();
+end;

@@ -22,4 +22,3 @@ create table public.hourly_ride_statistics (
   )
 ) TABLESPACE pg_default;
 
-create index IF not exists idx_hourly_ride_stats_ride_date_hour on public.hourly_ride_statistics using btree (ride_id, date desc, hour) TABLESPACE pg_default;

@@ -25,6 +25,3 @@ create table public.daily_ride_statistics (
 
 create index IF not exists idx_daily_ride_stats_date on public.daily_ride_statistics using btree (date desc) TABLESPACE pg_default;
 
-create index IF not exists idx_daily_ride_stats_ride_date on public.daily_ride_statistics using btree (ride_id, date desc) TABLESPACE pg_default;
-
-create index IF not exists idx_daily_ride_statistics_hourly_data_gin on public.daily_ride_statistics using gin (hourly_data) TABLESPACE pg_default;

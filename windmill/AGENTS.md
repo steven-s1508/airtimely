@@ -17,6 +17,10 @@ Metadata sync jobs (independent of the above pipeline):
 - `run_update_park_schedules.ts` (daily) — syncs `parks_schedule` (operating hours/events) per park.
 - `run_update_rides.ts` — diffs DB rides vs API by `external_id`; inserts new, updates changed, sets `is_active = false` for rides no longer in the API (never hard-deletes).
 
+Manually triggered (not scheduled yet):
+
+- `run_backfill_from_history.ts` — rebuilds hourly + daily stats for completed park-local days from the ThemeParks.wiki history API (`/entity/{park}/history?date=`, one request per park-day, API key in `u/steven_s1508/THEMEPARKS_API_KEY`; free key = 30 days back, 600 history requests/hour). Used to fill polling gaps; rides missing from the API fall back to raw poller data via `aggregate_daily_for_park`. Don't run it for a day before the regular daily job has processed that day.
+
 ## `archive/`
 
 Retired/one-off scripts kept for reference only — do not schedule or import from here. `run_update_park_operating_hours.ts` was superseded by `run_update_park_schedules.ts`.
