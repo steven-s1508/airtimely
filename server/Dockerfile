@@ -22,4 +22,7 @@ COPY --from=deps /prod_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
 USER node
+# The api role's port (PORT defaults to 3000). Lets Coolify detect it; the worker
+# role listens on nothing and ignores it.
+EXPOSE 3000
 CMD ["node", "dist/main.js"]
