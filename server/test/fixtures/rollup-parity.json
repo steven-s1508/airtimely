@@ -1,0 +1,3731 @@
+[
+	{
+		"label": "Magic Kingdom Park / Under the Sea - Journey of The Little Mermaid / 2026-09-12",
+		"rideId": "28735f4f-4d0e-4903-9edb-fa820f2e15d6",
+		"parkId": "b74dadab-4dd6-4ab5-9c1d-0922cb448277",
+		"parkName": "Magic Kingdom Park",
+		"timezone": "America/New_York",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 60,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 60,
+				"avg": 5.42,
+				"max": 10,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 6.25,
+				"max": 10,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 17.08,
+				"max": 25,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 21.25,
+				"max": 30,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 19.58,
+				"max": 30,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 30,
+				"max": 30,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 32.92,
+				"max": 35,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 25,
+				"max": 30,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 27.08,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 35,
+				"max": 40,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 11.25,
+				"max": 35,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 60,
+				"avg": 5.42,
+				"max": 10,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 60,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T08:00:00-04:00",
+				"closing_time": "2026-09-11T18:00:00-04:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T08:00:00-04:00",
+				"closing_time": "2026-09-12T23:00:00-04:00"
+			}
+		],
+		"expected": {
+			"avg": 16.75,
+			"uptime": 100,
+			"downtime": 0,
+			"min": 5,
+			"max": 40,
+			"medianOfHourlyAverages": 17.08,
+			"peakHour": 19,
+			"quietestHour": 8
+		}
+	},
+	{
+		"label": "Magic Kingdom Park / Walt Disney's Enchanted Tiki Room / 2026-09-12",
+		"rideId": "31025d2a-5b30-4083-be5c-088c42f2eeec",
+		"parkId": "b74dadab-4dd6-4ab5-9c1d-0922cb448277",
+		"parkName": "Magic Kingdom Park",
+		"timezone": "America/New_York",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 55,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T08:00:00-04:00",
+				"closing_time": "2026-09-11T18:00:00-04:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T08:00:00-04:00",
+				"closing_time": "2026-09-12T23:00:00-04:00"
+			}
+		],
+		"expected": {
+			"avg": 10,
+			"uptime": 92.78,
+			"downtime": 65,
+			"min": 10,
+			"max": 10,
+			"medianOfHourlyAverages": 10,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Disneyland Park / Blanche-Neige et les Sept Nains® / 2026-09-12",
+		"rideId": "49837bbb-7a9e-4cc7-864a-ebe2bf350584",
+		"parkId": "a8b4f07b-fb9f-4fc3-99f7-eca57e2b9732",
+		"parkName": "Disneyland Park",
+		"timezone": "Europe/Paris",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 40,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 12.5,
+				"max": 35,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 30.42,
+				"max": 35,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 32.08,
+				"max": 35,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 25,
+				"max": 30,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 26.25,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 30,
+				"max": 30,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 24.58,
+				"max": 30,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 13.33,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 23.33,
+				"max": 30,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 22.5,
+				"max": 30,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 50,
+				"avg": 19,
+				"max": 20,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:30:00+02:00",
+				"closing_time": "2026-09-11T21:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:30:00+02:00",
+				"closing_time": "2026-09-12T22:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": 22.79,
+			"uptime": 90.67,
+			"downtime": 70,
+			"min": 5,
+			"max": 35,
+			"medianOfHourlyAverages": 23.96,
+			"peakHour": 12,
+			"quietestHour": 9
+		}
+	},
+	{
+		"label": "Disneyland Park / Casey Jr. – le Petit Train du Cirque / 2026-09-12",
+		"rideId": "f72b356e-692f-498a-988e-1b3573c96637",
+		"parkId": "a8b4f07b-fb9f-4fc3-99f7-eca57e2b9732",
+		"parkName": "Disneyland Park",
+		"timezone": "Europe/Paris",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 25,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 20.83,
+				"max": 30,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 27.92,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 22.92,
+				"max": 25,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 23.75,
+				"max": 25,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 13.75,
+				"max": 20,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 23.75,
+				"max": 25,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 11.25,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 10.83,
+				"max": 15,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 16.67,
+				"max": 20,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 5,
+				"avg": 15,
+				"max": 15,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:30:00+02:00",
+				"closing_time": "2026-09-11T21:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:30:00+02:00",
+				"closing_time": "2026-09-12T22:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": 17.14,
+			"uptime": 84,
+			"downtime": 120,
+			"min": 5,
+			"max": 30,
+			"medianOfHourlyAverages": 15.84,
+			"peakHour": 12,
+			"quietestHour": 9
+		}
+	},
+	{
+		"label": "Europa-Park / Whale Adventures - Northern Lights / 2026-09-12",
+		"rideId": "ef0df0c7-97e5-4048-9ed0-0e51148ae828",
+		"parkId": "36699f71-674e-43fa-8192-348964ee09e7",
+		"parkName": "Europa-Park",
+		"timezone": "Europe/Berlin",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 1.67,
+				"max": 5,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 2.33,
+				"max": 5,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 7.42,
+				"max": 15,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 4.42,
+				"max": 10,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 2.33,
+				"max": 5,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 1,
+				"max": 1,
+				"min": 1,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+02:00",
+				"closing_time": "2026-09-11T19:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+02:00",
+				"closing_time": "2026-09-12T20:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": 2.2,
+			"uptime": 100,
+			"downtime": 0,
+			"min": 1,
+			"max": 15,
+			"medianOfHourlyAverages": 1,
+			"peakHour": 15,
+			"quietestHour": 19
+		}
+	},
+	{
+		"label": "Europa-Park / YULLBE GO in the blue fire Dome / 2026-09-12",
+		"rideId": "ca0b705a-801e-46cd-9592-0ccb4359b4ed",
+		"parkId": "36699f71-674e-43fa-8192-348964ee09e7",
+		"parkName": "Europa-Park",
+		"timezone": "Europe/Berlin",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+02:00",
+				"closing_time": "2026-09-11T19:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+02:00",
+				"closing_time": "2026-09-12T20:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": null,
+			"uptime": 0,
+			"downtime": 660,
+			"min": null,
+			"max": null,
+			"medianOfHourlyAverages": null,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Tokyo Disneyland / Castle Carrousel / 2026-09-12",
+		"rideId": "67f04943-e766-4864-9e6e-27fa1dcfc916",
+		"parkId": "da0a40f4-df6c-4a65-91d3-be7ec74933af",
+		"parkName": "Tokyo Disneyland",
+		"timezone": "Asia/Tokyo",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 55,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 10.42,
+				"max": 15,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 12.5,
+				"max": 15,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 14.58,
+				"max": 20,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 15,
+				"max": 15,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 15,
+				"max": 15,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 17.92,
+				"max": 20,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 19.17,
+				"max": 20,
+				"min": 15,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 14.17,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 22.08,
+				"max": 25,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 7.92,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 10.42,
+				"max": 15,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+09:00",
+				"closing_time": "2026-09-11T21:00:00+09:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+09:00",
+				"closing_time": "2026-09-12T21:00:00+09:00"
+			}
+		],
+		"expected": {
+			"avg": 13.74,
+			"uptime": 99.31,
+			"downtime": 5,
+			"min": 5,
+			"max": 25,
+			"medianOfHourlyAverages": 14.38,
+			"peakHour": 18,
+			"quietestHour": 9
+		}
+	},
+	{
+		"label": "Tokyo Disneyland / Roger Rabbit's Car Toon Spin / 2026-09-12",
+		"rideId": "deba5391-f862-4867-9ebf-8cb6da67d55f",
+		"parkId": "da0a40f4-df6c-4a65-91d3-be7ec74933af",
+		"parkName": "Tokyo Disneyland",
+		"timezone": "Asia/Tokyo",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 40,
+				"avg": 8.13,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 23.33,
+				"max": 25,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 28.33,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 30,
+				"max": 30,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 27.5,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 28.75,
+				"max": 30,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 30.42,
+				"max": 35,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 28.33,
+				"max": 35,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 22.92,
+				"max": 35,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 26.67,
+				"max": 30,
+				"min": 20,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 7.5,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 14.58,
+				"max": 20,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+09:00",
+				"closing_time": "2026-09-11T21:00:00+09:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+09:00",
+				"closing_time": "2026-09-12T21:00:00+09:00"
+			}
+		],
+		"expected": {
+			"avg": 23.46,
+			"uptime": 97.22,
+			"downtime": 20,
+			"min": 5,
+			"max": 35,
+			"medianOfHourlyAverages": 27.09,
+			"peakHour": 15,
+			"quietestHour": 19
+		}
+	},
+	{
+		"label": "Phantasialand / Ice skate hire / 2026-09-12",
+		"rideId": "1f1352d1-e3f7-4ca4-a9ab-8abfe07704c6",
+		"parkId": "d059d174-4f2e-412e-b688-869f926af79e",
+		"parkName": "Phantasialand",
+		"timezone": "Europe/Berlin",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+02:00",
+				"closing_time": "2026-09-11T18:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+02:00",
+				"closing_time": "2026-09-12T19:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": null,
+			"uptime": 0,
+			"downtime": 600,
+			"min": null,
+			"max": null,
+			"medianOfHourlyAverages": null,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Phantasialand / NEW: Wavy Battle / 2026-09-12",
+		"rideId": "f3dcf1d0-917f-4362-ac15-3b732a530e5f",
+		"parkId": "d059d174-4f2e-412e-b688-869f926af79e",
+		"parkName": "Phantasialand",
+		"timezone": "Europe/Berlin",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T09:00:00+02:00",
+				"closing_time": "2026-09-11T18:00:00+02:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T09:00:00+02:00",
+				"closing_time": "2026-09-12T19:00:00+02:00"
+			}
+		],
+		"expected": {
+			"avg": null,
+			"uptime": 0,
+			"downtime": 600,
+			"min": null,
+			"max": null,
+			"medianOfHourlyAverages": null,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Magic Kingdom Park / Space Mountain / 2026-09-12 [golden]",
+		"note": "golden",
+		"rideId": "2b0116fd-dafb-4615-8869-6ca934c461ba",
+		"parkId": "b74dadab-4dd6-4ab5-9c1d-0922cb448277",
+		"parkName": "Magic Kingdom Park",
+		"timezone": "America/New_York",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 60,
+				"avg": 5,
+				"max": 5,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 60,
+				"avg": 19.17,
+				"max": 30,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 60,
+				"avg": 30.83,
+				"max": 35,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 60,
+				"avg": 37.08,
+				"max": 45,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 43.33,
+				"max": 45,
+				"min": 35,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 39.58,
+				"max": 50,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 31.67,
+				"max": 40,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 60,
+				"avg": 37.5,
+				"max": 40,
+				"min": 35,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 60,
+				"avg": 42.08,
+				"max": 45,
+				"min": 40,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 33.33,
+				"max": 45,
+				"min": 25,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 40.42,
+				"max": 45,
+				"min": 35,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 39.17,
+				"max": 45,
+				"min": 30,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 35.42,
+				"max": 40,
+				"min": 35,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 60,
+				"avg": 18.75,
+				"max": 35,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 60,
+				"avg": 20.83,
+				"max": 30,
+				"min": 5,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T08:00:00-04:00",
+				"closing_time": "2026-09-11T18:00:00-04:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T08:00:00-04:00",
+				"closing_time": "2026-09-12T23:00:00-04:00"
+			}
+		],
+		"expected": {
+			"avg": 31.61,
+			"uptime": 100,
+			"downtime": 0,
+			"min": 5,
+			"max": 50,
+			"medianOfHourlyAverages": 35.42,
+			"peakHour": 12,
+			"quietestHour": 8
+		}
+	},
+	{
+		"label": "Warner Bros. Movie World / Looney Tunes Splash Zone / 2026-09-11 [no-schedule]",
+		"note": "no-schedule",
+		"rideId": "e421221a-02fb-405f-8ed3-5b7fde9c2c44",
+		"parkId": "42e842f8-96e4-4a09-ad48-5d72601d3c76",
+		"parkName": "Warner Bros. Movie World",
+		"timezone": "Australia/Brisbane",
+		"localDate": "2026-09-11",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [],
+		"expected": {
+			"avg": null,
+			"uptime": null,
+			"downtime": null,
+			"min": null,
+			"max": null,
+			"medianOfHourlyAverages": null,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Hurricane Harbor Oklahoma City! / Splashwater Island / 2026-09-11 [no-schedule]",
+		"note": "no-schedule",
+		"rideId": "1a272f16-ab71-4c57-90b7-7201690c27c7",
+		"parkId": "ea9e9b21-b72e-4303-9931-901cd6b9db18",
+		"parkName": "Hurricane Harbor Oklahoma City!",
+		"timezone": "America/New_York",
+		"localDate": "2026-09-11",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [],
+		"expected": {
+			"avg": null,
+			"uptime": null,
+			"downtime": null,
+			"min": null,
+			"max": null,
+			"medianOfHourlyAverages": null,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	},
+	{
+		"label": "Six Flags Fiesta Texas / Road Runner Express / 2026-09-12 [past-midnight]",
+		"note": "past-midnight",
+		"rideId": "816e4411-3be0-4b35-9acf-10f89c5c1075",
+		"parkId": "89dbfc18-9a13-4962-b60a-14515fb87d2f",
+		"parkName": "Six Flags Fiesta Texas",
+		"timezone": "America/Chicago",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 40,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 7.5,
+				"max": 10,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 50,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 55,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 55,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 45,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 60,
+				"avg": 10,
+				"max": 10,
+				"min": 10,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T17:00:00-05:00",
+				"closing_time": "2026-09-11T23:00:00-05:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T11:00:00-05:00",
+				"closing_time": "2026-09-12T22:00:00-05:00"
+			}
+		],
+		"expected": {
+			"avg": 9.09,
+			"uptime": 91.67,
+			"downtime": 55,
+			"min": 0,
+			"max": 10,
+			"medianOfHourlyAverages": 10,
+			"peakHour": 21,
+			"quietestHour": 11
+		}
+	},
+	{
+		"label": "Six Flags Fiesta Texas / Dare Devil Dive Flying Machines / 2026-09-12 [past-midnight]",
+		"note": "past-midnight",
+		"rideId": "f83117ac-5b19-463d-9311-3cb1b37654d7",
+		"parkId": "89dbfc18-9a13-4962-b60a-14515fb87d2f",
+		"parkName": "Six Flags Fiesta Texas",
+		"timezone": "America/Chicago",
+		"localDate": "2026-09-12",
+		"hourlyData": [
+			{
+				"h": 0,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 1,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 2,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 3,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 4,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 5,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 6,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 7,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 8,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 9,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 10,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 11,
+				"op": 55,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 12,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 13,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 14,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 15,
+				"op": 35,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 16,
+				"op": 50,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 17,
+				"op": 35,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 18,
+				"op": 50,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 19,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 20,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 21,
+				"op": 60,
+				"avg": 0,
+				"max": 0,
+				"min": 0,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 22,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			},
+			{
+				"h": 23,
+				"op": 0,
+				"avg": null,
+				"max": null,
+				"min": null,
+				"data": 12,
+				"avg_s": null
+			}
+		],
+		"schedule": [
+			{
+				"date": "2026-09-11",
+				"type": "OPERATING",
+				"opening_time": "2026-09-11T17:00:00-05:00",
+				"closing_time": "2026-09-11T23:00:00-05:00"
+			},
+			{
+				"date": "2026-09-12",
+				"type": "OPERATING",
+				"opening_time": "2026-09-12T11:00:00-05:00",
+				"closing_time": "2026-09-12T22:00:00-05:00"
+			}
+		],
+		"expected": {
+			"avg": 0,
+			"uptime": 88.64,
+			"downtime": 75,
+			"min": 0,
+			"max": 0,
+			"medianOfHourlyAverages": 0,
+			"peakHour": null,
+			"quietestHour": null
+		}
+	}
+]

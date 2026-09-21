@@ -17,6 +17,20 @@ config.transformer.minifierConfig = {
 	},
 };
 
+// The server/ workspace is a Node package the app never imports at runtime — only
+// `import type { AppType }`, which Babel erases. Keep Metro out of its dependency
+// tree, including the node_modules symlink npm workspaces creates for it.
+config.resolver.blockList = [
+	...(Array.isArray(config.resolver.blockList)
+		? config.resolver.blockList
+		: config.resolver.blockList
+			? [config.resolver.blockList]
+			: []),
+	/[/\\]server[/\\]node_modules[/\\].*/,
+	/[/\\]server[/\\]dist[/\\].*/,
+	/[/\\]node_modules[/\\]airtimely-server[/\\].*/,
+];
+
 // Add additional resolver for React Native
 config.resolver.sourceExts = [...config.resolver.sourceExts, "mjs"];
 config.resolver.extraNodeModules = {
