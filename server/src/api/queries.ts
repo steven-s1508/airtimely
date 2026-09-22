@@ -155,8 +155,21 @@ export async function getHome(): Promise<{ entities: HomeEntity[] }> {
 	return { entities };
 }
 
+/**
+ * One schedule entry. INFO and TICKETED_EVENT entries often carry no times at all —
+ * "Park hopping available" — so both times are nullable.
+ */
+export type ScheduleEntry = {
+	localDate: string;
+	type: string;
+	openingTime: string | null;
+	closingTime: string | null;
+	description: string | null;
+	purchases: unknown[];
+};
+
 export type ParkDetail = {
-	park: ParkSummary & { schedule: { type: string; openingTime: string; closingTime: string }[] };
+	park: ParkSummary & { schedule: ScheduleEntry[] };
 	rides: {
 		id: string;
 		name: string;
@@ -176,15 +189,29 @@ export async function getPark(parkId: string): Promise<ParkDetail | null> {
 	if (!park) return null;
 
 	const [schedule, rides] = await Promise.all([
-		sql<{ type: string; openingTime: string; closingTime: string }[]>`
-			select ps.type::text as type, ps.opening_time as "openingTime", ps.closing_time as "closingTime"
+		sql<
+			{
+				localDate: string;
+				type: string;
+				openingTime: Date | null;
+				closingTime: Date | null;
+				description: string | null;
+				purchases: unknown[] | null;
+			}[]
+		>`
+			select
+				ps.local_date::text as "localDate",
+				ps.type::text as type,
+				ps.opening_time as "openingTime",
+				ps.closing_time as "closingTime",
+				ps.description,
+				ps.purchases
 			from parks_schedule ps
 			where ps.park_id = ${parkId}::uuid
-				and ps.opening_time is not null
 				and ps.local_date >= (now() at time zone coalesce(
 					(select timezone from parks where id = ${parkId}::uuid), 'UTC'))::date
-			order by ps.opening_time
-			limit 30
+			order by ps.local_date, ps.opening_time nulls last
+			limit 60
 		`,
 		sql<
 			{
@@ -211,7 +238,17 @@ export async function getPark(parkId: string): Promise<ParkDetail | null> {
 	]);
 
 	return {
-		park: { ...park, schedule },
+		park: {
+			...park,
+			schedule: schedule.map((e) => ({
+				localDate: e.localDate,
+				type: e.type,
+				openingTime: e.openingTime?.toISOString() ?? null,
+				closingTime: e.closingTime?.toISOString() ?? null,
+				description: e.description,
+				purchases: Array.isArray(e.purchases) ? e.purchases : [],
+			})),
+		},
 		rides: rides.map((r) => ({
 			id: r.id,
 			name: r.name,
@@ -236,8 +273,16 @@ export type RideDetail = {
 		singleRiderMinutes: number | null;
 		updatedAt: string | null;
 	} | null;
-	/** Today's changes so far, park-local. Empty once the day is finalised. */
-	today: { at: string; status: string | null; waitMinutes: number | null }[];
+	/**
+	 * Today's changes so far, park-local day. Each state holds until the next change;
+	 * there is no row per poll. Empty once the day is finalised.
+	 */
+	today: {
+		at: string;
+		status: string | null;
+		waitMinutes: number | null;
+		singleRiderMinutes: number | null;
+	}[];
 };
 
 export async function getRide(rideId: string): Promise<RideDetail | null> {
@@ -266,8 +311,8 @@ export async function getRide(rideId: string): Promise<RideDetail | null> {
 	`;
 	if (!ride) return null;
 
-	const today = await sql<{ at: Date; status: number | null; wait: number | null }[]>`
-		select c.ts as at, c.status, c.wait
+	const today = await sql<{ at: Date; status: number | null; wait: number | null; single: number | null }[]>`
+		select c.ts as at, c.status, c.wait, c.single
 		from ride_changes c
 		join parks p on p.id = (select park_id from rides where id = ${rideId}::uuid)
 		where c.ride_id = ${rideId}::uuid
@@ -295,6 +340,7 @@ export async function getRide(rideId: string): Promise<RideDetail | null> {
 			at: t.at.toISOString(),
 			status: t.status === null ? null : (RIDE_STATUS_BY_CODE[t.status as RideStatusCode] ?? null),
 			waitMinutes: t.wait,
+			singleRiderMinutes: t.single,
 		})),
 	};
 }

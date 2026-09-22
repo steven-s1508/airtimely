@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import type { Context } from "hono";
+import type { Context, TypedResponse } from "hono";
+import { validator } from "hono/validator";
 
 import { sql } from "../db/index.js";
 import { cached } from "../lib/cache.js";
 import { getHome, getPark, getRide } from "./queries.js";
-import { getRideDay, getRideStats } from "./statsQueries.js";
+import { getRideDay, getRideMonth, getRideStats } from "./statsQueries.js";
 
 /** A poll is late once it is this far past the 5-minute cadence. */
 const POLL_STALE_MS = 15 * 60 * 1000;
@@ -25,31 +26,65 @@ const TTL = {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 /**
  * Serves a cached body with an ETag, answering 304 when the client already has it.
  *
  * Phones re-open the same screens constantly; a 304 costs a few bytes instead of a
  * full payload, and the response never touches the database either way.
+ *
+ * The body is pre-serialised by the cache, so the return is typed by hand: that type
+ * is what the app's `hc` client infers each endpoint's payload from.
  */
-async function serve(
+async function serve<T>(
 	c: Context,
 	key: string,
 	tags: string[],
 	ttlSeconds: number,
-	build: () => Promise<unknown>,
-): Promise<Response> {
+	build: () => Promise<T>,
+): Promise<Response & TypedResponse<T, 200, "json">> {
 	const { body, etag, hit } = await cached(key, tags, ttlSeconds, build);
 
 	c.header("Cache-Control", `public, max-age=${ttlSeconds}`);
 	c.header("ETag", etag);
 	c.header("X-Cache", hit ? "HIT" : "MISS");
 
-	if (c.req.header("if-none-match") === etag) return c.body(null, 304);
+	type Typed = Response & TypedResponse<T, 200, "json">;
+	if (c.req.header("if-none-match") === etag) return c.body(null, 304) as unknown as Typed;
 
 	c.header("Content-Type", "application/json; charset=utf-8");
-	return c.body(body, 200);
+	return c.body(body, 200) as unknown as Typed;
 }
+
+/** Optional `?year=`, for the by-year charts. */
+const yearQuery = validator("query", (value, c) => {
+	const raw = value["year"];
+	if (raw === undefined) return {} as { year?: string };
+	const year = Number(raw);
+	if (typeof raw !== "string" || !Number.isInteger(year) || year < 2000 || year > 2100) {
+		return c.json({ error: "invalid year" }, 400);
+	}
+	return { year: raw } as { year?: string };
+});
+
+/** Required `?date=YYYY-MM-DD`. */
+const dateQuery = validator("query", (value, c) => {
+	const raw = value["date"];
+	if (typeof raw !== "string" || !ISO_DATE.test(raw)) {
+		return c.json({ error: "date=YYYY-MM-DD required" }, 400);
+	}
+	return { date: raw };
+});
+
+/** Required `?month=YYYY-MM`. */
+const monthQuery = validator("query", (value, c) => {
+	const raw = value["month"];
+	if (typeof raw !== "string" || !ISO_MONTH.test(raw)) {
+		return c.json({ error: "month=YYYY-MM required" }, 400);
+	}
+	return { month: raw };
+});
 
 type HealthRow = {
 	last_ok: Date | null;
@@ -143,15 +178,12 @@ const app = new Hono()
 	 * different lifetimes — live state moves every five minutes, these change once a
 	 * night — and one endpoint would force the client to choose which to get wrong.
 	 */
-	.get("/v1/rides/:id/stats", (c) => {
+	.get("/v1/rides/:id/stats", yearQuery, (c) => {
 		const id = c.req.param("id");
 		if (!UUID.test(id)) return c.json({ error: "invalid ride id" }, 400);
 
-		const rawYear = c.req.query("year");
-		const year = rawYear ? Number(rawYear) : null;
-		if (rawYear && (!Number.isInteger(year) || year! < 2000 || year! > 2100)) {
-			return c.json({ error: "invalid year" }, 400);
-		}
+		const { year: rawYear } = c.req.valid("query");
+		const year = rawYear === undefined ? null : Number(rawYear);
 
 		return serve(c, `stats:${id}:${year ?? "all"}`, [], TTL.historical, () =>
 			getRideStats(id, year),
@@ -159,14 +191,21 @@ const app = new Hono()
 	})
 
 	/** One past day's wait curve. */
-	.get("/v1/rides/:id/day", (c) => {
+	.get("/v1/rides/:id/day", dateQuery, (c) => {
 		const id = c.req.param("id");
 		if (!UUID.test(id)) return c.json({ error: "invalid ride id" }, 400);
 
-		const date = c.req.query("date");
-		if (!date || !ISO_DATE.test(date)) return c.json({ error: "date=YYYY-MM-DD required" }, 400);
-
+		const { date } = c.req.valid("query");
 		return serve(c, `day:${id}:${date}`, [], TTL.historical, () => getRideDay(id, date));
+	})
+
+	/** Daily means for each day of one calendar month — the ride screen's month chart. */
+	.get("/v1/rides/:id/month", monthQuery, (c) => {
+		const id = c.req.param("id");
+		if (!UUID.test(id)) return c.json({ error: "invalid ride id" }, 400);
+
+		const { month } = c.req.valid("query");
+		return serve(c, `month:${id}:${month}`, [], TTL.historical, () => getRideMonth(id, month));
 	});
 
 export type AppType = typeof app;

@@ -14,8 +14,12 @@ import { sql } from "../db/index.js";
 export type RideStats = {
 	/** Mean wait by hour of day, 0..23. Null where the ride never operated then. */
 	hourOfDay: (number | null)[];
+	/** Mean single-rider wait by hour of day. Null where the ride has no single-rider line. */
+	hourOfDaySingle: (number | null)[];
 	/** Mean wait by weekday, 0 = Sunday, matching JS getDay(). */
 	weekday: (number | null)[];
+	/** Mean single-rider wait by weekday, 0 = Sunday. */
+	weekdaySingle: (number | null)[];
 	/** Mean wait by calendar month, 0 = January. */
 	monthly: (number | null)[];
 	percentiles: { p25: number | null; p50: number | null; p90: number | null } | null;
@@ -31,6 +35,26 @@ function emptySlots(n: number): (number | null)[] {
 function round2(value: number): number {
 	return Math.round(value * 100) / 100;
 }
+
+function toSlots(rows: { slot: number; mean: string | null }[], n: number): (number | null)[] {
+	const slots = emptySlots(n);
+	for (const row of rows) {
+		if (row.mean !== null && row.slot >= 0 && row.slot < n) slots[row.slot] = round2(Number(row.mean));
+	}
+	return slots;
+}
+
+/**
+ * Single-rider means come from the hourly table: `single_mean` is the only single-rider
+ * figure kept. Each hour's mean is weighted by its operating minutes — the closest
+ * stand-in for how long that mean was on display.
+ */
+const SINGLE_MEAN = sql`
+	case when sum(h.operating_min) filter (where h.single_mean is not null) > 0
+		then sum(h.single_mean * h.operating_min) filter (where h.single_mean is not null)
+			/ sum(h.operating_min) filter (where h.single_mean is not null)
+	end
+`;
 
 /**
  * Sums the daily wait_dist maps over a period and reads percentiles off the total.
@@ -70,13 +94,28 @@ export async function getRideStats(rideId: string, year: number | null = null): 
 	const yearFilterHourly = year === null ? sql`` : sql`and extract(year from h.local_date) = ${year}`;
 	const yearFilterDaily = year === null ? sql`` : sql`and extract(year from d.local_date) = ${year}`;
 
-	const [hourRows, weekdayRows, monthRows, coverageRows, yearRows, percentiles] = await Promise.all([
+	const [
+		hourRows,
+		hourSingleRows,
+		weekdayRows,
+		weekdaySingleRows,
+		monthRows,
+		coverageRows,
+		yearRows,
+		percentiles,
+	] = await Promise.all([
 		sql<{ slot: number; mean: string | null }[]>`
 			select
 				h.local_hour as slot,
 				case when sum(h.wait_minutes) > 0
 					then sum(h.wait_sum)::numeric / sum(h.wait_minutes)
 				end as mean
+			from ride_stats_hourly h
+			where h.ride_id = ${rideId}::uuid ${yearFilterHourly}
+			group by h.local_hour
+		`,
+		sql<{ slot: number; mean: string | null }[]>`
+			select h.local_hour as slot, ${SINGLE_MEAN} as mean
 			from ride_stats_hourly h
 			where h.ride_id = ${rideId}::uuid ${yearFilterHourly}
 			group by h.local_hour
@@ -89,6 +128,12 @@ export async function getRideStats(rideId: string, year: number | null = null): 
 				end as mean
 			from ride_stats_daily d
 			where d.ride_id = ${rideId}::uuid ${yearFilterDaily}
+			group by 1
+		`,
+		sql<{ slot: number; mean: string | null }[]>`
+			select extract(dow from h.local_date)::int as slot, ${SINGLE_MEAN} as mean
+			from ride_stats_hourly h
+			where h.ride_id = ${rideId}::uuid ${yearFilterHourly}
 			group by 1
 		`,
 		sql<{ slot: number; mean: string | null }[]>`
@@ -118,26 +163,13 @@ export async function getRideStats(rideId: string, year: number | null = null): 
 		percentilesOver(rideId, year),
 	]);
 
-	const hourOfDay = emptySlots(24);
-	for (const row of hourRows) {
-		if (row.mean !== null && row.slot >= 0 && row.slot < 24) hourOfDay[row.slot] = round2(Number(row.mean));
-	}
-
-	const weekday = emptySlots(7);
-	for (const row of weekdayRows) {
-		if (row.mean !== null && row.slot >= 0 && row.slot < 7) weekday[row.slot] = round2(Number(row.mean));
-	}
-
-	const monthly = emptySlots(12);
-	for (const row of monthRows) {
-		if (row.mean !== null && row.slot >= 0 && row.slot < 12) monthly[row.slot] = round2(Number(row.mean));
-	}
-
 	const coverage = coverageRows[0];
 	return {
-		hourOfDay,
-		weekday,
-		monthly,
+		hourOfDay: toSlots(hourRows, 24),
+		hourOfDaySingle: toSlots(hourSingleRows, 24),
+		weekday: toSlots(weekdayRows, 7),
+		weekdaySingle: toSlots(weekdaySingleRows, 7),
+		monthly: toSlots(monthRows, 12),
 		percentiles,
 		coverage: {
 			firstDay: coverage?.first_day ?? null,
@@ -246,5 +278,51 @@ export async function getRideDay(rideId: string, localDate: string): Promise<Rid
 					quietestHour: summary.quietest_hour,
 				}
 			: null,
+	};
+}
+
+export type RideMonth = {
+	month: string;
+	/** Mean wait for each day of the month, index 0 = the 1st. Null where nothing operated. */
+	daily: (number | null)[];
+	/** Mean single-rider wait for each day of the month. */
+	dailySingle: (number | null)[];
+};
+
+/**
+ * Daily means across one calendar month, for the ride screen's month chart.
+ *
+ * Only finalised days appear: today is still in the change log, and has its own
+ * curve on `/v1/rides/:id`.
+ */
+export async function getRideMonth(rideId: string, month: string): Promise<RideMonth> {
+	const first = `${month}-01`;
+	const [year, monthNumber] = month.split("-").map(Number) as [number, number];
+	const daysInMonth = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+
+	const [dailyRows, singleRows] = await Promise.all([
+		sql<{ slot: number; mean: string | null }[]>`
+			select
+				(extract(day from d.local_date)::int - 1) as slot,
+				case when d.wait_minutes > 0 then d.wait_sum::numeric / d.wait_minutes end as mean
+			from ride_stats_daily d
+			where d.ride_id = ${rideId}::uuid
+				and d.local_date >= ${first}::date
+				and d.local_date < (${first}::date + interval '1 month')
+		`,
+		sql<{ slot: number; mean: string | null }[]>`
+			select (extract(day from h.local_date)::int - 1) as slot, ${SINGLE_MEAN} as mean
+			from ride_stats_hourly h
+			where h.ride_id = ${rideId}::uuid
+				and h.local_date >= ${first}::date
+				and h.local_date < (${first}::date + interval '1 month')
+			group by h.local_date
+		`,
+	]);
+
+	return {
+		month,
+		daily: toSlots(dailyRows, daysInMonth),
+		dailySingle: toSlots(singleRows, daysInMonth),
 	};
 }

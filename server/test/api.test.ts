@@ -126,12 +126,17 @@ describe("api routes", () => {
 		await sql`
 			insert into ride_stats_hourly (
 				ride_id, bucket_start, local_date, local_hour,
-				operating_min, wait_minutes, wait_sum, wait_min, wait_max
+				operating_min, wait_minutes, wait_sum, wait_min, wait_max, single_mean
 			) values (
 				${RIDE},
 				(((now() at time zone 'UTC')::date - 1) + interval '12 hours')::timestamp at time zone 'UTC',
-				(now() at time zone 'UTC')::date - 1, 12, 60, 60, 1200, 15, 25
+				(now() at time zone 'UTC')::date - 1, 12, 60, 60, 1200, 15, 25, 8
 			)
+		`;
+		// An INFO entry with no times must still reach the park screen.
+		await sql`
+			insert into parks_schedule (park_id, local_date, type, description)
+			values (${PARK}, (now() at time zone 'UTC')::date, 'INFO', 'Park hopping')
 		`;
 	});
 
@@ -172,11 +177,18 @@ describe("api routes", () => {
 		const res = await app.request(`/v1/parks/${PARK}`);
 		assert.equal(res.status, 200);
 		const body = (await res.json()) as {
-			park: { status: string; schedule: unknown[] };
+			park: {
+				status: string;
+				schedule: { type: string; localDate: string; openingTime: string | null; description: string | null }[];
+			};
 			rides: { name: string; status: string; waitMinutes: number }[];
 		};
 		assert.equal(body.park.status, "open");
-		assert.equal(body.park.schedule.length, 1);
+		assert.equal(body.park.schedule.length, 2);
+		const info = body.park.schedule.find((e) => e.type === "INFO")!;
+		assert.equal(info.openingTime, null, "an untimed INFO entry is kept, not filtered out");
+		assert.equal(info.description, "Park hopping");
+		assert.match(info.localDate, /^\d{4}-\d{2}-\d{2}$/);
 		assert.equal(body.rides[0]!.name, "Coaster");
 		// Codes are storage; the wire carries names.
 		assert.equal(body.rides[0]!.status, "OPERATING");
@@ -204,6 +216,7 @@ describe("api routes", () => {
 		};
 		assert.equal(body.hourOfDay.length, 24);
 		assert.equal(body.hourOfDay[12], 20, "1200 / 60");
+		assert.equal((body as unknown as { hourOfDaySingle: (number | null)[] }).hourOfDaySingle[12], 8);
 		// 200 minutes each at 10/20/30: p50 is 20, p90 is 30.
 		assert.deepEqual(body.percentiles, { p25: 10, p50: 20, p90: 30 });
 		assert.ok(body.years.length >= 1);
@@ -222,6 +235,22 @@ describe("api routes", () => {
 		assert.equal(body.hours[0]!.mean, 20);
 		assert.equal(body.summary.mean, 20);
 		assert.equal(body.summary.scheduledMin, 600);
+	});
+
+	it("serves daily means across a month, indexed by day", async () => {
+		const [{ d, m }] = await sql<{ d: string; m: string }[]>`
+			select
+				((now() at time zone 'UTC')::date - 1)::text as d,
+				to_char((now() at time zone 'UTC')::date - 1, 'YYYY-MM') as m
+		`;
+		const res = await app.request(`/v1/rides/${RIDE}/month?month=${m}`);
+		assert.equal(res.status, 200);
+		const body = (await res.json()) as { daily: (number | null)[]; dailySingle: (number | null)[] };
+		const day = Number(d.slice(8)) - 1;
+		assert.equal(body.daily[day], 20, "12000 / 600");
+		assert.equal(body.dailySingle[day], 8);
+		assert.ok(body.daily.length >= 28 && body.daily.length <= 31);
+		assert.equal(body.daily.filter((v) => v !== null).length, 1);
 	});
 
 	it("answers 304 with no body when the client's etag still matches", async () => {
@@ -267,6 +296,8 @@ describe("api routes", () => {
 		assert.equal((await app.request(`/v1/rides/${RIDE}/day`)).status, 400);
 		assert.equal((await app.request(`/v1/rides/${RIDE}/day?date=13-13-13`)).status, 400);
 		assert.equal((await app.request(`/v1/rides/${RIDE}/stats?year=abc`)).status, 400);
+		assert.equal((await app.request(`/v1/rides/${RIDE}/month`)).status, 400);
+		assert.equal((await app.request(`/v1/rides/${RIDE}/month?month=2026-13`)).status, 400);
 		assert.equal((await app.request("/v1/rides/eeeeeeee-0000-4000-8000-0000000000ff")).status, 404);
 		assert.equal((await app.request("/v1/parks/eeeeeeee-0000-4000-8000-0000000000ff")).status, 404);
 	});
