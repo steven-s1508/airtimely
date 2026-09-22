@@ -28,73 +28,75 @@
 			[
 				"expo-font",
 				{
-					"fonts": [
-						{
-							"fontFamily": "Bebas Neue Pro",
-							"fontDefinitions": [
-								{
-									"path": "./src/assets/fonts/bebas_neue_pro_semi_exp_italic.ttf",
-									"weight": "400",
-									"style": "italic"
-								},
-								{
-									"path": "./src/assets/fonts/bebas_neue_pro_bold_italic.ttf",
-									"weight": "700",
-									"style": "italic"
-								},
-								{
-									"path": "./src/assets/fonts/bebas_neue_pro_expanded_medium.ttf",
-									"weight": "500",
-									"style": "normal"
-								},
-								{
-									"path": "./src/assets/fonts/bebas_neue_pro_expanded_extra_bold.ttf",
-									"weight": "800",
-									"style": "normal"
-								}
-							]
-						},
-						{
-							"fontFamily": "Noto Sans",
-							"fontDefinitions": [
-								{
-									"path": "./src/assets/fonts/noto_sans.ttf",
-									"weight": "400",
-									"style": "normal"
-								},
-								{
-									"path": "./src/assets/fonts/noto_sans_medium.ttf",
-									"weight": "500",
-									"style": "normal"
-								},
-								{
-									"path": "./src/assets/fonts/noto_sans_bold_italic.ttf",
-									"weight": "700",
-									"style": "italic"
-								}
-							]
-						},
-						{
-							"fontFamily": "Noto Sans Condensed",
-							"fontDefinitions": [
-								{
-									"path": "./src/assets/fonts/noto_sans_condensed_bold.ttf",
-									"weight": "700",
-									"style": "normal"
-								}
-							]
-						},
-						{
-							"fontFamily": "IBM Plex Sans Condensed",
-							"fontDefinitions": [
-								{
-									"path": "./src/assets/fonts/ibm_plex_sans_condensed_bold.ttf",
-									"weight": "700",
-									"style": "normal"
-								}
-							]
-						}
-					]
+					"android": {
+						"fonts": [
+							{
+								"fontFamily": "Bebas Neue Pro",
+								"fontDefinitions": [
+									{
+										"path": "./src/assets/fonts/bebas_neue_pro_semi_exp_italic.ttf",
+										"weight": "400",
+										"style": "italic"
+									},
+									{
+										"path": "./src/assets/fonts/bebas_neue_pro_bold_italic.ttf",
+										"weight": "700",
+										"style": "italic"
+									},
+									{
+										"path": "./src/assets/fonts/bebas_neue_pro_expanded_medium.ttf",
+										"weight": "500",
+										"style": "normal"
+									},
+									{
+										"path": "./src/assets/fonts/bebas_neue_pro_expanded_extra_bold.ttf",
+										"weight": "800",
+										"style": "normal"
+									}
+								]
+							},
+							{
+								"fontFamily": "Noto Sans",
+								"fontDefinitions": [
+									{
+										"path": "./src/assets/fonts/noto_sans.ttf",
+										"weight": "400",
+										"style": "normal"
+									},
+									{
+										"path": "./src/assets/fonts/noto_sans_medium.ttf",
+										"weight": "500",
+										"style": "normal"
+									},
+									{
+										"path": "./src/assets/fonts/noto_sans_bold_italic.ttf",
+										"weight": "700",
+										"style": "italic"
+									}
+								]
+							},
+							{
+								"fontFamily": "Noto Sans Condensed",
+								"fontDefinitions": [
+									{
+										"path": "./src/assets/fonts/noto_sans_condensed_bold.ttf",
+										"weight": "700",
+										"style": "normal"
+									}
+								]
+							},
+							{
+								"fontFamily": "IBM Plex Sans Condensed",
+								"fontDefinitions": [
+									{
+										"path": "./src/assets/fonts/ibm_plex_sans_condensed_bold.ttf",
+										"weight": "700",
+										"style": "normal"
+									}
+								]
+							}
+						]
+					}
 				}
 			],
 			[
