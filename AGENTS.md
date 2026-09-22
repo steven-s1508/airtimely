@@ -16,7 +16,7 @@ This file covers repo-wide context. More specific `AGENTS.md` files exist in sub
 - Expo 55 / React Native 0.83 / React 19, `expo-router` (file-based routing), Android-only (`app.json` platforms).
 - Styling: NativeWind v4 (Tailwind for RN) + Gluestack-UI component library, plus a parallel hand-rolled `src/styles/` (StyleSheet-based). Dark mode via `darkMode: "class"` and CSS vars in [global.css](global.css).
 - State: Zustand (+ AsyncStorage persist) for client state; TanStack React Query (+ AsyncStorage persister) for all server state. Do not mix the two.
-- Backend: Supabase Postgres (`src/types/supabase.ts` has generated DB types), plus Supabase Edge Functions and Windmill for scheduled data sync/aggregation jobs.
+- Backend: the app talks only to the v2 API in `server/` (Hono + Postgres 18); payload types are inferred from its `AppType` via Hono's `hc`. The legacy Supabase + Windmill stack still runs until cutover.
 - Dates/timezones: `luxon` everywhere. Per-park local time (`recorded_at_local`) vs UTC is a critical, recurring distinction — never assume server/device timezone.
 
 ## Commands
@@ -34,5 +34,5 @@ Defined in **both** [tsconfig.json](tsconfig.json) and [babel.config.js](babel.c
 - TypeScript `strict: true`. Don't loosen this.
 - Naming: camelCase filenames for components/hooks/utils (`parkHeader.tsx`, `useParkStatus.ts`, `getParkChildren.ts`). PascalCase only for a few special cases (`Icon.tsx`).
 - Import ordering in screens/components follows comment-grouped sections: `// React / React Native Imports`, `// Expo Imports`, `// 3rd Party Imports`, `// Local Imports`.
-- Data fetching is layered: `src/utils/api/get*.ts` (raw Supabase query) → `src/hooks/api/use*.ts` (React Query wrapper) → components. Don't call Supabase directly from components.
+- Data fetching is layered: `src/utils/api/get*.ts` (typed `hc` call to the API) → `src/hooks/api/use*.ts` (React Query wrapper) → components. Don't call the API directly from components.
 - `src/components/ui/` is vendored Gluestack-UI code — avoid hand-editing; regenerate via the Gluestack CLI instead.

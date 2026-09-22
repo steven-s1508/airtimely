@@ -10,9 +10,7 @@ import { usePinnedItemsStore } from "@src/stores/pinnedItemsStore";
 import { usePreferencesStore, type DestinationSortOption } from "@src/stores/preferencesStore";
 import { getCountryAliases, getCountryName } from "@src/utils/helpers/countryMapping";
 import { useDestinations } from "@src/hooks/api/useDestinations";
-import { useLiveStatuses } from "@src/hooks/api/useLiveStatuses";
-import { useChildParks } from "@src/hooks/api/useChildParks";
-import { type ParkStatus, type ParkWithStatus } from "@src/utils/api/getParkStatus";
+import { type ParkStatus } from "@src/utils/api/getParkStatus";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@src/utils/queryKeys";
 import type { DisplayableEntity } from "@src/utils/api/getDisplayableEntities";
@@ -32,41 +30,8 @@ export interface DestinationListRef {
 export const DestinationList = React.memo(
 	forwardRef<DestinationListRef, { searchFilter?: string }>(({ searchFilter = "" }, ref) => {
 		const queryClient = useQueryClient();
-		const { data: fetched = [], isLoading: isLoadingDestinations, isError: isErrorDestinations } = useDestinations();
-
-		// 1. Identify destination groups to fetch their child parks
-		const groupIds = useMemo(() => {
-			return fetched
-				.filter((e) => e.entity_type === "destination_group")
-				.map((e) => e.original_destination_id!)
-				.filter(Boolean);
-		}, [fetched]);
-
-		const { data: allChildParks = [], isLoading: isLoadingChildParks } = useChildParks(groupIds);
-
-		// 2. Collect all park IDs that need status
-		const allParkIds = useMemo(() => {
-			const ids = new Set<string>();
-			fetched.filter((e) => e.entity_type === "park").forEach((e) => ids.add(e.entity_id!));
-			allChildParks.forEach((p) => ids.add(p.id));
-			return Array.from(ids);
-		}, [fetched, allChildParks]);
-
-		const { data: statusesMap = {}, isLoading: isLoadingStatuses } = useLiveStatuses(allParkIds);
-
-		const childParksByDestinationId = useMemo(() => {
-			return allChildParks.reduce((acc, park) => {
-				if (!park.destination_id) return acc;
-
-				acc[park.destination_id] = acc[park.destination_id] || [];
-				acc[park.destination_id].push({
-					...park,
-					status: statusesMap[park.id] || "Unknown",
-				});
-
-				return acc;
-			}, {} as Record<string, ParkWithStatus[]>);
-		}, [allChildParks, statusesMap]);
+		// Cards arrive with their parks and open/closed status already resolved.
+		const { data: fetched = [], isLoading, isError: isErrorDestinations } = useDestinations();
 
 		const [refreshing, setRefreshing] = useState(false);
 		const [refreshKey, setRefreshKey] = useState(0);
@@ -78,8 +43,6 @@ export const DestinationList = React.memo(
 			setRefreshing(true);
 			// Invalidate all relevant queries to trigger background revalidation
 			await queryClient.invalidateQueries({ queryKey: queryKeys.destinations() });
-			await queryClient.invalidateQueries({ queryKey: queryKeys.childParks() });
-			await queryClient.invalidateQueries({ queryKey: queryKeys.liveStatuses() });
 			setRefreshing(false);
 		}, [queryClient]);
 
@@ -87,32 +50,8 @@ export const DestinationList = React.memo(
 			refresh: handleRefresh,
 		}));
 
-		// Map statuses back to entities
-		const fetchedEntities = useMemo(() => {
-			return fetched.map((entity) => {
-				let status: ParkStatus = "Unknown";
-				if (entity.entity_type === "park") {
-					status = statusesMap[entity.entity_id!] || "Unknown";
-				} else if (entity.entity_type === "destination_group") {
-					const childParksForGroup = allChildParks.filter((p) => p.destination_id === entity.original_destination_id);
-					if (childParksForGroup.length === 0) {
-						status = "Unknown";
-					} else {
-						const childStatuses = childParksForGroup.map((p) => statusesMap[p.id] || "Unknown");
-						if (childStatuses.includes("Open")) {
-							status = "Open";
-						} else if (childStatuses.every((s) => s === "Closed")) {
-							status = "Closed";
-						} else {
-							status = "Unknown";
-						}
-					}
-				}
-				return { ...entity, currentStatus: status };
-			});
-		}, [fetched, statusesMap, allChildParks]);
+		const fetchedEntities = useMemo(() => fetched.map((entity) => ({ ...entity, currentStatus: entity.status })), [fetched]);
 
-		const isLoading = isLoadingDestinations || (groupIds.length > 0 && isLoadingChildParks) || (allParkIds.length > 0 && isLoadingStatuses);
 		const error = isErrorDestinations ? "Failed to load destinations." : null;
 
 		// Memoize processed entities to prevent unnecessary recalculations
@@ -121,15 +60,15 @@ export const DestinationList = React.memo(
 
 			let entitiesWithPinnedStatus: DisplayableEntityWithPinnedStatus[] = fetchedEntities.map((entity) => ({
 				...entity,
-				isPinned: pinnedDestinations.includes(entity.entity_id!),
+				isPinned: pinnedDestinations.includes(entity.id),
 			}));
 
 			if (searchFilter.trim() !== "") {
 				const lowerFilter = searchFilter.toLowerCase();
 				entitiesWithPinnedStatus = entitiesWithPinnedStatus.filter((entity) => {
 					const nameMatch = entity.name && entity.name.toLowerCase().includes(lowerFilter);
-					const countryCodeMatch = entity.country_code && entity.country_code.toLowerCase().includes(lowerFilter);
-					const aliases = getCountryAliases(entity.country_code);
+					const countryCodeMatch = entity.countryCode && entity.countryCode.toLowerCase().includes(lowerFilter);
+					const aliases = getCountryAliases(entity.countryCode);
 					const countryAliasMatch = aliases.some((alias) => alias.toLowerCase().includes(lowerFilter));
 					const statusMatch = entity.currentStatus && entity.currentStatus.toLowerCase().includes(lowerFilter);
 
@@ -152,8 +91,8 @@ export const DestinationList = React.memo(
 			const sortFn = (a: DisplayableEntityWithPinnedStatus, b: DisplayableEntityWithPinnedStatus) => {
 				switch (destinationSortBy) {
 					case "country": {
-						const countryA = getCountryName(a.country_code);
-						const countryB = getCountryName(b.country_code);
+						const countryA = getCountryName(a.countryCode);
+						const countryB = getCountryName(b.countryCode);
 						const countryCompare = countryA.localeCompare(countryB);
 						return countryCompare !== 0 ? countryCompare : (a.name || "").localeCompare(b.name || "");
 					}
@@ -221,10 +160,10 @@ export const DestinationList = React.memo(
 					isPinned={item.isPinned || false}
 					onTogglePin={handleTogglePin}
 					currentStatus={item.currentStatus}
-					childParks={item.original_destination_id ? childParksByDestinationId[item.original_destination_id] || [] : []}
+					childParks={item.parks}
 				/>
 			),
-			[childParksByDestinationId, handleTogglePin]
+			[handleTogglePin]
 		);
 
 		const renderSectionHeader = useCallback(
@@ -252,7 +191,7 @@ export const DestinationList = React.memo(
 			[sectionListData.length]
 		);
 
-		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.entity_id ?? "unknown", []);
+		const keyExtractor = useCallback((item: DisplayableEntityWithPinnedStatus) => item.id, []);
 
 		const ItemSeparator = useCallback(() => <View style={{ height: 0 }} />, []);
 		const SectionSeparator = useCallback(() => <View style={{ height: 16 }} />, []);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { View } from "react-native";
 import { Text, Pressable, HStack, VStack } from "@components/ui";
 import { useParkSchedule } from "@/src/hooks/api/useParkSchedule";
@@ -8,7 +8,6 @@ import { base, colors } from "@/src/styles/styles";
 import { formatTime } from "@/src/utils/formatTime";
 import { DateTime } from "luxon";
 import { SkeletonParkInfo } from "@components/skeletons/skeletonParkInfo";
-import getParkTimezone from "../utils/helpers/getParkTimezone";
 
 interface ParkInfoProps {
 	parkId: string;
@@ -20,22 +19,14 @@ function getCurrentDateInTimezone(timezone: string): string {
 
 export const ParkInfo = React.memo(function ParkInfo({ parkId }: ParkInfoProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [timezone, setTimezone] = useState("UTC");
 	const { data, isLoading: loading } = useParkSchedule(parkId);
 
-	useEffect(() => {
-		const loadTimezone = async () => {
-			const tz = await getParkTimezone(parkId);
-			setTimezone(tz);
-		};
-		loadTimezone();
-	}, [parkId]);
-
+	// Schedule dates are park-local, so "today" is too.
 	const scheduleData = useMemo<ParkScheduleItem[]>(() => {
 		if (!data) return [];
-		const currentDate = getCurrentDateInTimezone(timezone);
+		const currentDate = getCurrentDateInTimezone(data.timezone);
 		return data.schedule.filter((item) => item.date === currentDate);
-	}, [data, timezone]);
+	}, [data]);
 
 	const toggleAccordion = () => {
 		setIsOpen(!isOpen);

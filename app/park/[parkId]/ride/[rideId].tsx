@@ -1,5 +1,5 @@
 // React / React Native Imports
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 // Expo Imports
 import { useLocalSearchParams } from "expo-router";
@@ -17,13 +17,6 @@ import { isValidUUID } from "@/src/utils/helpers/validation";
 import { useLiveRideStatistics } from "@/src/hooks/api/useRideStatistics";
 import { queryKeys } from "@/src/utils/queryKeys";
 
-interface LiveWaitTimeChartData {
-	status: string;
-	wait_time_minutes: number | null;
-	single_rider_wait_time_minutes: number | null;
-	recorded_at_local: string;
-}
-
 export default function RideScreen() {
 	const params = useLocalSearchParams<{ parkId: string; rideId: string; name: string; status: string }>();
 	const queryClient = useQueryClient();
@@ -36,17 +29,9 @@ export default function RideScreen() {
 	}
 
 	const rideId = params.rideId as string;
-	const parkId = params.parkId as string;
-	const { data: liveRideStatistics, isLoading, isRefetching } = useLiveRideStatistics(rideId, parkId);
-	const liveWaitTimes = useMemo<LiveWaitTimeChartData[]>(() => {
-		return (liveRideStatistics?.waitTimeData || []).map((waitTime) => ({
-			status: waitTime.status || "Unknown",
-			wait_time_minutes: waitTime.wait_time_minutes,
-			single_rider_wait_time_minutes: waitTime.single_rider_wait_time_minutes,
-			recorded_at_local: waitTime.recorded_at_local || waitTime.recorded_at_timestamp,
-		}));
-	}, [liveRideStatistics?.waitTimeData]);
-	const latestWaitTime = liveWaitTimes[liveWaitTimes.length - 1];
+	const { data: liveRideStatistics, isLoading, isRefetching } = useLiveRideStatistics(rideId);
+	const ride = liveRideStatistics?.ride;
+	const liveWaitTimes = liveRideStatistics?.waitTimeData ?? [];
 	const refreshing = isManualRefreshing || isRefetching;
 
 	const handleRefresh = async () => {
@@ -61,10 +46,10 @@ export default function RideScreen() {
 	return (
 		<ScrollView contentContainerStyle={{ flexGrow: 1 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primaryLight, colors.primaryVeryLight]} progressBackgroundColor={colors.primaryDark} tintColor={colors.primaryVeryLight} title="Updating wait times..." titleColor={colors.primaryLight} />}>
 			<View style={rideScreenStyles.rideScreenContainer}>
-				<RideHeader parkId={parkId} item={{ id: rideId, name: params.name as string }} waitTime={latestWaitTime?.wait_time_minutes} singleRiderWaitTime={latestWaitTime?.single_rider_wait_time_minutes} status={latestWaitTime?.status || params.status} onRefresh={handleRefresh} isRefreshing={refreshing} />
+				<RideHeader parkName={ride?.parkName} item={{ id: rideId, name: ride?.name ?? (params.name as string) }} waitTime={ride?.live?.waitMinutes} singleRiderWaitTime={ride?.live?.singleRiderMinutes} status={ride?.live?.status || params.status} onRefresh={handleRefresh} isRefreshing={refreshing} />
 
 				<View style={{ flex: 1, flexDirection: "column", padding: 16 }}>
-					<WaitTimeLineChartVictory data={liveWaitTimes} loading={isLoading} parkId={parkId} />
+					<WaitTimeLineChartVictory data={liveWaitTimes} loading={isLoading} timezone={ride?.timezone} />
 					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />
 					<HourlyAverageBarChartVictory loading={isLoading} rideId={rideId} />
 					<View style={{ height: 2, backgroundColor: colors.primaryDark, marginVertical: 16 }} />

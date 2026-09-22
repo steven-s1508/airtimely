@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { CartesianChart, Bar } from "victory-native";
 import { Text } from "@/src/components/ui/text";
 import { chartStyles } from "@/src/styles/chartStyles";
 import { colors } from "@/src/styles";
 import { useFont } from "@shopify/react-native-skia";
-import { getWeekdayAverageWaitTimesByYear } from "@/src/utils/api/getRideStatistics";
+import { useWeekdayAverageWaitTimesByYear } from "@/src/hooks/api/useRideStatistics";
 
 interface WeekdayAverageByYearBarChartVictoryProps {
 	rideId: string;
@@ -15,29 +15,8 @@ interface WeekdayAverageByYearBarChartVictoryProps {
 
 export const WeekdayAverageByYearBarChartVictory: React.FC<WeekdayAverageByYearBarChartVictoryProps> = ({ rideId, year, loading = false }) => {
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
-	const [weekdayAverageData, setWeekdayAverageData] = useState<number[]>([]);
-	const [dataLoading, setDataLoading] = useState(true);
-
-	useEffect(() => {
-		const fetchWeekdayAverageData = async () => {
-			if (!rideId) return;
-
-			setDataLoading(true);
-			try {
-				const result = await getWeekdayAverageWaitTimesByYear(rideId, year);
-				// @ts-ignore - TypeScript thinks the return type is different
-				const waitTimes = result.averageWaitTimes || result.weeklyAverageWaitTimes || [];
-				setWeekdayAverageData(waitTimes);
-			} catch (error) {
-				console.error("Error fetching weekday average data:", error);
-				setWeekdayAverageData([]);
-			} finally {
-				setDataLoading(false);
-			}
-		};
-
-		fetchWeekdayAverageData();
-	}, [rideId]);
+	const { data, isLoading: dataLoading } = useWeekdayAverageWaitTimesByYear(rideId, year);
+	const weekdayAverageData = useMemo(() => data?.weeklyAverageWaitTimes ?? [], [data]);
 
 	const processedData = useMemo(() => {
 		const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

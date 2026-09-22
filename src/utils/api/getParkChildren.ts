@@ -1,17 +1,13 @@
-import { supabase } from "@/src/utils/supabase";
+import { getPark } from "./getParkStatus";
 
 export interface ParkChild {
 	id: string;
-	external_id: string;
 	name: string;
-	entity_type: "ATTRACTION" | "SHOW" | "RESTAURANT";
-	latitude?: number | null;
-	longitude?: number | null;
-	// Add wait time fields
-	wait_time_minutes?: number | null;
-	single_rider_wait_time_minutes?: number | null;
-	status?: string | null;
-	last_updated?: string | null;
+	/** OPERATING, DOWN, CLOSED or REFURBISHMENT. */
+	status: string | null;
+	wait_time_minutes: number | null;
+	single_rider_wait_time_minutes: number | null;
+	last_updated: string | null;
 }
 
 export interface ParkChildrenResponse {
@@ -19,55 +15,27 @@ export interface ParkChildrenResponse {
 }
 
 /**
- * Fetches all child entities with their latest wait times
+ * A park's rides with their live waits.
+ *
+ * Rides the poller has never seen are left out, as v1 did: with no state there is
+ * nothing to show but an empty row.
  */
 export async function getParkChildren(parkId: string): Promise<ParkChildrenResponse | null> {
-	try {
-		// Fetch attractions with latest wait times
-		const { data: attractions, error: attractionsError } = await supabase
-			.from("rides")
-			.select(
-				`
-                id, external_id, name, entity_type, latitude, longitude,
-                ride_wait_times!inner(
-                    wait_time_minutes,
-                    single_rider_wait_time_minutes,
-                    status,
-                    recorded_at_timestamp
-                )
-            `
-			)
-			.eq("park_id", parkId)
-			.eq("is_active", true)
-			.order("recorded_at_timestamp", { foreignTable: "ride_wait_times", ascending: false })
-			.limit(1, { foreignTable: "ride_wait_times" });
+	const payload = await getPark(parkId);
+	if (!payload) return null;
 
-		if (attractionsError) {
-			console.error("Error fetching attractions:", attractionsError);
-			return null;
-		}
-
-		// Transform attractions data to include wait times
-		const attractionsWithWaitTimes = (attractions || []).map((attraction) => ({
-			id: attraction.id,
-			external_id: attraction.external_id,
-			name: attraction.name,
-			entity_type: attraction.entity_type as "ATTRACTION",
-			latitude: attraction.latitude,
-			longitude: attraction.longitude,
-			wait_time_minutes: attraction.ride_wait_times?.[0]?.wait_time_minutes || null,
-			single_rider_wait_time_minutes: attraction.ride_wait_times?.[0]?.single_rider_wait_time_minutes || null,
-			status: attraction.ride_wait_times?.[0]?.status || null,
-			last_updated: attraction.ride_wait_times?.[0]?.recorded_at_timestamp || null,
-		}));
-
-		return {
-			attractions: attractionsWithWaitTimes,
-		};
-	} catch (error) {
-		console.error("Error in getParkChildren:", error);
-		return null;
-	}
+	return {
+		attractions: payload.rides
+			.filter((ride) => ride.updatedAt !== null)
+			.map((ride) => ({
+				id: ride.id,
+				name: ride.name,
+				status: ride.status,
+				wait_time_minutes: ride.waitMinutes,
+				single_rider_wait_time_minutes: ride.singleRiderMinutes,
+				last_updated: ride.updatedAt,
+			})),
+	};
 }
 
 export default getParkChildren;

@@ -11,13 +11,15 @@ interface WaitTimeData {
 	status: string;
 	wait_time_minutes: number | null;
 	single_rider_wait_time_minutes: number | null;
-	recorded_at_local: string;
+	/** A true instant (ISO 8601 with offset). */
+	at: string;
 }
 
 interface WaitTimeLineChartVictoryProps {
 	data: WaitTimeData[];
 	loading?: boolean;
-	parkId?: string;
+	/** The park's IANA zone; axis labels show park-local time wherever the phone is. */
+	timezone?: string | null;
 }
 
 // Helper function to generate y-axis labels (tick values)
@@ -59,14 +61,13 @@ const getYAxisTickValues = (maxValue: number, desiredTickCount: number = 5): num
 	return labels;
 };
 
-export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> = ({ data, loading = false, parkId }) => {
+export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> = ({ data, loading = false, timezone }) => {
+	const zone = timezone || "UTC";
 	const font = useFont(require("@/src/assets/fonts/noto_sans.ttf"), 12);
 
 	const processedData = useMemo(() => {
 		return data.map((item) => {
-			// Parse the recorded_at_local time as a naive timestamp, treating it as UTC to prevent timezone conversion
-			const normalizedTime = item.recorded_at_local ? DateTime.fromISO(item.recorded_at_local, { zone: "utc", setZone: true }) : null;
-			const timeInMs = normalizedTime?.toMillis() || 0;
+			const timeInMs = item.at ? Date.parse(item.at) : 0;
 			// if the first data point is at
 			return {
 				time: timeInMs,
@@ -94,16 +95,16 @@ export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> =
 		const seen = new Set<number>();
 		const ticks: number[] = [];
 		for (const item of processedData) {
-			const hour = DateTime.fromMillis(item.time).hour;
+			const hour = DateTime.fromMillis(item.time, { zone }).hour;
 			if (!seen.has(hour)) {
 				seen.add(hour);
 				// Put a representative ms value for that hour (e.g., top-of-hour)
-				const topOfHour = DateTime.fromMillis(item.time).set({ minute: 0, second: 0, millisecond: 0 }).toMillis();
+				const topOfHour = DateTime.fromMillis(item.time, { zone }).startOf("hour").toMillis();
 				ticks.push(topOfHour);
 			}
 		}
 		return ticks;
-	}, [processedData]);
+	}, [processedData, zone]);
 
 	// Determine what to render based on loading and data state
 	const contentToRender = useMemo(() => {
@@ -144,7 +145,7 @@ export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> =
 							yKeys={["waitTime", "singleRiderWaitTime"]}
 							xAxis={{
 								tickValues: xTickValues,
-								formatXLabel: (v: number) => DateTime.fromMillis(v).toUTC().toFormat("H:mm"),
+								formatXLabel: (v: number) => DateTime.fromMillis(v, { zone }).toFormat("H:mm"),
 								labelColor: colors.primaryVeryLight,
 								lineColor: colors.primary,
 								font: font,
@@ -188,7 +189,7 @@ export const WaitTimeLineChartVictory: React.FC<WaitTimeLineChartVictoryProps> =
 				</View>
 			</>
 		);
-	}, [loading, data, processedData, yAxisTickValues, hasSingleRiderData, xTickValues]); // font is a dependency, though it's stable
+	}, [loading, data, processedData, yAxisTickValues, hasSingleRiderData, xTickValues, zone]); // font is a dependency, though it's stable
 
 	return contentToRender;
 };
