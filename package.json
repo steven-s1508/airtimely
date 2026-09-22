@@ -12,6 +12,7 @@
   },
   "scripts": {
     "start": "expo start",
+    "typecheck": "npm --workspace server run build && tsc --noEmit",
     "android": "DARK_MODE=media expo run:android",
     "ios": "DARK_MODE=media expo run:ios",
     "web": "DARK_MODE=media expo start --web",
