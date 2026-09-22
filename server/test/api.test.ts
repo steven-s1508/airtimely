@@ -10,6 +10,7 @@ import { ensurePartitions } from "../src/worker/jobs/maintenance.js";
 const DEST = "eeeeeeee-0000-4000-8000-00000000000e";
 const PARK = "eeeeeeee-0000-4000-8000-000000000001";
 const PARK2 = "eeeeeeee-0000-4000-8000-000000000002";
+const PARK3 = "eeeeeeee-0000-4000-8000-000000000003";
 const RIDE = "eeeeeeee-0000-4000-8000-00000000000a";
 
 describe("response cache", () => {
@@ -87,6 +88,16 @@ describe("api routes", () => {
 				(${PARK}, ${DEST}, 'Alpha Park', 'alpha', 'UTC', 'ext-1', false, 'DE'),
 				(${PARK2}, ${DEST}, 'Beta Park', 'beta', 'UTC', 'ext-2', false, 'DE')
 		`;
+		// Standalone, and between open days: its schedule resumes in three days.
+		await sql`
+			insert into parks (id, name, slug, timezone, external_id)
+			values (${PARK3}, 'Gamma Park', 'gamma', 'UTC', 'ext-3')
+		`;
+		await sql`
+			insert into parks_schedule (park_id, local_date, type, opening_time, closing_time)
+			values (${PARK3}, (now() at time zone 'UTC')::date + 3, 'OPERATING',
+					now() + interval '3 days', now() + interval '3 days 8 hours')
+		`;
 		await sql`insert into rides (id, park_id, name, external_id) values (${RIDE}, ${PARK}, 'Coaster', 'ext-a')`;
 
 		// An operating window covering now, so the park reads as open.
@@ -133,8 +144,8 @@ describe("api routes", () => {
 		assert.equal(res.status, 200);
 		const body = (await res.json()) as { entities: { kind: string; status: string; parks: unknown[] }[] };
 
-		assert.equal(body.entities.length, 1, "two parks of one destination form one group");
-		const group = body.entities[0]!;
+		assert.equal(body.entities.length, 2, "two parks of one destination form one group");
+		const group = body.entities.find((e) => e.kind === "destination")!;
 		assert.equal(group.kind, "destination");
 		assert.equal(group.parks.length, 2);
 		// Alpha is open now; the group is open when any park is.
@@ -144,9 +155,17 @@ describe("api routes", () => {
 	it("reports unknown, not closed, for a park with no schedule", async () => {
 		const res = await app.request("/v1/home");
 		const body = (await res.json()) as { entities: { parks: { name: string; status: string }[] }[] };
-		const beta = body.entities[0]!.parks.find((p) => p.name === "Beta Park")!;
+		const beta = body.entities.flatMap((e) => e.parks).find((p) => p.name === "Beta Park")!;
 		// Saying "Closed" here would be a guess about hours we do not have.
 		assert.equal(beta.status, "unknown");
+	});
+
+	it("reports closed for a park that publishes a schedule but has no entry today", async () => {
+		const res = await app.request("/v1/home");
+		const body = (await res.json()) as { entities: { parks: { name: string; status: string }[] }[] };
+		const gamma = body.entities.flatMap((e) => e.parks).find((p) => p.name === "Gamma Park")!;
+		// The API lists only open days, so a gap in a published schedule is a closed day.
+		assert.equal(gamma.status, "closed");
 	});
 
 	it("returns a park with its schedule and live waits in one call", async () => {

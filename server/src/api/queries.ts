@@ -9,8 +9,10 @@ import type { RideStatusCode } from "../db/schema/enums.js";
  * timezone and its raw opening hours to the phone and compared them there, which meant
  * every screen re-derived the same answer and any fix needed an app release.
  *
- * "unknown" is a real answer, distinct from "closed": a park with no schedule entry for
- * today has hours we do not know, and saying "Closed" would be a guess.
+ * ThemeParks.wiki publishes only the days a park is open, so for a park that publishes a
+ * schedule at all, a day with no entry is a closed day. "unknown" is reserved for parks
+ * with no schedule anywhere near today — about a fifth of them publish none — where
+ * saying "Closed" would be a guess.
  */
 export type ParkStatus = "open" | "closed" | "unknown";
 
@@ -40,9 +42,9 @@ const PARK_STATUS_SQL = sql`
 		p.country_code as "countryCode",
 		p.timezone,
 		case
-			when w.opens is null then 'unknown'
-			when now() >= w.opens and now() < w.closes then 'open'
-			else 'closed'
+			when w.opens is not null and now() >= w.opens and now() < w.closes then 'open'
+			when w.opens is not null or k.publishes then 'closed'
+			else 'unknown'
 		end as status,
 		w.opens as "openingTime",
 		w.closes as "closingTime"
@@ -64,6 +66,19 @@ const PARK_STATUS_SQL = sql`
 			ps.opening_time asc
 		limit 1
 	) w on true
+	cross join lateral (
+		-- Whether the park publishes a schedule at all: any operating window from a month
+		-- back to two months ahead. Past entries count so that a park between seasons,
+		-- whose next dates are not out yet, reads as closed rather than unknown.
+		select exists (
+			select 1 from parks_schedule ps
+			where ps.park_id = p.id
+				and ps.type = 'OPERATING'
+				and ps.local_date between
+					(now() at time zone coalesce(p.timezone, 'UTC'))::date - 30 and
+					(now() at time zone coalesce(p.timezone, 'UTC'))::date + 60
+		) as publishes
+	) k
 `;
 
 /** Destinations and standalone parks, as the home screen lists them. */
