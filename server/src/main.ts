@@ -2,12 +2,17 @@ import { serve } from "@hono/node-server";
 
 import api from "./api/index.js";
 import { sql } from "./db/index.js";
+import { runMigrations } from "./db/migrate.js";
 import { env } from "./env.js";
 import { startCacheInvalidation } from "./lib/cache.js";
 import { startWorker, stopWorker } from "./worker/index.js";
 
 /** One image, two containers: APP_ROLE picks which half of the process tree runs. */
 async function main(): Promise<void> {
+	// Before anything touches the schema. A failure here exits non-zero, so Coolify
+	// reports a failed deploy instead of running against a half-migrated database.
+	await runMigrations();
+
 	if (env.role === "api") {
 		// Without this the cache still expires by TTL, so a subscription failure
 		// degrades freshness rather than availability.

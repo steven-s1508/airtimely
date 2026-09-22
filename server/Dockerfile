@@ -20,6 +20,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=deps /prod_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# Applied at startup (src/db/migrate.ts); the migrator needs meta/_journal.json too.
+COPY drizzle ./drizzle
 COPY package.json ./
 USER node
 # The api role's port (PORT defaults to 3000). Lets Coolify detect it; the worker

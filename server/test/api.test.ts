@@ -247,6 +247,20 @@ describe("api routes", () => {
 		assert.equal((await app.request(`/v1/parks/${PARK}`)).headers.get("x-cache"), "MISS");
 	});
 
+	it("shows a ride's name override instead of the synced name", async () => {
+		await sql`update rides set name_override = 'The Coaster' where id = ${RIDE}`;
+		clearCache();
+		try {
+			const park = (await (await app.request(`/v1/parks/${PARK}`)).json()) as { rides: { name: string }[] };
+			assert.equal(park.rides[0]!.name, "The Coaster");
+			const ride = (await (await app.request(`/v1/rides/${RIDE}`)).json()) as { name: string };
+			assert.equal(ride.name, "The Coaster");
+		} finally {
+			await sql`update rides set name_override = null where id = ${RIDE}`;
+			clearCache();
+		}
+	});
+
 	it("rejects malformed input and reports missing rows", async () => {
 		assert.equal((await app.request("/v1/parks/nope")).status, 400);
 		assert.equal((await app.request("/v1/rides/nope")).status, 400);

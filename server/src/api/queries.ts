@@ -198,7 +198,7 @@ export async function getPark(parkId: string): Promise<ParkDetail | null> {
 		>`
 			select
 				r.id,
-				r.name,
+				coalesce(r.name_override, r.name) as name,
 				l.status,
 				l.wait_minutes as "waitMinutes",
 				l.single_rider_minutes as "singleRiderMinutes",
@@ -206,7 +206,7 @@ export async function getPark(parkId: string): Promise<ParkDetail | null> {
 			from rides r
 			left join ride_live l on l.ride_id = r.id
 			where r.park_id = ${parkId}::uuid and r.is_active
-			order by r.name
+			order by coalesce(r.name_override, r.name)
 		`,
 	]);
 
@@ -255,7 +255,7 @@ export async function getRide(rideId: string): Promise<RideDetail | null> {
 		}[]
 	>`
 		select
-			r.id, r.name, r.park_id as "parkId",
+			r.id, coalesce(r.name_override, r.name) as name, r.park_id as "parkId",
 			coalesce(p.name_override, p.name) as "parkName", p.timezone,
 			l.status, l.wait_minutes as "waitMinutes",
 			l.single_rider_minutes as "singleRiderMinutes", l.polled_at as "updatedAt"

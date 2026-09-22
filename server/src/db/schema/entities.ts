@@ -101,6 +101,8 @@ export const rides = pgTable(
 			.notNull()
 			.references(() => parks.id, { onDelete: "cascade" }),
 		name: text("name").notNull(),
+		/** Display name set by hand. The entity sync only ever writes `name`, so this survives it. */
+		nameOverride: text("name_override"),
 		slug: text("slug"),
 		entityType: entityTypeEnum("entity_type").notNull().default("ATTRACTION"),
 		externalId: text("external_id"),

@@ -1,6 +1,5 @@
 node_modules
 dist
-drizzle/meta
 test
 docs
 .env

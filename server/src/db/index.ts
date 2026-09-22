@@ -65,7 +65,13 @@ let drizzleDb: PostgresJsDatabase<typeof schema> | null = null;
  */
 export function getDb(): PostgresJsDatabase<typeof schema> {
 	if (!drizzleDb) {
-		const client = postgres(env.databaseUrl, { ...commonOptions, max: 3 });
+		const client = postgres(env.databaseUrl, {
+			...commonOptions,
+			max: 3,
+			// The migrator's `create schema if not exists` raises a NOTICE on every start,
+			// which postgres.js would dump into the log as a multi-line object.
+			onnotice: () => {},
+		});
 		drizzleDb = drizzle(client, { schema });
 	}
 	return drizzleDb;

@@ -24,6 +24,7 @@
 		"dev:worker": "cross-env APP_ROLE=worker tsx watch src/main.ts",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
+		"pretest": "drizzle-kit migrate",
 		"test": "node --import tsx --test --test-concurrency=1 test/*.test.ts",
 		"test:unit": "node --import tsx --test test/rateLimit.test.ts test/themeparks.test.ts"
 	},
