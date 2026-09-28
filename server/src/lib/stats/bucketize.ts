@@ -70,7 +70,7 @@ function emptyAccumulator(bucketStart: number, localDate: string, localHour: num
  * Turns one entity's change log for a park-local day into per-hour buckets plus the
  * day's wait distribution.
  *
- * Ported from `bucketizeEntity` in windmill/scheduled_functions/run_backfill_from_history.ts
+ * Ported from `bucketizeEntity` in v1's run_backfill_from_history.ts (removed at decommission)
  * with three changes:
  *
  *  1. Buckets are keyed by the hour's **instant**, not by the local hour number. On the

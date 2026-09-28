@@ -42,7 +42,7 @@ export const parkDayIngest = pgTable(
 
 /**
  * Job bookkeeping. Every run opens a row on entry and closes it with ok/summary/error
- * whatever the outcome — the absence of exactly this is what let a Windmill crash go
+ * whatever the outcome — the absence of exactly this is what let a v1 scheduler crash go
  * unnoticed from 2026-09-14 to 09-18.
  */
 export const jobRuns = pgTable(

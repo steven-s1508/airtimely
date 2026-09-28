@@ -47,7 +47,7 @@ export function startWorker(): void {
 	// Schedules move often enough to be worth re-reading through the day.
 	schedule("schedule_sync", "15 2,8,12,16,18,22 * * *", () => runJob("schedule_sync", scheduleSync));
 
-	// Park sync and entity sync are ONE job, in order. v1 ran them as two Windmill
+	// Park sync and entity sync are ONE job, in order. v1 ran them as two scheduler
 	// jobs both at Monday 00:00, so a newly added park could be synced for rides
 	// before the park row existed.
 	schedule("metadata_sync", "0 3 * * 1", () =>

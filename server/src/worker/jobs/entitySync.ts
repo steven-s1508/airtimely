@@ -110,7 +110,7 @@ async function syncTable(
 /**
  * Syncs rides, shows and restaurants for every active park.
  *
- * In v1 this and the park sync were two Windmill jobs both scheduled Monday 00:00, so
+ * In v1 this and the park sync were two scheduler jobs both scheduled Monday 00:00, so
  * a newly added park could be synced for rides before it existed. They are one job
  * here, ordered.
  */

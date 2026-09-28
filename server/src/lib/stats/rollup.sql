@@ -1,9 +1,9 @@
 -- Rolls ride_stats_hourly up into ride_stats_daily for one park-day.
 --
 -- Ported from upsert_daily_from_hourly_json() as it stands in
--- supabase/patches/2026-09-19_05_operating_only_hourly_data.sql. Patch _02's earlier
+-- server/docs/history/v1-patches/2026-09-19_05_operating_only_hourly_data.sql. Patch _02's earlier
 -- version differs in exactly the places that matter (it had an avg() fallback that
--- reintroduced closed-day zeros) -- do not port from db-functions/, which has drifted.
+-- reintroduced closed-day zeros).
 --
 -- Parameters:
 --   $1 park_id uuid

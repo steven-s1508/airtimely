@@ -32,7 +32,7 @@ const asyncStoragePersistor = createAsyncStoragePersister({
  *
  * The app version covers a new build; the API generation covers JS-only updates that
  * change a payload without a version bump — bump it whenever a cached shape changes.
- * Without this, Supabase-era payloads restored from AsyncStorage crash the first launch
+ * Without this, v1-era payloads restored from AsyncStorage crash the first launch
  * of the new build.
  */
 const CACHE_GENERATION = "api-v2";

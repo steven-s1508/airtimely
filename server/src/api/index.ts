@@ -101,7 +101,7 @@ const app = new Hono()
 	/**
 	 * Liveness plus a real staleness check. Reporting only "the database answered" is
 	 * what a dead pipeline looks like from the outside — v1 had no check at all and a
-	 * Windmill crash went unnoticed for four days.
+	 * v1 scheduler crash went unnoticed for four days.
 	 */
 	.get("/health", async (c) => {
 		const startedAt = Date.now();

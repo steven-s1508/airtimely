@@ -12,7 +12,7 @@ export type JobSummary = Record<string, JsonValue>;
  *
  * Every run opens a row on entry and closes it with ok/summary/error whatever
  * happens, including a throw. The absence of exactly this bookkeeping is what let a
- * Windmill crash go unnoticed from 2026-09-14 to 09-18.
+ * v1 scheduler crash go unnoticed from 2026-09-14 to 09-18.
  *
  * A job that could not take its lock records nothing: it did no work, and a row per
  * skipped tick would bury the real history.
