@@ -11,7 +11,7 @@
 
 - When a feature request is focused on the app, prioritize reviewing the root directory, `/app`, and `/src`.
 - For any codebase analysis, begin with the current workspace and expand only if necessary.
-- When working on features that would benefit from database or data aggregation context, also check the `/supabase` and `/windmill` directories.
+- When working on features that would benefit from database or data aggregation context, also check the `/server` directory (see `server/AGENTS.md`).
 - Always check the knowledge graph memory for relevant context or technical details before asking the user for clarification.
 
 ## Coding best practices

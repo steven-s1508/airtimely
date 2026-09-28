@@ -1,7 +1,8 @@
 # airtimely-server
 
 Backend v2 for Airtimely: a read-only Hono API and a croner worker over Postgres 18,
-replacing self-hosted Supabase + Windmill.
+replacing v1's self-hosted Supabase + Windmill stack (decommissioned; see
+[`docs/DECOMMISSION.md`](docs/DECOMMISSION.md)).
 
 Architecture record: [`.docs/backend-v2/DECISIONS.md`](../.docs/backend-v2/DECISIONS.md).
 
@@ -9,12 +10,12 @@ Architecture record: [`.docs/backend-v2/DECISIONS.md`](../.docs/backend-v2/DECIS
 
 | Path | Purpose |
 |---|---|
-| `src/api/` | Hono routes. Read-only, no auth, screen-shaped endpoints |
+| `src/api/` | Hono app and its queries. Read-only, no auth, screen-shaped endpoints |
 | `src/worker/` | croner schedules; each job wrapped in a Postgres advisory lock |
-| `src/lib/stats/` | The aggregation core — change log to hourly to daily |
+| `src/lib/stats/` | The aggregation core — change log to hourly to daily, incl. `rollup.sql` |
 | `src/db/schema/` | Drizzle tables |
-| `src/db/sql/` | Hand-written SQL: partitioning, and the daily rollup statement |
-| `drizzle/` | Generated migration SQL |
+| `drizzle/` | Migration SQL — generated, plus the hand-edited partitioning in 0000/0001 |
+| `docs/` | Upstream API spec, the v1 decommission runbook, and v1's SQL patches as history |
 
 Aggregations stay raw SQL. Drizzle owns the schema, migrations and simple reads.
 
@@ -80,9 +81,9 @@ Two pieces, in `src/lib/stats/`:
   rides keep displaying their last wait while DOWN or CLOSED.
 - **`rollup.sql`** — hourly buckets to one daily row per ride. Ported from
   `upsert_daily_from_hourly_json()` as it stands in
-  `supabase/patches/2026-09-19_05_operating_only_hourly_data.sql`. Port from the
-  **patch files**, never from `supabase/db-functions/`, which has drifted: patch _02's
-  version had an `avg()` fallback that reintroduced closed-day zeros.
+  [`docs/history/v1-patches/2026-09-19_05_operating_only_hourly_data.sql`](docs/history/v1-patches/2026-09-19_05_operating_only_hourly_data.sql).
+  Patch _02's version had an `avg()` fallback that reintroduced closed-day zeros; the
+  v1 patches are kept as the written record of these fixes.
 
 Rules that must survive any future edit:
 
@@ -107,9 +108,8 @@ Two figures deliberately differ and are not asserted: v1's median was the median
 hourly averages*, unweighted, while v2's p50 comes from `wait_dist`; and historic days
 have no `wait_dist`, so they get no percentiles at all.
 
-Fixtures were captured by `scripts/fetch-parity-fixtures.mjs` and
-`scripts/fetch-parity-edge-cases.mjs`, which read the live Supabase over PostgREST.
-Both scripts go at decommission (Phase 10); the captured JSON stays.
+Fixtures were captured from the live v1 database before decommission. The capture
+scripts were removed with it; the JSON in `test/fixtures/` is now the only copy.
 
 ### Live validation against the API's own figures
 
@@ -132,13 +132,6 @@ the API's operatingMinutes covers the whole local day while our daily row is cli
 park opening hours, so comparing those would manufacture a difference at every park
 that runs a ride outside its posted hours. The clipping is covered by the parity
 fixtures instead.
-
-Reproduce with a real key in the environment:
-
-```sh
-node --env-file=../.env scripts/seed-from-v1.mjs "Magic Kingdom Park" "Europa-Park"
-# then run finaliseDay and validate against the seeded parks
-```
 
 Where v1 picked one arbitrary member of a tied group for peak/quietest hour, the test
 accepts the tie. v2 adds `bucket_start` as a final sort key so its own choice is
@@ -188,7 +181,7 @@ in front beats a shared cache.
 
 ## Sync jobs
 
-Three ports of the Windmill scripts, with four corrections.
+Ports of v1's scheduler scripts, with four corrections.
 
 | Job | Schedule (UTC) | Source |
 |---|---|---|
@@ -200,7 +193,7 @@ Three ports of the Windmill scripts, with four corrections.
 changed — so a park whose timezone moved in the API was never corrected, even though
 timezone decides every park-local bucket boundary.
 
-**Park and entity sync are one job, in order.** v1 ran them as two Windmill jobs both
+**Park and entity sync are one job, in order.** v1 ran them as two scheduler jobs both
 scheduled Monday 00:00, so a newly added park could be synced for rides before its row
 existed.
 
@@ -321,29 +314,20 @@ dropdb airtimely_restore_test
 
 ## Data transform from v1 (one-shot, Phase 7)
 
-`scripts/transform-v1/` turns a `pg_dump` of the Supabase `public` schema into v2 data.
-It runs **locally only** (it refuses any non-localhost `DATABASE_URL`); production gets
-the verified result with `pg_restore`, never the transform itself.
+v1's data was carried over once, on 2026-09-21, by a transform run locally against a
+restored `pg_dump` of the Supabase `public` schema; production received the verified
+result via `pg_restore`. The transform scripts were removed at decommission (they are in
+git history before that commit). What they did, since the data still reflects it:
 
-```sh
-# v1 dump restored as database `v1`; empty, migrated target as `airtimely_v2`
-DATABASE_URL=postgres://dev:dev@127.0.0.1:55432/airtimely_v2 \
-  node --import tsx scripts/transform-v1/run.ts          # ~6 min
-#   ... --verify-only                                     # re-run just the checks
-```
-
-What it does and why:
-
-- Entities and schedules copy 1:1 with IDs preserved; schedule and show times become
-  `timestamptz`, `date` becomes `local_date`.
-- `hourly_data` becomes `ride_stats_hourly` with `wait_sum = round(avg * op)`. **Only
-  hours the ride operated** are carried: 8.45M rows instead of 37.4M. The rest were
-  closed hours with no values, and historic rows have no `down_min`/`closed_min` to
-  make them informative.
-- Daily rows are rebuilt by **the worker's own `rollup.sql`**, then days on which a
-  ride never operated are added from v1's downtime (which equals the scheduled minutes
-  on such a day). This makes the transform a parity run of the rollup over all of v1.
-- Historic days have no `wait_dist`, hence no percentiles. Decided, not a bug.
+- Entities and schedules copied 1:1 with IDs preserved; schedule and show times became
+  `timestamptz`, `date` became `local_date`.
+- `hourly_data` became `ride_stats_hourly` with `wait_sum = round(avg * op)`. **Only
+  hours the ride operated** were carried: 8.45M rows instead of 37.4M.
+- Daily rows were rebuilt by **the worker's own `rollup.sql`**, then days on which a
+  ride never operated were added from v1's downtime. The transform was therefore a
+  parity run of the rollup over all of v1.
+- Historic days have no `wait_dist`, hence no percentiles. Decided, not a bug. Neither
+  do historic hourly rows have `down_min`/`closed_min`.
 
 Result of the 2026-09-21 run, every one of v1's 1,808,131 daily rows compared:
 

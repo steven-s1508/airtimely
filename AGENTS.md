@@ -1,6 +1,6 @@
 # Airtimely — Agent Guide
 
-Airtimely is an Expo/React Native (Android-focused) app showing live theme park wait times, backed by Supabase (Postgres) and Windmill-scheduled sync/aggregation jobs against the ThemeParks Wiki API.
+Airtimely is an Expo/React Native (Android-focused) app showing live theme park wait times, backed by its own API in `server/`: a read-only Hono API and a croner worker over Postgres 18 that polls and aggregates the ThemeParks Wiki API.
 
 This file covers repo-wide context. More specific `AGENTS.md` files exist in subfolders — check them when working in that area:
 
@@ -8,16 +8,15 @@ This file covers repo-wide context. More specific `AGENTS.md` files exist in sub
 - [src/components/AGENTS.md](src/components/AGENTS.md) — components, charts, skeletons, ui/ primitives
 - [src/hooks/api/AGENTS.md](src/hooks/api/AGENTS.md) — data-fetching pattern (hooks + utils/api)
 - [src/stores/AGENTS.md](src/stores/AGENTS.md) — Zustand client state
-- [supabase/AGENTS.md](supabase/AGENTS.md) — schema, DB functions, edge functions
-- [windmill/AGENTS.md](windmill/AGENTS.md) — scheduled cron jobs
+- [server/AGENTS.md](server/AGENTS.md) — backend: Hono API, croner worker, Postgres 18 schema, statistics semantics
 
 ## Tech stack
 
 - Expo 55 / React Native 0.83 / React 19, `expo-router` (file-based routing), Android-only (`app.json` platforms).
 - Styling: NativeWind v4 (Tailwind for RN) + Gluestack-UI component library, plus a parallel hand-rolled `src/styles/` (StyleSheet-based). Dark mode via `darkMode: "class"` and CSS vars in [global.css](global.css).
 - State: Zustand (+ AsyncStorage persist) for client state; TanStack React Query (+ AsyncStorage persister) for all server state. Do not mix the two.
-- Backend: the app talks only to the v2 API in `server/` (Hono + Postgres 18); payload types are inferred from its `AppType` via Hono's `hc`. The legacy Supabase + Windmill stack still runs until cutover.
-- Dates/timezones: `luxon` everywhere. Per-park local time (`recorded_at_local`) vs UTC is a critical, recurring distinction — never assume server/device timezone.
+- Backend: the app talks only to the v2 API in `server/` (Hono + Postgres 18); payload types are inferred from its `AppType` via Hono's `hc`. `server/` is an npm workspace of the root package; see [server/AGENTS.md](server/AGENTS.md).
+- Dates/timezones: `luxon` everywhere. The server stores true UTC instants and derives park-local dates and hours from each park's `timezone`; park-local vs UTC is a critical, recurring distinction — never assume server/device timezone.
 
 ## Commands
 
