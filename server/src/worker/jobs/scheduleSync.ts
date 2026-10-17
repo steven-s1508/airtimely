@@ -23,7 +23,7 @@ const TYPE_ALIASES: Record<string, string> = {
 	PARK_OPEN: "OPERATING",
 };
 
-type Row = {
+export type ScheduleRow = {
 	park_id: string;
 	local_date: string;
 	type: string;
@@ -34,13 +34,50 @@ type Row = {
 };
 
 /**
+ * API entries as rows for one park. Kinds we do not know are counted in
+ * `unknownTypes` and skipped; aliased kinds are counted in `normalisedTypes`.
+ */
+export function scheduleRows(
+	parkId: string,
+	entries: ScheduleEntry[],
+	unknownTypes: Map<string, number>,
+	normalisedTypes: Map<string, number>,
+): ScheduleRow[] {
+	const rows: ScheduleRow[] = [];
+	for (const entry of entries) {
+		const aliased = TYPE_ALIASES[entry.type];
+		if (aliased) {
+			normalisedTypes.set(entry.type, (normalisedTypes.get(entry.type) ?? 0) + 1);
+		}
+		const type = aliased ?? entry.type;
+
+		if (!KNOWN_TYPES.has(type)) {
+			// Skip the row, keep the park. A new schedule kind upstream must not
+			// cost this park its whole schedule.
+			unknownTypes.set(entry.type, (unknownTypes.get(entry.type) ?? 0) + 1);
+			continue;
+		}
+		rows.push({
+			park_id: parkId,
+			local_date: entry.date,
+			type,
+			opening_time: entry.openingTime ?? null,
+			closing_time: entry.closingTime ?? null,
+			description: entry.description ?? null,
+			purchases: (entry.purchases ?? null) as JsonValue,
+		});
+	}
+	return rows;
+}
+
+/**
  * Replaces one park's schedule for exactly the dates the API returned.
  *
  * Delete-then-insert per returned date, inside one transaction, matching v1: a date
  * the API stops mentioning keeps whatever it had, because a schedule vanishing from a
  * response is far more often an upstream gap than a park cancelling a day.
  */
-async function replaceSchedule(parkId: string, rows: Row[]): Promise<number> {
+export async function replaceSchedule(parkId: string, rows: ScheduleRow[]): Promise<number> {
 	if (rows.length === 0) return 0;
 	const dates = [...new Set(rows.map((r) => r.local_date))];
 
@@ -114,31 +151,7 @@ export async function scheduleSync(): Promise<JobSummary> {
 				continue;
 			}
 
-			const rows: Row[] = [];
-			for (const entry of entries) {
-				const aliased = TYPE_ALIASES[entry.type];
-				if (aliased) {
-					normalisedTypes.set(entry.type, (normalisedTypes.get(entry.type) ?? 0) + 1);
-				}
-				const type = aliased ?? entry.type;
-
-				if (!KNOWN_TYPES.has(type)) {
-					// Skip the row, keep the park. A new schedule kind upstream must not
-					// cost this park its whole schedule.
-					unknownTypes.set(entry.type, (unknownTypes.get(entry.type) ?? 0) + 1);
-					continue;
-				}
-				rows.push({
-					park_id: park.id,
-					local_date: entry.date,
-					type,
-					opening_time: entry.openingTime ?? null,
-					closing_time: entry.closingTime ?? null,
-					description: entry.description ?? null,
-					purchases: (entry.purchases ?? null) as JsonValue,
-				});
-			}
-
+			const rows = scheduleRows(park.id, entries, unknownTypes, normalisedTypes);
 			entriesWritten += await replaceSchedule(park.id, rows);
 			parksProcessed++;
 		} catch (error) {

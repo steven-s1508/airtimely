@@ -14,7 +14,7 @@ const RETRY_WINDOW_DAYS = 30;
 /** Leave some history budget for the validate job and ad-hoc work. */
 const BUDGET_RESERVE = 40;
 
-type Candidate = {
+export type Candidate = {
 	park_id: string;
 	external_id: string;
 	timezone: string;
@@ -163,7 +163,22 @@ type ParkDayResult = {
 	source: number;
 };
 
-async function finaliseParkDay(candidate: Candidate): Promise<ParkDayResult> {
+export type FinaliseOptions = {
+	/**
+	 * Fill rides the history API omitted from our own `ride_changes`. On by default.
+	 *
+	 * Off for days the poller was not running: the newest change left over from before
+	 * the outage would otherwise hold until the end of the day and pass a ride's
+	 * pre-crash state off as a whole day of data. Nothing is better than that.
+	 */
+	ownChangesFallback?: boolean;
+};
+
+export async function finaliseParkDay(
+	candidate: Candidate,
+	options: FinaliseOptions = {},
+): Promise<ParkDayResult> {
+	const { ownChangesFallback = true } = options;
 	const { park_id: parkId, external_id: externalId, timezone, local_date: localDate } = candidate;
 
 	const history = await themeparks.history(externalId, localDate);
@@ -209,7 +224,9 @@ async function finaliseParkDay(candidate: Candidate): Promise<ParkDayResult> {
 	const fromHistory = statesByRide.size;
 
 	// Rides the API omitted fall back to our own poller data.
-	const fallback = await fallbackStates(parkId, localDate, timezone, [...statesByRide.keys()]);
+	const fallback = ownChangesFallback
+		? await fallbackStates(parkId, localDate, timezone, [...statesByRide.keys()])
+		: new Map<string, ChangeState[]>();
 	for (const [rideId, states] of fallback) {
 		if (states.length > 0) statesByRide.set(rideId, states);
 	}
@@ -312,7 +329,7 @@ async function finaliseParkDay(candidate: Candidate): Promise<ParkDayResult> {
 	};
 }
 
-async function recordFailure(candidate: Candidate, error: unknown): Promise<void> {
+export async function recordFailure(candidate: Candidate, error: unknown): Promise<void> {
 	const message = error instanceof Error ? error.message : String(error);
 	await sql`
 		insert into park_day_ingest (park_id, local_date, status, attempts, last_error)

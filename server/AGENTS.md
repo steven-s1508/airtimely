@@ -8,6 +8,7 @@ The Airtimely backend (`airtimely-server`, an npm workspace of the root package)
 
 - `src/api/` — Hono app ([index.ts](src/api/index.ts)) plus `queries.ts` / `statsQueries.ts`. Screen-shaped endpoints: `/v1/home`, `/v1/parks/:id`, `/v1/rides/:id`, `/v1/rides/:id/stats?year=`, `/v1/rides/:id/day?date=`, `/v1/config`, `/health`. No auth. `AppType` is exported from [src/index.ts](src/index.ts) and consumed by the Expo app's `hc` client.
 - `src/worker/` — croner schedules ([index.ts](src/worker/index.ts)); each job body in `jobs/`.
+- `src/cli/` — one-off operator commands run in the worker container; `backfill.ts` recovers days a worker outage missed (README → Backfill).
 - `src/lib/stats/` — `bucketize.ts` (change log → hourly buckets + `wait_dist`), `rollup.sql` / `rollup.ts` (hourly → daily).
 - `src/lib/` — `themeparks.ts` (API client, rate limiter, history budget), `locks.ts`, `jobRuns.ts`, `cache.ts` (LRU + `LISTEN airtimely_poll`), `nominatim.ts`.
 - `src/db/schema/` — Drizzle tables; `drizzle/` — generated migrations. `0000` (partitioning) and `0001` (partition helpers) are hand-edited; see the README before regenerating.

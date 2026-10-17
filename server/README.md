@@ -214,6 +214,24 @@ Deactivation is guarded in both directions: parks are only deactivated when the 
 destination sweep succeeded, and a park returning an empty `/children` list is treated
 as a bad response rather than a park that lost every ride.
 
+### Backfill after a worker outage
+
+`finalise_day` only recovers days it has already seen: the last three, plus park-days
+with an unfinalised `park_day_ingest` row. Days the worker was down for get no row, so
+they are never fetched, and after 30 days the history API no longer has them. Restart
+the worker, then run this in the worker container (Coolify → worker → Terminal):
+
+```sh
+node dist/cli/backfill.js --from 2026-10-05 --dry-run   # gaps, schedule and park-day counts
+node dist/cli/backfill.js --from 2026-10-05             # --to defaults to yesterday (UTC)
+```
+
+It prints gaps in `live_poll`, re-reads the schedule for the range from the month
+endpoint, then finalises every unfinalised park-day in it from the history API **only**
+— the own-changes fallback would stretch the last pre-crash state across whole days.
+It holds the `finalise_day` lock, waits out the hourly history budget instead of
+stopping, records itself in `job_runs` as `backfill`, and is safe to re-run.
+
 ## Two database handles
 
 `src/db/index.ts` exports **`sql`** (postgres.js, the primary handle) and **`getDb()`**

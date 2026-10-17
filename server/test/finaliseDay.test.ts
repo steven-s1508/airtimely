@@ -5,7 +5,7 @@ import { sql } from "../src/db/index.js";
 import { ChangeSource, IngestStatus, RideStatus } from "../src/db/schema/enums.js";
 import type { HistoryResponse } from "../src/lib/themeparks.js";
 import { themeparks } from "../src/lib/themeparks.js";
-import { finaliseDay } from "../src/worker/jobs/finaliseDay.js";
+import { finaliseDay, finaliseParkDay } from "../src/worker/jobs/finaliseDay.js";
 
 const PARK = "aaaaaaaa-0000-4000-8000-000000000001";
 const RIDE_A = "aaaaaaaa-0000-4000-8000-00000000000a";
@@ -76,6 +76,8 @@ describe("finalise day", () => {
 		day = row!.d;
 		// ride_changes is partitioned; yesterday's partition is needed for the fallback case.
 		await sql`select create_ride_changes_partition(${day}::date)`;
+		// The day before, for the state a ride was left in before an outage.
+		await sql`select create_ride_changes_partition(${day}::date - 1)`;
 	});
 
 	beforeEach(async () => {
@@ -155,6 +157,33 @@ describe("finalise day", () => {
 		`;
 		assert.ok(daily, "ride B got a daily row from poller data");
 		assert.equal(daily.wait_sum / daily.wait_minutes, 15);
+	});
+
+	it("with the fallback off, does not stretch a pre-outage state over the day", async () => {
+		// The poller's last word on ride B before it died the day before.
+		await sql`
+			insert into ride_changes (ride_id, ts, status, wait, source) values
+				(${RIDE_B}, (${day} || 'T00:00:00Z')::timestamptz - interval '6 hours',
+				 ${RideStatus.OPERATING}, 45, ${ChangeSource.POLLER})
+		`;
+		stubHistory(historyForRideA());
+
+		const result = await finaliseParkDay(
+			{ park_id: PARK, external_id: "ext-park", timezone: "UTC", local_date: day, attempts: 0 },
+			{ ownChangesFallback: false },
+		);
+		assert.equal(result.fromOwnChanges, 0);
+
+		const [{ n }] = await sql<{ n: number }[]>`
+			select count(*)::int as n from ride_stats_hourly where ride_id = ${RIDE_B}
+		`;
+		assert.equal(n, 0, "no buckets invented for ride B");
+
+		const [{ a }] = await sql<{ a: number }[]>`
+			select count(*)::int as a from ride_stats_daily
+			where ride_id = ${RIDE_A} and local_date = ${day}::date
+		`;
+		assert.equal(a, 1, "ride A still finalised from history");
 	});
 
 	it("deletes the day's raw changes only after recording it final", async () => {

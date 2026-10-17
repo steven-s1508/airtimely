@@ -281,6 +281,12 @@ export class ThemeParksClient {
 		return (await this.request<EntityScheduleResponse>(`/entity/${entityId}/schedule`))!;
 	}
 
+	/** One calendar month of schedule, past months included. `month` is 1-12. */
+	async scheduleMonth(entityId: string, year: number, month: number): Promise<EntityScheduleResponse> {
+		const mm = String(month).padStart(2, "0");
+		return (await this.request<EntityScheduleResponse>(`/entity/${entityId}/schedule/${year}/${mm}`))!;
+	}
+
 	async children(entityId: string): Promise<EntityChildrenResponse> {
 		return (await this.request<EntityChildrenResponse>(`/entity/${entityId}/children`))!;
 	}
